@@ -181,10 +181,31 @@ Track state in progress file at `.claude/plans/{slug}/progress.md`:
 
 2. Read `.claude/plans/{slug}/summaries/review-consolidated.md`
 3. Categorize by severity (BLOCKER, WARNING, SUGGESTION)
-4. If blockers found:
-   - Add fix tasks to plan
-   - Increment cycle counter
-   - Transition to WORKING
+4. If blockers found, present findings via `AskUserQuestion`
+   with `multiSelect: true` — include severity shortcuts first,
+   then individual findings:
+
+   ```
+   AskUserQuestion:
+     question: "Review found these issues. Which do you want to fix?"
+     header: "Findings"
+     multiSelect: true
+     options:
+       - label: "All BLOCKERs ({count})"
+         description: "Fix all critical issues that must be resolved"
+       - label: "All WARNINGs ({count})"
+         description: "Fix all should-fix quality issues"
+       - label: "{finding 1 short name}"
+         description: "BLOCKER: {1-line description}"
+       - label: "{finding 2 short name}"
+         description: "WARNING: {1-line description}"
+   ```
+
+   Max 4 options per AskUserQuestion call. Severity shortcuts take
+   2 slots, leaving 2 for individual findings. If >2 findings,
+   batch remaining into follow-up calls of 4 individual findings.
+   Create fix tasks ONLY for selected findings.
+   Increment cycle counter, transition to WORKING if any selected.
 5. If no blockers:
    - Transition to COMPLETED
 

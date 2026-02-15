@@ -36,25 +36,35 @@ Read the review file. Parse all findings with severity.
 Iron Laws are auto-approved as "Fix it" without asking. These
 are non-negotiable in Elixir/Phoenix development.
 
-### Step 2: Present Findings One at a Time
+### Step 2: Present ALL Findings for Batch Selection
 
-For each non-auto-approved finding:
+Use `AskUserQuestion` with `multiSelect: true`. Start with
+severity shortcuts, then list individual findings:
 
 ```
-Finding 1 of N: [SEVERITY] Title
-File: {file path and line}
-
-{Brief description}
-
-1. Fix it    2. Skip    3. Downgrade    4. Need more info
+AskUserQuestion:
+  question: "Which findings do you want to fix? (Iron Law violations auto-included)"
+  header: "Triage"
+  multiSelect: true
+  options:
+    - label: "All BLOCKERs ({count})"
+      description: "Fix all critical issues"
+    - label: "All WARNINGs ({count})"
+      description: "Fix all should-fix issues"
+    - label: "[BLOCKER] {title 1}"
+      description: "{file}:{line} — {brief description}"
+    - label: "[WARNING] {title 2}"
+      description: "{file}:{line} — {brief description}"
 ```
 
-Order: BLOCKERs first, then WARNINGs, then SUGGESTIONs.
+If >4 options, batch into groups of 4 with severity shortcuts in
+the first batch. Severity shortcuts select all findings of that
+level — user can mix shortcuts with individual picks.
 
-### Step 3: Gather Context on "Fix it" Items
+### Step 3: Gather Context on Selected Items
 
-When user approves, ask ONE follow-up: "Any specific approach?"
-If they say "just fix it", skip and move on.
+For selected items, ask ONE batch follow-up: "Any specific
+approach for any of these?" If they say "just fix them", proceed.
 
 ### Step 4: Generate Triage Summary
 
@@ -73,7 +83,7 @@ Triage complete: {n} to fix, {n} skipped, {n} deferred.
 
 ## Iron Laws
 
-1. **ONE finding at a time** — Never dump all findings at once
+1. **Batch selection over one-by-one** — Use multiSelect for efficiency
 2. **User decides, not the agent** — Present facts, don't push
 3. **BLOCKERs cannot be skipped silently** — Warn if user tries
 4. **Capture user context** — Every "fix it" should include
