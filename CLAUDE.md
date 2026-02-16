@@ -29,6 +29,7 @@ plans/{slug}/  (in namespace) (in namespace) solutions/
 |---------|-------|-------|--------|
 | `/phx:plan` | Planning | Feature description | `plans/{slug}/plan.md` |
 | `/phx:plan --existing` | Enhancement | Plan file | Enhanced plan with research |
+| `/phx:brief` | Understanding | Plan file | Interactive walkthrough (ephemeral) |
 | `/phx:work` | Execution | Plan file | Updated checkboxes, `plans/{slug}/progress.md` |
 | `/phx:review` | Quality | Changed files | `plans/{slug}/reviews/` |
 | `/phx:compound` | Knowledge | Solved problem | `solutions/{category}/{fix}.md` |
@@ -513,6 +514,7 @@ When working on code, automatically consult relevant reference documentation bef
 | Bug fix, debug | `/phx:investigate` |
 | Small change (<50 lines) | `/phx:quick` |
 | New feature (clear scope) | `/phx:plan` then `/phx:work` |
+| Understand a plan | `/phx:brief` |
 | Enhance existing plan | `/phx:plan --existing` |
 | Large feature (new domain) | `/phx:full` |
 | Review code | `/phx:review` |
@@ -532,7 +534,7 @@ When working on code, automatically consult relevant reference documentation bef
 | Full session analysis pipeline | `/session-insights` |
 | Validate plugin against docs | `/docs-check` |
 
-**Workflow Commands**: `/phx:plan` -> `/phx:plan --existing` (optional) -> `/phx:work` -> `/phx:review` -> `/phx:triage` (optional) -> `/phx:compound`
+**Workflow Commands**: `/phx:plan` -> `/phx:brief` (optional) -> `/phx:plan --existing` (optional) -> `/phx:work` -> `/phx:brief` (optional) -> `/phx:review` -> `/phx:triage` (optional) -> `/phx:compound`
 
 **Standalone**: `/phx:quick`, `/phx:full`, `/phx:investigate`, `/phx:verify`, `/phx:research`
 

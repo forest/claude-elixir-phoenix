@@ -113,7 +113,8 @@ Summarize results with `AskUserQuestion`:
 > {count} files modified across {count} phases.
 
 Options: 1. **Run review** (`/phx:review`) (Recommended),
-2. **Commit changes** (`/commit`), 3. **Continue manually**.
+2. **Get a briefing** (`/phx:brief` — understand what was built),
+3. **Commit changes** (`/commit`), 4. **Continue manually**.
 
 With blockers: list them, offer **Replan** (`/phx:plan`),
 **Review first** (`/phx:review`), or **Handle myself**.

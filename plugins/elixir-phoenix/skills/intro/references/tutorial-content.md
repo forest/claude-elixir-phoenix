@@ -47,6 +47,9 @@ For features that need planning and review:
 # 1. Plan — spawns research agents, outputs checkbox plan
 /phx:plan Add user avatars with S3 upload
 
+# 1b. Brief (optional) — understand the plan before starting
+/phx:brief .claude/plans/user-avatars/plan.md
+
 # 2. Work — executes plan, checks off tasks, runs mix compile
 /phx:work .claude/plans/user-avatars/plan.md
 
@@ -272,6 +275,7 @@ The plugin works best when all layers are active: `/phx:init` for persistent rul
 |---------|-------|
 | `/phx:plan <feature>` | Plan with research agents |
 | `/phx:plan --existing <file>` | Enhance existing plan |
+| `/phx:brief [plan file]` | Interactive plan walkthrough |
 | `/phx:work <plan file>` | Execute plan with verification |
 | `/phx:review` | Parallel agent code review |
 | `/phx:triage` | Interactive review finding triage |
