@@ -8,12 +8,35 @@ completed or in progress).
 
 1. **Each section: max 15-20 lines of output** — scan-friendly
 2. **Use tables and bullet points** — no paragraphs of prose
-3. **Ground everything in artifacts** — quote from plan.md,
-   scratchpad.md, and summaries. Never invent rationale
+3. **Ground everything in artifacts** — focus on insights specific
+   to this plan's research, decisions, and scratchpad entries rather
+   than general programming concepts. Quote from plan.md,
+   scratchpad.md, and summaries
 4. **Translate jargon** — convert `[P2-T3][ecto]` annotations into
    plain English like "Phase 2: set up the database schema"
 5. **Highlight trade-offs** — decisions without trade-offs aren't
    interesting; focus on where alternatives existed
+
+## Visual Formatting
+
+Wrap each section in a distinctive briefing block so output is
+visually distinct from normal conversation:
+
+```
+`★ Briefing ── {Section Title} ───────────────────`
+
+{section content — tables, bullets, etc.}
+
+`──────────────────────────────────────────────────`
+```
+
+Rules:
+
+- The `★` marker and box-drawing lines (`─`) create a scannable
+  landmark that users learn to recognize across briefings
+- Keep the title short — it's the section name from the flow tables
+- Content inside follows all normal rules (tables, bullets, max lines)
+- The closing line has no label — just the border
 
 ---
 
@@ -26,7 +49,7 @@ completed or in progress).
 **Template:**
 
 ```markdown
-### What We're Building
+`★ Briefing ── What We're Building ───────────────`
 
 {Rewrite the Summary in plain language — what does this feature
 DO for users? Not what files we'll touch.}
@@ -38,6 +61,8 @@ DO for users? Not what files we'll touch.}
 - {boundary, rephrased as "we're NOT doing X because Y"}
 
 **Size:** {N} tasks across {M} phases
+
+`──────────────────────────────────────────────────`
 ```
 
 **Rules:**

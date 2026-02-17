@@ -60,8 +60,9 @@ Read what's available (don't fail if missing):
 
 ### Step 3: Present Briefing Sections
 
-Present ONE section at a time. After each section, use
-`AskUserQuestion` with options:
+Present ONE section at a time, wrapped in the visual briefing block
+(see `references/briefing-guide.md` Visual Formatting). After each
+section, use `AskUserQuestion` with options:
 
 - If sections remain: **"Next: {title}"**, **"Ask me a question
   about this"**, **"Stop here"**
@@ -92,8 +93,9 @@ See `references/briefing-guide.md` for section content templates.
 1. **ONE section at a time** — never dump all content
 2. **User controls pace** — always offer to stop
 3. **Explain WHY, not just WHAT** — rationale over listing
-4. **Faithful to plan** — never hallucinate reasoning that isn't
-   in plan artifacts (plan.md, scratchpad, summaries)
+4. **Ground in artifacts** — focus on insights specific to this
+   plan's research, decisions, and scratchpad entries, not general
+   programming concepts
 5. **Keep each section under 20 lines** — this is a briefing,
    not a lecture
 
