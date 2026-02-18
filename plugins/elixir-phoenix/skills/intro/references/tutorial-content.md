@@ -154,7 +154,115 @@ The plugin automatically prefers Tidewave tools over alternatives when available
 
 ---
 
-## Section 4: Cheat Sheet & Next Steps
+## Section 4: How It Works Under the Hood
+
+The plugin uses **layered enforcement** — some things run automatically, some depend on Claude following instructions, some are on-demand. Here's what actually happens:
+
+### Layer 1: Hooks (Automatic, Every Edit)
+
+[Claude Code hooks](https://docs.anthropic.com/en/docs/claude-code/hooks) run shell scripts automatically after tool use. These are real automation — no instructions needed:
+
+| Hook | Trigger | What It Does |
+|------|---------|-------------|
+| Format check | Every `.ex`/`.exs` edit | Runs `mix format --check-formatted`, warns if unformatted |
+| Security reminder | Editing auth/session/password files | Outputs relevant Iron Laws to context |
+| Progress logging | Every file edit | Appends to `.claude/plans/{slug}/progress.md` |
+| Plan stop | Writing a plan.md | Reminds Claude to stop and present the plan |
+| PreCompact rules | Before context compaction | Re-injects Iron Laws and workflow state so rules survive compaction |
+
+Format check **warns only** — it doesn't auto-fix (that would cause race conditions with the editor).
+
+The PreCompact hook detects active workflow phases (`/phx:plan`, `/phx:work`, `/phx:full`) and re-injects their critical rules
+before context compaction. This prevents "rule amnesia" where Claude loses behavioral constraints after context is compressed.
+
+Note: `verify-elixir.sh` exists in hooks.json but is a **no-op** (`exit 0`). Compilation was moved to `/phx:work` phase checkpoints for speed. The hook remains as a placeholder.
+
+### Layer 2: Iron Laws in Skills (Behavioral)
+
+Each domain skill (ecto-patterns, liveview-patterns, security, etc.) embeds its own Iron Laws.
+When Claude loads a skill, the laws become active context.
+Claude is instructed to **stop and explain** before writing code that violates them.
+
+This is behavioral — it works because the rules are in Claude's context, not because code enforces them. It's effective but not 100% guaranteed.
+
+### Layer 3: Skill Loading by File Type (Behavioral)
+
+CLAUDE.md instructs Claude to load specific skills based on file patterns:
+
+```text
+*_live.ex       → liveview-patterns (streams, async, components)
+*auth*, *session* → security (authorization, XSS, atom safety)
+*_worker.ex     → oban (idempotency, string keys, queue config)
+*_test.exs      → testing (ExUnit, Mox, factories)
+Any .ex file    → elixir-idioms (always)
+```
+
+This is **not plugin infrastructure** — it's instructions that Claude follows. No hooks trigger skill loading.
+This is the plugin's biggest known gap — in practice, skills rarely auto-load from file context alone.
+Running `/phx:init` significantly improves this.
+
+### Layer 4: `/phx:init` (Strengthens Everything)
+
+Running `/phx:init` injects enforcement rules **directly into your project's CLAUDE.md**. This is stronger than plugin-level instructions because CLAUDE.md is always read at session start.
+
+What it adds:
+
+- **7-step mandatory procedure** — complexity scoring, interview questions before coding, reference loading
+- **Iron Laws with STOP protocol** — explicitly tells Claude to halt on violations
+- **Verification rules** — `mix compile --warnings-as-errors && mix format` after code changes
+- **Stack-specific rules** — detects Phoenix version, Oban, Ash, Tidewave from `mix.exs`
+
+```bash
+/phx:init           # First-time setup
+/phx:init --update  # Update after plugin updates
+```
+
+If you're finding the plugin inconsistent, running `/phx:init` is the single biggest improvement you can make.
+
+### Layer 5: `/phx:review` + Iron Law Judge (On-Demand)
+
+The `iron-law-judge` agent does **pattern-based violation detection** — it uses Grep to search your changed files for known anti-patterns. But it only runs when you invoke `/phx:review`.
+
+What it catches with automated detection:
+
+- `String.to_atom(` in lib code
+- `field :price, :float` in schemas
+- `raw(@variable)` (XSS risk)
+- `Repo.` calls in LiveView mount without `connected?` guard
+- Missing `^` pin in Ecto query fragments
+
+### Layer 6: Planning Sets Structure Early
+
+The `/phx:plan` phase sets naming conventions, context boundaries, and module structure
+**before any code exists**. This is where you prevent Rails-y patterns at the architecture
+level — fat controllers, service objects, and ActiveRecord patterns get caught in the plan,
+not in code review.
+
+### What's NOT Automated (Yet)
+
+Being honest about the gaps:
+
+| Check | Status | Why |
+|-------|--------|-----|
+| `mix compile --warnings-as-errors` | `/phx:work` checkpoints only | `verify-elixir.sh` hook is a no-op — compilation runs in workflow steps |
+| `mix credo` | On-demand (`/phx:verify`) | Would add seconds to every edit |
+| `mix dialyzer` | On-demand (`/phx:verify`) | Takes minutes, not seconds |
+| Iron Law detection during coding | Behavioral only | `iron-law-judge` is review-time only |
+
+### The Honest Summary
+
+```text
+AUTOMATIC (hooks):     Format check, security reminders, progress logging
+BEHAVIORAL (Claude):   Iron Laws, skill loading, stop-and-explain
+ON-DEMAND (commands):  /phx:review (iron-law-judge), /phx:verify (compile/credo/dialyzer)
+STRENGTHENED BY:       /phx:init (injects rules into project CLAUDE.md)
+```
+
+The plugin works best when all layers are active: `/phx:init` for persistent rules, hooks for automatic checks, and `/phx:review` to catch what the behavioral layer missed.
+
+---
+
+## Section 5: Cheat Sheet & Next Steps
 
 ### Command Reference
 
@@ -178,6 +286,7 @@ The plugin automatically prefers Tidewave tools over alternatives when available
 | `/phx:investigate <bug>` | Structured bug investigation |
 | `/phx:verify` | Run all quality checks |
 | `/phx:research <topic>` | Research an Elixir topic |
+| `/phx:pr-review <PR#>` | Address PR review comments |
 
 **Analysis:**
 

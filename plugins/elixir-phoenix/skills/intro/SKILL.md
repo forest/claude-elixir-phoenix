@@ -1,16 +1,16 @@
 ---
 name: phx:intro
-description: Interactive introduction to the Elixir/Phoenix plugin. Walks through commands, workflow, and features in 4 sections.
+description: Interactive introduction to the Elixir/Phoenix plugin. Walks through commands, workflow, and features in 5 sections.
 argument-hint: [--section N]
 ---
 
 # Plugin Introduction Tutorial
 
-Interactive walkthrough of the Elixir/Phoenix plugin in 4 sections (~3 min).
+Interactive walkthrough of the Elixir/Phoenix plugin in 5 sections (~4 min).
 
 ## Arguments
 
-- `$ARGUMENTS` may contain `--section N` to jump to a specific section (1-4)
+- `$ARGUMENTS` may contain `--section N` to jump to a specific section (1-5)
 - No arguments = start from Section 1
 
 ## Execution Flow
@@ -27,7 +27,7 @@ For each section:
 1. Present the section content (formatted markdown from reference file)
 2. After presenting, use `AskUserQuestion` with options:
    - If sections remain: "Next: [next section title]", "Skip to Cheat Sheet", "Stop here"
-   - If on final section (4): no question needed, end with closing message
+   - If on final section (5): no question needed, end with closing message
 
 ### Section Titles
 
@@ -36,7 +36,8 @@ For each section:
 | 1 | Welcome |
 | 2 | Core Workflow Commands |
 | 3 | Knowledge & Safety Net |
-| 4 | Cheat Sheet & Next Steps |
+| 4 | How It Works Under the Hood |
+| 5 | Cheat Sheet & Next Steps |
 
 ## Iron Laws
 
@@ -46,7 +47,7 @@ For each section:
 
 ## Closing Message
 
-After Section 4 (or when user stops):
+After Section 5 (or when user stops):
 
 ```
 You're all set! Try `/phx:plan` with your next feature to see the workflow in action.
