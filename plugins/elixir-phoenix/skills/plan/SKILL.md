@@ -99,8 +99,8 @@ After writing `.claude/plans/{slug}/plan.md`:
 1. Summarize: task count, phases, key decisions
 2. Use `AskUserQuestion` with options:
    - "Start in fresh session" (recommended for 5+ tasks)
-   - "Start here"
    - "Get a briefing" (`/phx:brief` — interactive walkthrough)
+   - "Start here"
    - "Review the plan"
    - "Adjust the plan"
 3. Wait for user response. Never auto-start work.

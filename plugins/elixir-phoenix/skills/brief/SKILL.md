@@ -12,10 +12,8 @@ minutes instead of reading the full document.
 
 ## Why This Exists
 
-Plans are execution documents optimized for `/phx:work` — checkboxes,
-file locations, agent annotations. They answer "what to do" but bury
-"why we're doing it." Developers approve plans without understanding
-them, losing architectural knowledge. This skill bridges that gap.
+Plans answer "what to do" but bury "why." This skill bridges that
+gap with an interactive walkthrough.
 
 ## Usage
 

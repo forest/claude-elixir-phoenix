@@ -42,6 +42,7 @@ if [ "$ACTIVE_PLAN" = true ] && [ "$FULL_MODE" = false ]; then
   echo "Do NOT proceed to implementation or /phx:work."
   echo "Present the plan summary and use AskUserQuestion with options:"
   echo "  - Start in fresh session (recommended)"
+  echo "  - Get a briefing (/phx:brief)"
   echo "  - Start here"
   echo "  - Review the plan"
   echo "  - Adjust the plan"
