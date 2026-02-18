@@ -104,7 +104,7 @@ claude-elixir-phoenix/
 │       │   └── ...
 │       ├── hooks/
 │       │   └── hooks.json           # Format, progress tracking, Stop warning
-│       └── skills/                  # 33 skills
+│       └── skills/                  # 38 skills
 │           ├── work/                # Execution phase
 │           ├── full/                # Autonomous cycle
 │           ├── plan/                # Planning + deepening (--existing)

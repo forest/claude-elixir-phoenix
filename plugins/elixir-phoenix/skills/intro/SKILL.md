@@ -6,7 +6,7 @@ argument-hint: [--section N]
 
 # Plugin Introduction Tutorial
 
-Interactive walkthrough of the Elixir/Phoenix plugin in 5 sections (~4 min).
+Interactive walkthrough of the Elixir/Phoenix plugin in 5 sections (~5 min).
 
 ## Arguments
 
