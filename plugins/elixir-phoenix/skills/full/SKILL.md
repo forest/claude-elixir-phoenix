@@ -25,21 +25,23 @@ Cycles back automatically if review finds issues.
 │                       /phx:full {feature}                        │
 ├──────────────────────────────────────────────────────────────────┤
 │                                                                  │
-│  ┌────────┐  ┌────────┐  ┌────────┐  ┌────────┐  ┌────────┐           │
-│  │Discover│→ │  Plan  │→ │  Work  │→ │ Review │→ │Compound│→ Done    │
-│  │ Assess │  │[Pn-Tm] │  │Execute │  │4 Agents│  │Capture │           │
-│  │ Decide │  │ Phases │  │ Verify │  │Parallel│  │ Solve  │           │
-│  └───┬────┘  └────────┘  └────────┘  └────────┘  └────────┘           │
-│       │                            ↑              │              │
-│       ├── "just do it" ────────────┤              │              │
-│       ├── "plan it" ──┐            │              │              │
-│       │               ↓            │              │              │
-│       │     ┌──────────────┐ ┌─────┴────┐         │              │
-│       │     │   PLANNING   │ │ Issues?  │←────────┘              │
-│       │     └──────────────┘ └────┬─────┘                        │
-│       │                           │ Yes → Fix tasks → WORKING    │
-│       └── "research it" ─────────┘                               │
-│            (comprehensive plan)                                   │
+│  ┌────────┐  ┌────────┐  ┌────────┐  ┌────────┐  ┌────────┐  ┌────────┐  │
+│  │Discover│→ │  Plan  │→ │  Work  │→ │ Verify │→ │ Review │→ │Compound│→Done│
+│  │ Assess │  │[Pn-Tm] │  │Execute │  │  Full  │  │4 Agents│  │Capture │     │
+│  │ Decide │  │ Phases │  │ Tasks  │  │  Loop  │  │Parallel│  │ Solve  │     │
+│  └───┬────┘  └────────┘  └────────┘  └───┬────┘  └────────┘  └────────┘     │
+│       │                            ↑      │    ↑              │         │
+│       ├── "just do it" ────────────┤      │    │              │         │
+│       ├── "plan it" ──┐            │      ↓    │              │         │
+│       │               ↓            │ ┌────────┐│              │         │
+│       │     ┌──────────────┐       │ │Fix     ││ ┌─────────┐ │         │
+│       │     │   PLANNING   │       │ │Issues  │└─│ Fix     │←┘         │
+│       │     └──────────────┘       │ └───┬────┘  │ Review  │           │
+│       │                            │     ↓       │ Findings│           │
+│       │                       ┌────┴─────────┐   └────┬────┘           │
+│       │                       │   VERIFYING   │←──────┘                │
+│       └── "research it" ─────┘  (re-verify)                            │
+│            (comprehensive plan)                                         │
 │                                                                  │
 │  On Completion:                                                  │
 │  Auto-compound: Capture solved problems → .claude/solutions/     │
@@ -52,15 +54,17 @@ Cycles back automatically if review finds issues.
 
 ```
 STATES: INITIALIZING → DISCOVERING → PLANNING → WORKING →
-        REVIEWING → COMPLETED → COMPOUNDING | BLOCKED
+        VERIFYING → REVIEWING → COMPLETED → COMPOUNDING | BLOCKED
 
 TRANSITIONS:
   INITIALIZING → DISCOVERING (always)
   DISCOVERING → PLANNING ("research it" or "plan it")
   DISCOVERING → WORKING ("just do it" - LOW complexity only)
   PLANNING → WORKING (plan file complete)
-  WORKING → REVIEWING (all tasks done OR blocker limit)
-  REVIEWING → WORKING (issues found)
+  WORKING → VERIFYING (all tasks done OR blocker limit)
+  VERIFYING → VERIFYING (issues found, fix and re-verify)
+  VERIFYING → REVIEWING (all checks pass)
+  REVIEWING → VERIFYING (review issues fixed, re-verify)
   REVIEWING → COMPLETED (no critical issues)
   ANY → BLOCKED (max cycles OR fatal error)
 ```
@@ -84,7 +88,7 @@ When limits exceeded, output INCOMPLETE status with remaining work and recommend
 ## Integration
 
 ```text
-/phx:full = /phx:plan (comprehensive) → /phx:work → /phx:review → (cycle if issues) → /phx:compound
+/phx:full = /phx:plan → /phx:work → /phx:verify → /phx:review → (fix → /phx:verify) → /phx:compound
 ```
 
 For fully autonomous execution with Ralph Wiggum Loop:

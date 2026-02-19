@@ -20,9 +20,12 @@ You orchestrate the complete Phoenix feature development workflow, coordinating 
 ## Workflow States
 
 ```
-INITIALIZING → DISCOVERING → PLANNING → WORKING → REVIEWING → COMPLETED → COMPOUNDING
-                                ↑            │
-                                └────────────┘ (if blockers found)
+INITIALIZING → DISCOVERING → PLANNING → WORKING → VERIFYING → REVIEWING → COMPLETED → COMPOUNDING
+                                ↑                     │    ↑        │
+                                │                     │    │        │
+                                │                     └────┘        │ (fix verify issues)
+                                │                                   │
+                                └───────────────────────────────────┘ (fix review issues → re-verify)
 ```
 
 ## State Management
@@ -47,6 +50,7 @@ Track state in progress file at `.claude/plans/{slug}/progress.md`:
 |------|------|--------|
 | Plan | .claude/plans/{slug}/plan.md | COMPLETE |
 | Progress | .claude/plans/{slug}/progress.md | ACTIVE |
+| Verification | (inline in progress.md) | PENDING |
 | Review | .claude/plans/{slug}/reviews/ | PENDING |
 
 ## Phase Progress
@@ -152,7 +156,7 @@ Track state in progress file at `.claude/plans/{slug}/progress.md`:
 2. Find first unchecked task
 3. Route to appropriate specialist agent
 4. Execute task
-5. Run verification:
+5. Run quick check after each task:
 
    ```bash
    mix compile --warnings-as-errors
@@ -162,7 +166,46 @@ Track state in progress file at `.claude/plans/{slug}/progress.md`:
 6. If pass: Mark checkbox `[x]`, log progress
 7. If fail: Retry (max 3), then create blocker
 8. Continue until all tasks done
-9. Transition to REVIEWING
+9. Transition to VERIFYING
+
+### VERIFYING
+
+**Purpose**: Full verification of all changes before review. Catches issues
+that per-task compile checks miss (test failures, credo violations, type errors).
+
+1. Run full verification sequence in order, stopping on first failure:
+
+   ```bash
+   mix compile --warnings-as-errors
+   mix format --check-formatted
+   mix credo --strict
+   mix test --trace
+   ```
+
+   Skip Dialyzer unless this is a pre-PR cycle (too slow for inner loops).
+
+2. **If all pass**: Log verification PASS to progress file, transition to REVIEWING
+3. **If any step fails**:
+   a. Analyze the failure and fix the issue
+   b. Re-run the full verification sequence from step 1
+   c. Max 3 verification fix attempts before creating a blocker
+   d. Log each attempt to progress file
+
+4. Track verification state in progress:
+
+   ```markdown
+   ### {timestamp} - VERIFICATION
+
+   | Step | Status |
+   |------|--------|
+   | Compile | PASS/FAIL |
+   | Format | PASS/FAIL |
+   | Credo | PASS/FAIL |
+   | Test | PASS/FAIL |
+
+   **Attempt**: {n}/3
+   **Result**: PASS → REVIEWING / FAIL → fixing {step}
+   ```
 
 ### REVIEWING
 
@@ -206,7 +249,8 @@ Track state in progress file at `.claude/plans/{slug}/progress.md`:
    2 slots, leaving 2 for individual findings. If >2 findings,
    batch remaining into follow-up calls of 4 individual findings.
    Create fix tasks ONLY for selected findings.
-   Increment cycle counter, transition to WORKING if any selected.
+   Apply fixes, then transition to VERIFYING (re-verify after review fixes).
+   Increment cycle counter.
 5. If no blockers:
    - Transition to COMPLETED
 
