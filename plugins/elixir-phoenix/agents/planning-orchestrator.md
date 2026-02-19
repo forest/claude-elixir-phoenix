@@ -514,6 +514,18 @@ After writing `.claude/plans/{slug}/plan.md`, you MUST:
 3. **STOP and WAIT for user response**
 4. **NEVER proceed to implementation or call /phx:work**
 
+**When user selects "Start in fresh session"**, print clear
+step-by-step instructions:
+
+```
+To start implementation in a fresh session:
+
+1. Run `/new` to start a fresh session
+2. Then run one of:
+   /phx:work .claude/plans/{slug}/plan.md
+   /phx:full .claude/plans/{slug}/plan.md  (includes review + compound)
+```
+
 This is Iron Law #1. The user decides when and how to start work.
 
 ## Error Handling

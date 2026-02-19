@@ -116,6 +116,20 @@ Then read reports from `.claude/plans/{slug}/research/`.
 If an agent fails, do the research yourself with Read/Grep
 instead of re-spawning.
 
+## Infrastructure Knowledge Persistence
+
+When Explore agents discover **project infrastructure** (not
+feature-specific code) — e.g., test helpers, factory patterns,
+API endpoint maps, compile environments — write a compact summary
+to `.claude/plans/{slug}/scratchpad.md` under a `## Infrastructure`
+heading. This prevents re-exploration in follow-up sessions.
+
+Signals that knowledge is infrastructure (not feature-specific):
+- Test setup patterns (`test/support/`, `test/int_support/`)
+- Custom MIX_ENV configurations
+- Factory/fixture patterns
+- CI/deployment pipeline structure
+
 ## Breadboard System Map (LiveView Features)
 
 **When to breadboard**: The feature touches 2+ LiveView pages or
@@ -217,13 +231,23 @@ count, phase names, key scope). Then use `AskUserQuestion`:
 
 For single plan:
 
-- **Start in fresh session** (recommended for 5+ tasks) --
-  open new session, run `/phx:work .claude/plans/{slug}.md`
+- **Start in fresh session** (recommended for 5+ tasks)
+- **Get a briefing** -- interactive walkthrough via `/phx:brief`
 - **Start here** -- in current session (fine for small plans)
 - **Review the plan** -- walk through phases in detail
 - **Adjust the plan** -- tell me what to change
 
 Do NOT say "Start Phase 1" — `/phx:work` runs the whole plan.
+
+**When user selects "Start in fresh session"**, print clear
+step-by-step:
+
+```
+1. Run `/new` to start a fresh session
+2. Then run one of:
+   /phx:work .claude/plans/{slug}/plan.md
+   /phx:full .claude/plans/{slug}/plan.md  (includes review + compound)
+```
 
 ## Deepening an Existing Plan (--existing mode)
 
@@ -235,11 +259,17 @@ plan with deeper research instead of creating a new one.
 1. **Load plan** -- Parse phases, tasks, annotations, `???` markers
 2. **Search compound docs** -- Find known issues in planned areas
    (`grep -rl "KEYWORD" .claude/solutions/`)
-3. **Spawn research agents** -- Based on plan annotations, spawn
-   focused agents for thin sections (same agent selection rules)
-4. **Enhance plan** -- Add implementation detail, resolve spikes,
+3. **Spawn research agents** -- Use SPECIALIST agents (same
+   selection rules as main flow), NOT Explore agents. Each agent
+   MUST write detailed output to
+   `.claude/plans/{slug}/research/{topic}.md` and return ONLY a
+   500-word summary. Spawn all in ONE Tool Use block with
+   `run_in_background: true`
+4. **Wait for ALL agents** -- Call `TaskOutput(task_id, block: true)`
+   for every spawned agent. Do NOT proceed until all complete
+5. **Enhance plan** -- Add implementation detail, resolve spikes,
    add verification criteria, note risk from compound docs
-5. **Present diff summary** -- Show what was enhanced
+6. **Present diff summary** -- Show what was enhanced
 
 ### When Deepening Adds Value
 
@@ -255,3 +285,7 @@ plan with deeper research instead of creating a new one.
 - **Preserve task IDs** — `[Pn-Tm]` identifiers must not change
 - **Compound docs first** — Check solution docs before spawning
   agents (saves context)
+- **Context budget** — `--existing` often runs in sessions with
+  prior history. Use specialist agents that write to files and
+  return short summaries. Never use Explore agents (they return
+  full output inline and exhaust context)

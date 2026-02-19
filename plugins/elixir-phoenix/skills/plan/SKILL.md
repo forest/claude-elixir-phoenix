@@ -42,7 +42,9 @@ structured plan with checkboxes.
 4. **Runtime context** (Tidewave) — Gather live schemas, routes,
    and warnings before spawning agents (see planning-orchestrator)
 5. **Spawn research agents** — Selective, parallel, based on need
-6. **Wait for ALL agents** — NEVER write plan while agents run
+6. **Wait for ALL agents** — Call `TaskOutput(task_id, block: true)`
+   for EVERY spawned agent. Do NOT proceed until all return
+   "completed". NEVER write plan while any agent is still running
 7. **Breadboard** (LiveView) — System map for multi-page features
 8. **Completeness check** — MANDATORY when planning from review
 9. **Split decision** — One plan or multiple, concrete options
@@ -60,9 +62,12 @@ See `references/planning-workflow.md` for detailed step-by-step.
 Enhances an existing plan instead of creating a new one:
 
 1. Load plan, search `.claude/solutions/` for known risks
-2. Spawn focused research agents for thin sections
-3. Add implementation detail, resolve spikes, add verification
-4. Present diff summary — **NEVER delete existing tasks**
+2. Spawn SPECIALIST agents (not Explore) for thin sections.
+   Each agent writes to `.claude/plans/{slug}/research/` and
+   returns only a 500-word summary. Same agent selection rules
+3. Wait for ALL agents (`TaskOutput` with `block: true`)
+4. Add implementation detail, resolve spikes, add verification
+5. Present diff summary — **NEVER delete existing tasks**
 
 ## Iron Laws
 
@@ -104,6 +109,15 @@ After writing `.claude/plans/{slug}/plan.md`:
    - "Review the plan"
    - "Adjust the plan"
 3. Wait for user response. Never auto-start work.
+
+**When user selects "Start in fresh session"**, print:
+
+```
+1. Run `/new` to start a fresh session
+2. Then run one of:
+   /phx:work .claude/plans/{slug}/plan.md
+   /phx:full .claude/plans/{slug}/plan.md  (includes review + compound)
+```
 
 This is Iron Law #1. Violating it wastes user context.
 

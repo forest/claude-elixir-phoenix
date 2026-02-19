@@ -129,12 +129,28 @@ Include when the liveview-architect produced a breadboard.}
 
 **Rules:** Primary focus wins. Security always wins for auth tasks.
 
+## Files to Follow as Patterns
+
+Existing files to read first when implementing (reduces cold-start):
+
+- `{path/to/similar_module.ex}` — follow this pattern for {reason}
+- `{path/to/existing_test.exs}` — follow this test structure
+- `{path/to/component.ex}` — follow this component pattern
+
 ## Patterns to Follow
 
 From codebase analysis:
 
 - {Pattern 1}
 - {Pattern 2}
+
+## Session Handoff
+
+Key context from planning session for `/phx:work` to use:
+
+- **Discovery**: {key findings, bugs found, gotchas learned}
+- **Decisions**: {choices made and why}
+- **Warnings**: {things to watch out for during implementation}
 
 ## Risks & Mitigations
 
