@@ -1,6 +1,12 @@
-# Common Mistakes - Lessons Learned
+# Common Mistakes - Reference
 
-This file captures lessons learned from bug fixes and corrections. Each entry prevents future mistakes.
+> **READ-ONLY**: This file ships with the plugin. Do NOT edit it
+> at runtime — changes to cached plugin files are lost on update.
+> To capture new lessons, use `/phx:learn` which writes to
+> project CLAUDE.md or auto-memory.
+
+Common Elixir/Phoenix mistakes and their fixes. Use as reference
+when checking if a lesson is already documented.
 
 Format:
 
@@ -194,26 +200,3 @@ def create(conn, %{"user" => params}) do
 end
 ```
 
----
-
-## Adding New Lessons
-
-When you fix a bug, add your lesson here:
-
-```markdown
-### Title
-
-**Mistake**: What went wrong
-
-**Pattern**: Do NOT [bad] - instead [good]
-
-**Example**:
-
-    ```elixir
-    # Bad
-    bad_code()
-
-    # Good
-    good_code()
-    ```
-```
