@@ -62,6 +62,11 @@ mix dialyzer
 
 No new warnings allowed. First run builds PLT cache (slow).
 
+**Handling Dialyzer warnings**: Prefer fixing over suppressing.
+If suppression is necessary, add to `.dialyzer_ignore.exs` with
+a comment explaining why. Never suppress warnings you don't
+understand — investigate first.
+
 ## Quick Reference
 
 | Step | Command | Time | When Required |

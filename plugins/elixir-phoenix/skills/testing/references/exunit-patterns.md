@@ -189,3 +189,23 @@ mix test --only integration         # Tagged tests
 mix test --exclude slow             # Exclude tagged
 mix test --failed                   # Re-run failures only
 ```
+
+## Filtering Verbose Test Output
+
+When `--trace` or E2E test output (Playwright, Wallaby) is too
+noisy, filter for signal:
+
+```bash
+# ExUnit --trace: show only test names and summary
+mix test test/file_test.exs --trace 2>&1 | \
+  grep -E '(^\s+\* test|^\s+\d+\) test|\d+ tests|failures)'
+
+# Playwright (via phoenix_test_playwright): filter results
+MIX_ENV=int_test mix test test/features/file_test.exs --trace 2>&1 | \
+  grep -E '(test |Finished|failure|✓|✗|success|Failed|assert|Error|PASS|FAIL|\d+ tests)' | \
+  tail -20
+```
+
+**Rule**: When running E2E tests, always pipe through a filter
+to extract pass/fail signal. Raw output is too noisy to read
+in Claude Code.

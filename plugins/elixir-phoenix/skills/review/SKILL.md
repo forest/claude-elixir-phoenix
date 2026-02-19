@@ -43,7 +43,14 @@ git diff --name-only HEAD~5   # Recent changes
 git diff --name-only main     # Or changes from main
 ```
 
-### Step 1b: Check Prior Review Output
+### Step 1b: Load Plan Context (Scratchpad)
+
+If reviewing a plan, read `.claude/plans/${SLUG}/scratchpad.md` for
+planning decisions, rationale, and handoff notes. Include relevant
+decisions in each agent's prompt so they have context about WHY
+code was written a certain way. This eliminates session archaeology.
+
+### Step 1c: Check Prior Review Output
 
 Before spawning agents, check for existing review files:
 
@@ -96,6 +103,11 @@ Wait for ALL agents to FULLY complete using TaskOutput with
 every single agent has completed** — ignore intermediate
 completion notifications.
 
+**Verification-runner fallback**: If the verification-runner
+agent fails or times out, run verification directly:
+`mix compile --warnings-as-errors && mix format --check-formatted && mix credo --strict && mix test`
+Do NOT leave verification incomplete.
+
 **For full reviews (5 agents):** After all agents complete,
 spawn `elixir-phoenix:context-supervisor` to compress output:
 
@@ -124,14 +136,21 @@ with verdict: PASS | PASS WITH WARNINGS | REQUIRES CHANGES | BLOCKED.
 **STOP and present the review.** Do NOT create tasks or fix
 anything.
 
-**On BLOCKED or REQUIRES CHANGES**: LIST findings, then offer:
+**On BLOCKED or REQUIRES CHANGES**: Show finding count by
+severity, then offer concrete options via `AskUserQuestion`:
 
-- **Triage first** — `/phx:triage .claude/plans/{slug}/reviews/{file}.md`
+- **Triage first** — `/phx:triage` to convert findings to tasks (recommended)
 - **Replan fixes** — `/phx:plan .claude/plans/{slug}/reviews/{file}.md`
-- **Fix directly** — `/phx:work`
+- **Fix directly** — fix blockers now in this session
 - **Handle myself** — I'll take it from here
 
-**On PASS / PASS WITH WARNINGS**: Suggest `/phx:compound`, `/phx:document`, `/phx:learn`.
+Example: "Review complete — 3 blockers, 5 warnings, 2 suggestions.
+Recommend triaging first to prioritize."
+
+**On PASS / PASS WITH WARNINGS**: Suggest `/phx:compound`,
+`/phx:document`, `/phx:learn`. If warnings reveal scope gaps,
+also suggest: `/phx:plan .claude/plans/{slug}/reviews/{file}.md`
+to create a follow-up plan from review findings.
 
 ## Iron Laws
 

@@ -24,6 +24,7 @@ Runtime intelligence for Phoenix apps via MCP. Prefer Tidewave tools over Bash w
 | Run code | `mcp__tidewave__project_eval` | `mix run -e "code"` |
 | SQL query | `mcp__tidewave__execute_sql_query` | `psql $DATABASE_URL` |
 | Find source | `mcp__tidewave__get_source_location` | `grep -rn "defmodule"` |
+| Inspect DOM | `mcp__Tidewave-Web__browser_eval` | Manual browser inspection |
 | List schemas | `mcp__tidewave__get_ecto_schemas` | Read `lib/*/schemas/` |
 | Read logs | `mcp__tidewave__get_logs level: :error` | `tail -f log/dev.log` |
 
@@ -87,6 +88,7 @@ workflow checkpoints** automatically:
 - **After features complete**: `project_eval` smoke test (behavioral check)
 - **Before planning**: `get_ecto_schemas` + routes eval (concrete context)
 - **When investigating**: Auto-capture errors before asking user
+- **LiveView UI bugs**: `browser_eval` to inspect DOM state before editing components
 
 See `references/proactive-patterns.md` for full integration points.
 
