@@ -90,6 +90,7 @@ Task.Supervisor.async_nolink(TaskSup, fn -> work() end)
 | `list ++ [item]` | `[item \| list] \|> Enum.reverse()` |
 | `String.to_atom(input)` | `String.to_existing_atom(input)` |
 | `spawn(fn -> log(conn) end)` | `ip = conn.ip; spawn(fn -> log(ip) end)` |
+| `unless condition` | `if !condition` (unless deprecated in 1.18) |
 
 ## References
 
@@ -101,4 +102,5 @@ For detailed patterns, see:
 - `references/with-and-pipes.md` - When to use `with` and `|>` (idiomatic patterns)
 - `references/troubleshooting.md` - Production BEAM debugging (memory, performance, crashes)
 - `references/anti-patterns.md` - Common mistakes and fixes
+- `references/mix-tasks.md` - Mix task naming, option parsing, shell output
 - `references/elixir-118-features.md` - Duration module, dbg improvements (1.18+)

@@ -287,6 +287,38 @@ end)
 
 ---
 
+## Resource Cleanup: try/after (Not try/rescue)
+
+When wrapping code in instrumentation spans, telemetry, or any
+resource that needs guaranteed cleanup:
+
+```elixir
+# CORRECT: try/after — runs ALWAYS
+def instrumented_call(args) do
+  span = Tracer.start_span("operation")
+  try do
+    do_work(args)
+  after
+    Tracer.finish_span(span)
+  end
+end
+
+# WRONG: try/rescue — only runs on exception
+def instrumented_call(args) do
+  span = Tracer.start_span("operation")
+  try do
+    do_work(args)
+  rescue
+    e -> Tracer.finish_span(span); reraise e, __STACKTRACE__
+  end
+  Tracer.finish_span(span)  # Missed if do_work throws non-exception exit
+end
+```
+
+**Rule**: `try/rescue` only catches exceptions. `try/after`
+runs unconditionally — use it for spans, file handles, locks,
+and any cleanup that must happen regardless of outcome.
+
 ## Anti-Patterns
 
 ### 1. GenServer for Code Organization

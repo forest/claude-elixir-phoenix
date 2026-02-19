@@ -135,6 +135,28 @@ Calendar.strftime(DateTime.utc_now(), "%Y-%m-%d %H:%M:%S %Z")
 #=> "2026-02-05 10:30:45 UTC"
 ```
 
+## Deprecations in 1.18
+
+### `unless/2` Deprecated
+
+`unless` is soft-deprecated in Elixir 1.18. The formatter
+automatically rewrites `unless condition` to `if !condition`.
+
+```elixir
+# Deprecated — formatter will rewrite
+unless valid?(input) do
+  {:error, :invalid}
+end
+
+# Current — what the formatter produces
+if !valid?(input) do
+  {:error, :invalid}
+end
+```
+
+**Rule**: Never write `unless` — always use `if !` or
+pattern match instead. This avoids unnecessary formatter churn.
+
 ## Compatibility Notes
 
 - Duration requires Elixir 1.18+
