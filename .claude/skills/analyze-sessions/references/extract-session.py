@@ -73,9 +73,13 @@ def extract_session(fpath, max_lines=20000):
                             continue
                         if len(text) > 10:
                             user_messages.append(text[:500])
-                        # Extract /phx: commands
-                        cmds = re.findall(r'/phx:\w+(?:\s+[^\n]{0,100})?', text)
-                        phx_commands.extend(cmds)
+                        # Extract /phx: commands (filter SKILL.md template noise)
+                        if not text.startswith('Base directory for this skill:'):
+                            cmds = re.findall(r'/phx:\w+(?:\s+[^\n]{0,100})?', text)
+                            # Filter template placeholders
+                            cmds = [c for c in cmds if '{feature}' not in c
+                                    and '{slug}' not in c and '<--' not in c]
+                            phx_commands.extend(cmds)
 
             # === ASSISTANT MESSAGES ===
             if role == 'assistant' and isinstance(content, list):
