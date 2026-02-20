@@ -1,22 +1,22 @@
 ---
 name: phx:intro
-description: Interactive introduction to the Elixir/Phoenix plugin. Walks through commands, workflow, and features in 5 sections.
+description: Interactive introduction to the Elixir/Phoenix plugin. Walks through commands, workflow, and features in 6 sections.
 argument-hint: [--section N]
 ---
 
 # Plugin Introduction Tutorial
 
-Interactive walkthrough of the Elixir/Phoenix plugin in 5 sections (~5 min).
+Interactive walkthrough of the Elixir/Phoenix plugin in 6 sections (~5 min).
 
 ## Arguments
 
-- `$ARGUMENTS` may contain `--section N` to jump to a specific section (1-5)
+- `$ARGUMENTS` may contain `--section N` to jump to a specific section (1-6)
 - No arguments = start from Section 1
 
 ## Execution Flow
 
 1. Read `references/tutorial-content.md` for all section content
-2. Parse `$ARGUMENTS` for `--section N` flag
+2. Parse `$ARGUMENTS` for `--section N` flag (1-6)
 3. If `--section N` specified, jump directly to that section
 4. Otherwise start from Section 1
 
@@ -24,10 +24,10 @@ Interactive walkthrough of the Elixir/Phoenix plugin in 5 sections (~5 min).
 
 For each section:
 
-1. Present the section content (formatted markdown from reference file)
+1. Present the section content **completely** — do NOT abbreviate or summarize. Every paragraph, table, and code block in the reference file must appear in output
 2. After presenting, use `AskUserQuestion` with options:
    - If sections remain: "Next: [next section title]", "Skip to Cheat Sheet", "Stop here"
-   - If on final section (5): no question needed, end with closing message
+   - If on final section (6): no question needed, end with closing message
 
 ### Section Titles
 
@@ -36,8 +36,9 @@ For each section:
 | 1 | Welcome |
 | 2 | Core Workflow Commands |
 | 3 | Knowledge & Safety Net |
-| 4 | How It Works Under the Hood |
-| 5 | Cheat Sheet & Next Steps |
+| 4 | Hooks & Behavioral Rules |
+| 5 | Init, Review & Gaps |
+| 6 | Cheat Sheet & Next Steps |
 
 ## Iron Laws
 
@@ -47,7 +48,7 @@ For each section:
 
 ## Closing Message
 
-After Section 5 (or when user stops):
+After Section 6 (or when user stops):
 
 ```
 You're all set! Try `/phx:plan` with your next feature to see the workflow in action.

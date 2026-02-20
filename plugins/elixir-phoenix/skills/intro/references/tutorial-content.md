@@ -2,6 +2,7 @@
 
 Content for each section of the `/phx:intro` tutorial.
 Present ONE section at a time with AskUserQuestion between sections.
+IMPORTANT: Present ALL content in each section — every paragraph, table, and code block. Do NOT abbreviate or summarize.
 
 ---
 
@@ -157,7 +158,7 @@ The plugin automatically prefers Tidewave tools over alternatives when available
 
 ---
 
-## Section 4: How It Works Under the Hood
+## Section 4: Hooks & Behavioral Rules
 
 The plugin uses **layered enforcement** — some things run automatically, some depend on Claude following instructions, some are on-demand. Here's what actually happens:
 
@@ -203,6 +204,10 @@ Any .ex file    → elixir-idioms (always)
 This is **not plugin infrastructure** — it's instructions that Claude follows. No hooks trigger skill loading.
 This is the plugin's biggest known gap — in practice, skills rarely auto-load from file context alone.
 Running `/phx:init` significantly improves this.
+
+---
+
+## Section 5: Init, Review & Gaps
 
 ### Layer 4: `/phx:init` (Strengthens Everything)
 
@@ -266,7 +271,7 @@ The plugin works best when all layers are active: `/phx:init` for persistent rul
 
 ---
 
-## Section 5: Cheat Sheet & Next Steps
+## Section 6: Cheat Sheet & Next Steps
 
 ### Command Reference
 
