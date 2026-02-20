@@ -204,7 +204,9 @@ You are acting as the verification-runner agent. Run static analysis on this pro
 
 Run these commands and report results:
 1. mix compile --warnings-as-errors 2>&1 | head -50
-2. mix format --check-formatted 2>&1
+2. CHANGED=$(git diff --name-only HEAD~5 | grep '\.exs\?$' | tr '\n' ' '); \
+   if [ -n "$CHANGED" ]; then mix format --check-formatted $CHANGED 2>&1; \
+   else echo "No changed Elixir files"; fi
 3. mix credo --strict 2>&1 | head -100
 4. mix test 2>&1 | tail -30
 5. mix sobelow --exit medium 2>&1 | head -50 (if available)

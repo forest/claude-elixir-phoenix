@@ -34,10 +34,25 @@ for dir in .claude/plans/*/; do
   fi
 done
 
+# Extract slug + intent from the active plan for context preservation
+PLAN_SLUG=""
+PLAN_INTENT=""
+for dir in .claude/plans/*/; do
+  [ -f "${dir}plan.md" ] || continue
+  PLAN_SLUG="$(basename "$dir")"
+  PLAN_INTENT="$(head -5 "${dir}plan.md" | grep '^#' | head -1 | sed 's/^#* *//')"
+  break
+done
+
 # Output rules based on active phase
 if [ "$ACTIVE_PLAN" = true ] && [ "$FULL_MODE" = false ]; then
   echo "PRESERVE ACROSS COMPACTION — active /phx:plan session:"
   echo ""
+  if [ -n "$PLAN_SLUG" ]; then
+    echo "- Active plan: ${PLAN_SLUG} — ${PLAN_INTENT}"
+    echo "- Plan file: .claude/plans/${PLAN_SLUG}/plan.md"
+    echo ""
+  fi
   echo "CRITICAL: After writing plan.md, you MUST STOP."
   echo "Do NOT proceed to implementation or /phx:work."
   echo "Present the plan summary and use AskUserQuestion with options:"
@@ -52,6 +67,11 @@ fi
 if [ "$ACTIVE_WORK" = true ] && [ "$FULL_MODE" = false ]; then
   echo "PRESERVE ACROSS COMPACTION — active /phx:work session:"
   echo ""
+  if [ -n "$PLAN_SLUG" ]; then
+    echo "- Active plan: ${PLAN_SLUG} — ${PLAN_INTENT}"
+    echo "- Plan file: .claude/plans/${PLAN_SLUG}/plan.md"
+    echo ""
+  fi
   echo "- Verify after EVERY task (mix compile --warnings-as-errors)"
   echo "- Max 3 retries per task, then mark BLOCKER"
   echo "- Auto-continue between phases, but STOP when ALL phases done"
@@ -62,6 +82,11 @@ fi
 if [ "$FULL_MODE" = true ]; then
   echo "PRESERVE ACROSS COMPACTION — /phx:full autonomous mode:"
   echo ""
+  if [ -n "$PLAN_SLUG" ]; then
+    echo "- Active plan: ${PLAN_SLUG} — ${PLAN_INTENT}"
+    echo "- Plan file: .claude/plans/${PLAN_SLUG}/plan.md"
+    echo ""
+  fi
   echo "- Continue autonomous plan → work → review cycle"
   echo "- Re-read progress.md for current state and cycle count"
   echo "- Re-read plan.md for task checkboxes"

@@ -348,6 +348,7 @@ When working on Elixir/Phoenix code, ALWAYS load relevant skills based on file c
 | `config/runtime.exs`, `Dockerfile`, `fly.toml` | `deploy` | `references/docker-config.md` |
 | `*/contexts/*`, `lib/*/[a-z]*.ex` | `phoenix-contexts` | `references/context-patterns.md` |
 | `lib/mix/tasks/*` | `elixir-idioms` | `references/mix-tasks.md` |
+| `*.sface` | `liveview-patterns` | `references/components.md` |
 | Any `.ex` or `.exs` file | `elixir-idioms` | Always check Iron Laws |
 
 ### Skill Loading Behavior
@@ -526,6 +527,7 @@ When working on code, automatically consult relevant reference documentation bef
 | `*_live_test.exs` | testing | liveview-testing.md |
 | `Mox.` in tests | testing | mox-patterns.md |
 | `lib/*/[a-z]*.ex` (context) | phoenix-contexts | context-patterns.md |
+| `*.sface` | liveview-patterns | components.md |
 | `router.ex` | phoenix-contexts | routing-patterns.md, plug-patterns.md |
 | `*_controller.ex` + JSON | phoenix-contexts | json-api-patterns.md |
 | `plug` in router/controller | phoenix-contexts | plug-patterns.md |

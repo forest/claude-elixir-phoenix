@@ -79,6 +79,7 @@ Triage complete: {n} to fix, {n} skipped, {n} deferred.
 1. Plan fixes — /phx:plan .claude/plans/{slug}/reviews/{slug}-triage.md
 2. Fix directly — /phx:work (for simple fixes)
 3. Review deferred items later
+4. Capture solutions — /phx:compound (if patterns were solved)
 ```
 
 ## Iron Laws
@@ -88,6 +89,8 @@ Triage complete: {n} to fix, {n} skipped, {n} deferred.
 3. **BLOCKERs cannot be skipped silently** — Warn if user tries
 4. **Capture user context** — Every "fix it" should include
    any user guidance for better fixes
+5. **Suggest compound after triage** — If triage reveals solved patterns
+   (root cause identified, fix known), mention `/phx:compound`
 
 ## Integration with Workflow
 

@@ -66,6 +66,10 @@ PERSISTENT. Do NOT re-report issues that have been fixed."
 
 ### Step 2: Spawn Review Agents (MANDATORY)
 
+**NEVER spawn the same agent role twice in one review.** If reviewing
+a plan, scope ALL agents to the plan's changed files in a single pass.
+Do NOT run a scoped review followed by a broader review — one pass per role.
+
 You MUST spawn agents using the Task tool. Do NOT analyze code
 yourself — delegate to agents.
 
@@ -104,8 +108,16 @@ every single agent has completed** — ignore intermediate
 completion notifications.
 
 **Verification-runner fallback**: If the verification-runner
-agent fails or times out, run verification directly:
-`mix compile --warnings-as-errors && mix format --check-formatted && mix credo --strict && mix test`
+agent fails or times out, run verification directly. Scope
+format checks to changed files only:
+
+```bash
+mix compile --warnings-as-errors
+CHANGED=$(git diff --name-only HEAD~5 | grep '\.exs\?$' | tr '\n' ' ')
+if [ -n "$CHANGED" ]; then mix format --check-formatted $CHANGED; fi
+mix credo --strict && mix test
+```
+
 Do NOT leave verification incomplete.
 
 **For full reviews (5 agents):** After all agents complete,
