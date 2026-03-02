@@ -124,6 +124,12 @@ Consider `/phx:compound` to capture key learnings for future reference.
   create       understand before            execute        understand after
 ```
 
+## Complex Plan Enhancement
+
+For plans with 5+ phases or 4+ key decisions, consider suggesting
+visual rendering after Section 3. See
+`references/visual-explainer.md` for thresholds and commands.
+
 ## Notes
 
 - Runs in main conversation context (not a subagent)

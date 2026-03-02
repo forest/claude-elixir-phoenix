@@ -572,6 +572,7 @@ This plugin was built with insights from these articles, repositories, and tools
 - <https://github.com/tidewave-elixir/tidewave>
 - <https://tidewave.ai/blog/the-future-of-coding-agents-is-vertical-integration>
 - <https://github.com/neilberkman/ccrider>
+- <https://github.com/nicobailon/visual-explainer>
 - <https://github.com/VoltAgent/awesome-claude-code-subagents>
 - <https://github.com/shanraisshan/claude-code-best-practice>
 - <https://github.com/anthropics/claude-code>
