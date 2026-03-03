@@ -75,6 +75,7 @@ FINGERPRINT_KEYWORDS = {
 # ─── Plugin Opportunity Signals ───────────────────────────────────────────────
 
 PHX_COMMAND_RE = re.compile(r"/phx:\w+")
+SKILL_COMMAND_RE = re.compile(r"/(?:phx|ecto|lv):\S+")
 
 
 def sigmoid(raw):
@@ -511,6 +512,195 @@ def categorize_files(files):
     return dict(categories)
 
 
+# ─── Skill Effectiveness ─────────────────────────────────────────────────────
+
+
+def _locate_skill_invocations(user_msgs, all_messages):
+    """Find skill invocations and their position in the message stream.
+
+    Returns list of {skill, msg_index, user_msg_index} for each invocation.
+    """
+    invocations = []
+    user_idx = 0
+    for i, msg in enumerate(all_messages):
+        if not isinstance(msg, dict):
+            continue
+        role = _get_role(msg)
+        content = _get_content(msg)
+        if role != "user":
+            continue
+        if isinstance(content, str):
+            text = content
+        elif isinstance(content, list):
+            text = " ".join(
+                b.get("text", "") for b in content
+                if isinstance(b, dict) and b.get("type") == "text"
+            )
+        else:
+            user_idx += 1
+            continue
+
+        if text.startswith("Base directory for this skill:"):
+            user_idx += 1
+            continue
+
+        cmds = SKILL_COMMAND_RE.findall(text)
+        for cmd in cmds:
+            if "{" in cmd or "<" in cmd:
+                continue
+            invocations.append({
+                "skill": cmd,
+                "msg_index": i,
+                "user_msg_index": user_idx,
+            })
+        user_idx += 1
+    return invocations
+
+
+def compute_skill_effectiveness(user_msgs, tool_calls, errors, messages):
+    """Compute per-skill effectiveness signals.
+
+    For each skill invocation, measures what happened before and after:
+    - Pre/post error rates
+    - Post-skill edit count (did the skill lead to action?)
+    - Post-skill test runs (did the user verify?)
+    - Whether user corrections followed (skill didn't help)
+    - Time-to-action (how quickly edits followed)
+
+    Returns dict keyed by skill command name.
+    """
+    invocations = _locate_skill_invocations(user_msgs, messages)
+    if not invocations:
+        return {}
+
+    # Build tool call index: map message index -> tool calls in that range
+    # We approximate by splitting tool_calls proportionally across messages
+    total_msgs = len(messages)
+    total_tools = len(tool_calls)
+
+    # Extract tool_calls with approximate message positions
+    tool_positions = []
+    tool_idx = 0
+    for i, msg in enumerate(messages):
+        if not isinstance(msg, dict):
+            continue
+        content = _get_content(msg)
+        role = _get_role(msg)
+        if isinstance(content, list):
+            for block in content:
+                if isinstance(block, dict) and block.get("type") == "tool_use":
+                    tool_positions.append({"index": tool_idx, "msg_index": i, "tc": block})
+                    tool_idx += 1
+        elif isinstance(content, str) and role == "assistant":
+            mentioned = TOOL_MENTION_RE.findall(content)
+            for name in mentioned:
+                tool_positions.append({
+                    "index": tool_idx, "msg_index": i,
+                    "tc": {"name": name, "input": {}},
+                })
+                tool_idx += 1
+
+    results = {}
+    for inv in invocations:
+        skill = inv["skill"]
+        msg_idx = inv["msg_index"]
+
+        # Collect tools before and after this skill invocation
+        pre_tools = [tp for tp in tool_positions if tp["msg_index"] < msg_idx]
+        post_tools = [tp for tp in tool_positions if tp["msg_index"] > msg_idx]
+
+        # Window: next 50 tool calls after invocation (or until next skill)
+        next_skill_idx = total_msgs
+        for other in invocations:
+            if other["msg_index"] > msg_idx:
+                next_skill_idx = min(next_skill_idx, other["msg_index"])
+                break
+        window_tools = [tp for tp in post_tools if tp["msg_index"] < next_skill_idx][:50]
+
+        # Count post-skill signals
+        post_edits = sum(
+            1 for tp in window_tools if tp["tc"].get("name") in ("Edit", "Write")
+        )
+        post_reads = sum(
+            1 for tp in window_tools if tp["tc"].get("name") in ("Read", "Grep", "Glob")
+        )
+        post_bash = sum(
+            1 for tp in window_tools if tp["tc"].get("name") == "Bash"
+        )
+        post_test_runs = sum(
+            1 for tp in window_tools
+            if tp["tc"].get("name") == "Bash"
+            and "mix test" in tp["tc"].get("input", {}).get("command", "")
+        )
+
+        # Post-skill errors (from messages in the window)
+        window_msgs = [
+            m for m in messages
+            if isinstance(m, dict)
+            and messages.index(m) > msg_idx
+            and messages.index(m) < next_skill_idx
+        ]
+        post_errors = len(extract_errors(window_msgs))
+
+        # Post-skill user corrections
+        post_corrections = 0
+        for m in window_msgs:
+            content = _get_content(m)
+            role = _get_role(m)
+            if role == "user" and isinstance(content, str):
+                if CORRECTION_PATTERNS.search(content[:500]):
+                    post_corrections += 1
+
+        # Led to action: skill resulted in edits or test runs
+        led_to_action = post_edits > 0 or post_test_runs > 0
+
+        # Outcome heuristic
+        if post_errors == 0 and post_corrections == 0 and led_to_action:
+            outcome = "effective"
+        elif post_corrections > 0 or post_errors > 3:
+            outcome = "friction"
+        elif not led_to_action:
+            outcome = "no_action"
+        else:
+            outcome = "mixed"
+
+        # Store per-skill (aggregate if same skill invoked multiple times)
+        if skill not in results:
+            results[skill] = {
+                "invocation_count": 0,
+                "total_post_edits": 0,
+                "total_post_reads": 0,
+                "total_post_test_runs": 0,
+                "total_post_errors": 0,
+                "total_post_corrections": 0,
+                "led_to_action_count": 0,
+                "outcomes": [],
+            }
+
+        r = results[skill]
+        r["invocation_count"] += 1
+        r["total_post_edits"] += post_edits
+        r["total_post_reads"] += post_reads
+        r["total_post_test_runs"] += post_test_runs
+        r["total_post_errors"] += post_errors
+        r["total_post_corrections"] += post_corrections
+        if led_to_action:
+            r["led_to_action_count"] += 1
+        r["outcomes"].append(outcome)
+
+    # Compute summary metrics per skill
+    for skill, r in results.items():
+        n = r["invocation_count"]
+        r["action_rate"] = round(r["led_to_action_count"] / max(n, 1), 2)
+        r["avg_post_errors"] = round(r["total_post_errors"] / max(n, 1), 2)
+        r["avg_post_corrections"] = round(r["total_post_corrections"] / max(n, 1), 2)
+        # Dominant outcome
+        outcome_counts = Counter(r["outcomes"])
+        r["dominant_outcome"] = outcome_counts.most_common(1)[0][0] if outcome_counts else "unknown"
+
+    return results
+
+
 # ─── Main Metric Pipeline ────────────────────────────────────────────────────
 
 
@@ -561,6 +751,9 @@ def compute_session_metrics(data, session_id, project, date=None):
     bigrams = compute_tool_bigrams(tool_calls)
     hotspots = compute_file_hotspots(tool_calls)
     duration = compute_duration(timestamps)
+    skill_effectiveness = compute_skill_effectiveness(
+        user_msgs, tool_calls, errors, messages
+    )
 
     # Tier 2 eligibility
     tier2_reasons = []
@@ -597,6 +790,7 @@ def compute_session_metrics(data, session_id, project, date=None):
         "tool_bigrams": bigrams,
         "file_hotspots": hotspots,
         "file_categories": categorize_files(list(files_edited)),
+        "skill_effectiveness": skill_effectiveness,
         "session_chain": {"previous_session_id": None, "chain_length": 1},
         "tier2_eligible": tier2_eligible,
         "tier2_reason": " AND ".join(tier2_reasons) if tier2_reasons else None,

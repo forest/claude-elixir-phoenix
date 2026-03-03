@@ -52,6 +52,9 @@ Each plan owns all its artifacts in a namespace directory:
 │   ├── reports/               # 5 specialist agent outputs
 │   └── summaries/             # Supervisor compressed output
 ├── reviews/                   # Fallback for ad-hoc reviews (no plan)
+├── skill-metrics/             # Skill effectiveness dashboards and recommendations
+│   ├── dashboard-{date}.json  # Per-skill aggregate metrics
+│   └── recommendations-{date}.md  # Improvement recommendations
 └── solutions/{category}/      # Global compound knowledge (unchanged)
     ├── ecto-issues/
     ├── liveview-issues/
@@ -569,6 +572,7 @@ When working on code, automatically consult relevant reference documentation bef
 | Scan sessions for metrics | `/session-scan` |
 | Deep-analyze sessions | `/session-deep-dive` |
 | View session trends | `/session-trends` |
+| Monitor skill effectiveness | `/skill-monitor` |
 | Validate plugin against docs | `/docs-check` |
 
 **Workflow Commands**: `/phx:plan` -> `/phx:brief` (optional) -> `/phx:plan --existing` (optional) -> `/phx:work` -> `/phx:brief` (optional) -> `/phx:review` -> `/phx:triage` (optional) -> `/phx:compound`
@@ -580,6 +584,8 @@ When working on code, automatically consult relevant reference documentation bef
 **Analysis**: `/ecto:n1-check`, `/lv:assigns`, `/phx:boundaries`, `/phx:trace`, `/phx:techdebt`
 
 **Session Analytics (dev-only, requires ccrider MCP)**: `/session-scan`, `/session-deep-dive`, `/session-trends`
+
+**Skill Monitoring (dev-only)**: `/skill-monitor` — per-skill effectiveness dashboard and improvement recommendations
 
 **Plugin Maintenance (dev-only)**: `/docs-check` — validate plugin against latest Claude Code documentation
 
