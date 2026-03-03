@@ -1,0 +1,963 @@
+#!/usr/bin/env python3
+"""
+Session Analytics v2 — Compute deterministic metrics from Claude Code sessions.
+
+Reads ccrider message JSON and computes friction scores, fingerprints, plugin
+opportunity scores, tool bigrams, file hotspots, and session chaining.
+
+Usage:
+    # Single session (outputs JSON to stdout)
+    python3 compute-metrics.py <messages.json> --session-id ID --project NAME
+
+    # Batch mode (appends to metrics.jsonl)
+    python3 compute-metrics.py --batch <manifest.json>
+
+    # Trends mode (computes windowed aggregates)
+    python3 compute-metrics.py --trends <metrics.jsonl> [--memory MEMORY.md]
+
+    # Backfill from v1 extracts
+    python3 compute-metrics.py --backfill <extracts-dir/>
+"""
+
+import json
+import math
+import os
+import re
+import sys
+from collections import Counter, defaultdict
+from datetime import datetime, timedelta, timezone
+
+
+# ─── Friction Score Weights ───────────────────────────────────────────────────
+
+FRICTION_WEIGHTS = {
+    "error_tool_ratio": 2.0,
+    "retry_loops": 3.0,
+    "user_corrections": 2.5,
+    "approach_changes": 2.0,
+    "context_compactions": 1.5,
+    "interrupted_requests": 1.0,
+}
+
+# Sigmoid normalization: score = 1 / (1 + e^(-k*(raw - midpoint)))
+FRICTION_SIGMOID_K = 3.0
+FRICTION_SIGMOID_MIDPOINT = 1.5
+
+# ─── Fingerprint Rules ───────────────────────────────────────────────────────
+
+CORRECTION_PATTERNS = re.compile(
+    r"\b(no[,.]?\s|wrong|instead|actually|that'?s not|not what I|"
+    r"I meant|I said|please don'?t|stop|undo|revert)\b",
+    re.IGNORECASE,
+)
+
+FINGERPRINT_KEYWORDS = {
+    "bug-fix": re.compile(
+        r"\b(fix|bug|broken|error|issue|crash|fail|debug|wrong)\b", re.IGNORECASE
+    ),
+    "feature": re.compile(
+        r"\b(add|implement|build|create|new feature|scaffold)\b", re.IGNORECASE
+    ),
+    "exploration": re.compile(
+        r"\b(explore|understand|how does|what is|explain|look at)\b", re.IGNORECASE
+    ),
+    "maintenance": re.compile(
+        r"\b(deps?|update|upgrade|bump|version|migrate)\b", re.IGNORECASE
+    ),
+    "review": re.compile(
+        r"\b(review|PR|pull request|code review|feedback)\b", re.IGNORECASE
+    ),
+    "refactoring": re.compile(
+        r"\b(refactor|extract|rename|move|reorganize|clean ?up)\b", re.IGNORECASE
+    ),
+}
+
+# ─── Plugin Opportunity Signals ───────────────────────────────────────────────
+
+PHX_COMMAND_RE = re.compile(r"/phx:\w+")
+
+
+def sigmoid(raw):
+    """Apply sigmoid normalization to raw friction score."""
+    return 1.0 / (1.0 + math.exp(-FRICTION_SIGMOID_K * (raw - FRICTION_SIGMOID_MIDPOINT)))
+
+
+# ─── Message Parsing ─────────────────────────────────────────────────────────
+
+
+def parse_messages(data):
+    """Parse ccrider message JSON into structured lists.
+
+    Accepts either:
+    - A list of message objects (ccrider format)
+    - A dict with a 'messages' key containing the list
+    """
+    if isinstance(data, dict):
+        messages = data.get("messages", [])
+    elif isinstance(data, list):
+        messages = data
+    else:
+        return []
+    return messages
+
+
+def _get_role(msg):
+    """Get message role, supporting both API format (role) and ccrider format (type)."""
+    return msg.get("role", msg.get("type", msg.get("message", {}).get("role", "")))
+
+
+def _get_content(msg):
+    """Get message content, supporting both API and ccrider formats."""
+    return msg.get("content", msg.get("message", {}).get("content", ""))
+
+
+# Tool name detection from assistant text (ccrider doesn't preserve tool_use blocks)
+TOOL_MENTION_RE = re.compile(
+    r"\b(Read|Edit|Write|Bash|Grep|Glob|Task|NotebookEdit|WebFetch|WebSearch"
+    r"|mcp__tidewave\w*)\b"
+)
+BASH_CMD_RE = re.compile(r"(?:^|\n)\s*(?:\$|>)\s*(mix\s|git\s|npm\s|python3?\s|cd\s|rm\s)")
+
+
+def extract_tool_calls(messages):
+    """Extract ordered list of tool calls from messages.
+
+    For API format: extracts structured tool_use blocks.
+    For ccrider format: infers tool names from assistant message text patterns.
+    """
+    tools = []
+    for msg in messages:
+        if not isinstance(msg, dict):
+            continue
+        content = _get_content(msg)
+        role = _get_role(msg)
+
+        # API format: structured content blocks
+        if isinstance(content, list):
+            for block in content:
+                if isinstance(block, dict) and block.get("type") == "tool_use":
+                    tools.append(block)
+
+        # ccrider format: infer tools from assistant text
+        elif isinstance(content, str) and role == "assistant":
+            mentioned = TOOL_MENTION_RE.findall(content)
+            for name in mentioned:
+                tools.append({"name": name, "input": {}})
+            # Detect bash commands in text
+            if BASH_CMD_RE.search(content):
+                tools.append({"name": "Bash", "input": {}})
+
+    return tools
+
+
+def extract_user_messages(messages):
+    """Extract user message texts."""
+    user_msgs = []
+    for msg in messages:
+        if not isinstance(msg, dict):
+            continue
+        role = _get_role(msg)
+        if role != "user":
+            continue
+        content = _get_content(msg)
+        if isinstance(content, str):
+            if not content.startswith("<system-reminder>") and not content.startswith(
+                "<local-command-caveat>"
+            ) and not content.startswith("<local-command-stdout>") and len(content) > 5:
+                user_msgs.append(content)
+        elif isinstance(content, list):
+            for block in content:
+                if isinstance(block, dict) and block.get("type") == "text":
+                    text = block.get("text", "")
+                    if not text.startswith("<system-reminder>") and not text.startswith(
+                        "<command-name>"
+                    ):
+                        if len(text) > 5:
+                            user_msgs.append(text)
+    return user_msgs
+
+
+def extract_errors(messages):
+    """Extract tool errors from messages."""
+    errors = []
+    for msg in messages:
+        if not isinstance(msg, dict):
+            continue
+        content = _get_content(msg)
+        role = _get_role(msg)
+
+        # API format: structured error blocks
+        if isinstance(content, list):
+            for block in content:
+                if isinstance(block, dict):
+                    if block.get("type") == "tool_result" and block.get("is_error"):
+                        err = block.get("content", "")
+                        if isinstance(err, str) and len(err) > 5:
+                            errors.append(err[:200])
+
+        # ccrider format: detect error patterns in assistant text
+        elif isinstance(content, str) and role == "assistant":
+            if re.search(r"\b(error|Error|ERROR|failed|Failed|FAILED)\b", content):
+                if re.search(r"\b(compilation|compile|test|credo|format)\s+(error|fail)", content, re.I):
+                    errors.append(content[:200])
+    return errors
+
+
+def extract_timestamps(messages):
+    """Extract timestamps from messages."""
+    timestamps = []
+    for msg in messages:
+        if not isinstance(msg, dict):
+            continue
+        ts = msg.get("timestamp")
+        if ts:
+            timestamps.append(ts)
+    return timestamps
+
+
+# ─── Metric Computation ──────────────────────────────────────────────────────
+
+
+def compute_friction(tool_calls, user_msgs, errors, messages):
+    """Compute friction score (0.0-1.0) with signal breakdown."""
+    tool_count = len(tool_calls)
+
+    # Error-tool ratio
+    error_count = len(errors)
+    error_tool_ratio = error_count / max(tool_count, 1)
+
+    # Retry loops: same command 3+ times with failures between
+    retry_loops = 0
+    bash_cmds = []
+    for tc in tool_calls:
+        name = tc.get("name", "")
+        inp = tc.get("input", {})
+        if name == "Bash":
+            bash_cmds.append(inp.get("command", ""))
+    # Detect consecutive similar commands
+    window = []
+    for cmd in bash_cmds:
+        normalized = cmd.strip().split()[0] if cmd.strip() else ""
+        if window and window[-1] == normalized:
+            window.append(normalized)
+        else:
+            if len(window) >= 3:
+                retry_loops += 1
+            window = [normalized]
+    if len(window) >= 3:
+        retry_loops += 1
+
+    # User corrections
+    user_corrections = 0
+    for text in user_msgs:
+        if CORRECTION_PATTERNS.search(text[:500]):
+            user_corrections += 1
+
+    # Approach changes: detect tool pattern shifts (edit-heavy -> read-heavy)
+    approach_changes = 0
+    if len(tool_calls) >= 10:
+        chunk_size = max(len(tool_calls) // 4, 5)
+        chunks = [
+            tool_calls[i : i + chunk_size]
+            for i in range(0, len(tool_calls), chunk_size)
+        ]
+        prev_dominant = None
+        for chunk in chunks:
+            counts = Counter(tc.get("name", "") for tc in chunk)
+            dominant = counts.most_common(1)[0][0] if counts else None
+            if prev_dominant and dominant and prev_dominant != dominant:
+                approach_changes += 1
+            prev_dominant = dominant
+
+    # Context compactions
+    context_compactions = 0
+    for msg in messages:
+        content = _get_content(msg)
+        if isinstance(content, str) and "context compaction" in content.lower():
+            context_compactions += 1
+        elif isinstance(content, list):
+            for block in content:
+                if isinstance(block, dict) and block.get("type") == "text":
+                    if "context compaction" in block.get("text", "").lower():
+                        context_compactions += 1
+
+    # Interrupted requests
+    interrupted_requests = 0
+    for msg in messages:
+        content = _get_content(msg)
+        if isinstance(content, str):
+            if "[Request interrupted by user]" in content:
+                interrupted_requests += 1
+        elif isinstance(content, list):
+            for block in content:
+                if isinstance(block, dict) and block.get("type") == "text":
+                    if "[Request interrupted by user]" in block.get("text", ""):
+                        interrupted_requests += 1
+
+    signals = {
+        "error_tool_ratio": round(error_tool_ratio, 3),
+        "retry_loops": retry_loops,
+        "user_corrections": user_corrections,
+        "approach_changes": approach_changes,
+        "context_compactions": context_compactions,
+        "interrupted_requests": interrupted_requests,
+    }
+
+    # Weighted sum
+    raw = sum(
+        signals[k] * FRICTION_WEIGHTS[k]
+        for k in FRICTION_WEIGHTS
+    )
+
+    score = round(sigmoid(raw), 3)
+    return score, signals
+
+
+def compute_fingerprint(user_msgs, tool_calls, files_edited):
+    """Classify session type with confidence."""
+    scores = defaultdict(float)
+
+    user_text = " ".join(user_msgs[:10])  # First 10 messages for intent
+
+    for fp_type, pattern in FINGERPRINT_KEYWORDS.items():
+        matches = pattern.findall(user_text)
+        scores[fp_type] += len(matches) * 2.0
+
+    # Tool profile signals
+    tool_names = [tc.get("name", "") for tc in tool_calls]
+    tool_counts = Counter(tool_names)
+    total = max(len(tool_names), 1)
+
+    read_pct = (tool_counts.get("Read", 0) + tool_counts.get("Grep", 0) + tool_counts.get("Glob", 0)) / total
+    edit_pct = (tool_counts.get("Edit", 0) + tool_counts.get("Write", 0)) / total
+    bash_pct = tool_counts.get("Bash", 0) / total
+
+    if read_pct > 0.5 and edit_pct < 0.1:
+        scores["exploration"] += 3.0
+    if edit_pct > 0.3:
+        scores["feature"] += 2.0
+    if bash_pct > 0.3:
+        scores["bug-fix"] += 2.0
+    if len(files_edited) > 10:
+        scores["refactoring"] += 2.0
+    if len(files_edited) > 5:
+        scores["feature"] += 1.0
+
+    # Tidewave signals
+    tidewave_count = sum(1 for n in tool_names if n.startswith("mcp__tidewave"))
+    if tidewave_count > 0:
+        scores["bug-fix"] += 1.5
+
+    # Mix deps signals
+    bash_cmds = [tc.get("input", {}).get("command", "") for tc in tool_calls if tc.get("name") == "Bash"]
+    deps_cmds = [c for c in bash_cmds if "mix deps" in c or "mix hex" in c]
+    if deps_cmds:
+        scores["maintenance"] += 3.0
+
+    # gh pr signals
+    pr_cmds = [c for c in bash_cmds if "gh pr" in c or "gh issue" in c]
+    if pr_cmds:
+        scores["review"] += 3.0
+
+    if not scores:
+        return "unknown", 0.0
+
+    best = max(scores, key=scores.get)
+    total_score = sum(scores.values())
+    confidence = round(scores[best] / max(total_score, 1), 2)
+
+    return best, confidence
+
+
+def compute_plugin_opportunity(user_msgs, tool_calls, phx_commands):
+    """Compute plugin opportunity score (0.0-1.0)."""
+    could_use = []
+
+    tool_names = [tc.get("name", "") for tc in tool_calls]
+    tool_count = len(tool_names)
+    bash_cmds = [tc.get("input", {}).get("command", "") for tc in tool_calls if tc.get("name") == "Bash"]
+
+    # Retry loops suggest /phx:investigate
+    consecutive = 0
+    for i in range(1, len(bash_cmds)):
+        if bash_cmds[i].split()[0:2] == bash_cmds[i - 1].split()[0:2] if bash_cmds[i].strip() else False:
+            consecutive += 1
+            if consecutive >= 2:
+                could_use.append("investigate")
+                break
+        else:
+            consecutive = 0
+
+    # Many tools without plan suggest /phx:plan
+    if tool_count > 50 and "plan" not in phx_commands:
+        could_use.append("plan")
+
+    # Multiple mix test runs suggest /phx:verify
+    test_runs = sum(1 for c in bash_cmds if "mix test" in c or "mix compile" in c)
+    if test_runs >= 3 and "verify" not in phx_commands:
+        could_use.append("verify")
+
+    # PR commands suggest /phx:pr-review
+    pr_cmds = sum(1 for c in bash_cmds if "gh pr" in c)
+    if pr_cmds >= 2 and "pr-review" not in phx_commands:
+        could_use.append("pr-review")
+
+    # Many edits without review suggest /phx:review
+    edit_count = sum(1 for n in tool_names if n in ("Edit", "Write"))
+    if edit_count > 10 and "review" not in phx_commands:
+        could_use.append("review")
+
+    score = min(len(could_use) * 0.2, 1.0)
+    return round(score, 2), could_use
+
+
+def compute_tool_profile(tool_calls):
+    """Compute tool usage percentages."""
+    names = [tc.get("name", "") for tc in tool_calls]
+    total = max(len(names), 1)
+    counts = Counter(names)
+
+    read_count = counts.get("Read", 0) + counts.get("Glob", 0)
+    edit_count = counts.get("Edit", 0) + counts.get("Write", 0)
+    bash_count = counts.get("Bash", 0)
+    grep_count = counts.get("Grep", 0)
+    tidewave_count = sum(v for k, v in counts.items() if k.startswith("mcp__tidewave"))
+    other_count = total - read_count - edit_count - bash_count - grep_count - tidewave_count
+
+    return {
+        "read_pct": round(read_count / total * 100, 1),
+        "edit_pct": round(edit_count / total * 100, 1),
+        "bash_pct": round(bash_count / total * 100, 1),
+        "grep_pct": round(grep_count / total * 100, 1),
+        "tidewave_pct": round(tidewave_count / total * 100, 1),
+        "other_pct": round(max(other_count, 0) / total * 100, 1),
+    }
+
+
+def compute_tool_bigrams(tool_calls, top_n=15):
+    """Extract top tool sequence pairs."""
+    names = [tc.get("name", "") for tc in tool_calls]
+    bigrams = Counter()
+    for i in range(len(names) - 1):
+        pair = f"{names[i]}->{names[i+1]}"
+        bigrams[pair] += 1
+    return dict(bigrams.most_common(top_n))
+
+
+def compute_file_hotspots(tool_calls, top_n=10):
+    """Count reads/edits per file path."""
+    hotspots = defaultdict(lambda: {"reads": 0, "edits": 0})
+    for tc in tool_calls:
+        name = tc.get("name", "")
+        inp = tc.get("input", {})
+        fp = inp.get("file_path", "")
+        if not fp:
+            continue
+        if name in ("Read", "Glob"):
+            hotspots[fp]["reads"] += 1
+        elif name in ("Edit", "Write"):
+            hotspots[fp]["edits"] += 1
+
+    ranked = sorted(
+        hotspots.items(),
+        key=lambda x: x[1]["reads"] + x[1]["edits"],
+        reverse=True,
+    )[:top_n]
+
+    return [{"path": p, **counts} for p, counts in ranked]
+
+
+def compute_duration(timestamps):
+    """Compute session duration in minutes from timestamps."""
+    if len(timestamps) < 2:
+        return None
+    try:
+        first, last = timestamps[0], timestamps[-1]
+        if isinstance(first, str) and isinstance(last, str):
+            t1 = datetime.fromisoformat(first.replace("Z", "+00:00"))
+            t2 = datetime.fromisoformat(last.replace("Z", "+00:00"))
+            return round((t2 - t1).total_seconds() / 60, 1)
+        elif isinstance(first, (int, float)) and isinstance(last, (int, float)):
+            return round((last - first) / 60000, 1)
+    except (ValueError, TypeError):
+        pass
+    return None
+
+
+def categorize_files(files):
+    """Categorize files by type (preserved from v1 extract-session.py)."""
+    categories = Counter()
+    for fp in files:
+        if "_live.ex" in fp or "_live/" in fp:
+            categories["liveview"] += 1
+        elif "_test.exs" in fp:
+            categories["test"] += 1
+        elif "/migrations/" in fp:
+            categories["migration"] += 1
+        elif "_worker.ex" in fp or "/workers/" in fp:
+            categories["oban_worker"] += 1
+        elif "/contexts/" in fp or (fp.endswith(".ex") and "/lib/" in fp):
+            categories["context_or_module"] += 1
+        elif fp.endswith(".heex"):
+            categories["template"] += 1
+        elif "router.ex" in fp:
+            categories["router"] += 1
+        elif fp.endswith(".js") or fp.endswith(".ts"):
+            categories["javascript"] += 1
+        elif fp.endswith(".css"):
+            categories["css"] += 1
+        else:
+            categories["other"] += 1
+    return dict(categories)
+
+
+# ─── Main Metric Pipeline ────────────────────────────────────────────────────
+
+
+def compute_session_metrics(data, session_id, project, date=None):
+    """Compute all metrics for a single session."""
+    messages = parse_messages(data)
+    tool_calls = extract_tool_calls(messages)
+    user_msgs = extract_user_messages(messages)
+    errors = extract_errors(messages)
+    timestamps = extract_timestamps(messages)
+
+    # Extract files edited/read
+    files_edited = set()
+    files_read = set()
+    for tc in tool_calls:
+        name = tc.get("name", "")
+        fp = tc.get("input", {}).get("file_path", "")
+        if not fp:
+            continue
+        if name in ("Edit", "Write"):
+            files_edited.add(fp)
+        elif name == "Read":
+            files_read.add(fp)
+
+    # Extract phx commands from user messages
+    phx_commands = []
+    for text in user_msgs:
+        if not text.startswith("Base directory for this skill:"):
+            cmds = PHX_COMMAND_RE.findall(text)
+            cmds = [c for c in cmds if "{" not in c and "<" not in c]
+            phx_commands.extend(cmds)
+
+    # Tidewave detection
+    tool_names = [tc.get("name", "") for tc in tool_calls]
+    tidewave_available = any(n.startswith("mcp__tidewave") for n in tool_names)
+    tidewave_used = tidewave_available  # If calls exist, it was used
+
+    friction_score, friction_signals = compute_friction(
+        tool_calls, user_msgs, errors, messages
+    )
+    fingerprint, fp_confidence = compute_fingerprint(
+        user_msgs, tool_calls, list(files_edited)
+    )
+    opportunity_score, could_use = compute_plugin_opportunity(
+        user_msgs, tool_calls, [c.replace("/phx:", "") for c in phx_commands]
+    )
+    tool_profile = compute_tool_profile(tool_calls)
+    bigrams = compute_tool_bigrams(tool_calls)
+    hotspots = compute_file_hotspots(tool_calls)
+    duration = compute_duration(timestamps)
+
+    # Tier 2 eligibility
+    tier2_reasons = []
+    if friction_score > 0.35:
+        tier2_reasons.append("friction > 0.35")
+    if opportunity_score > 0.5:
+        tier2_reasons.append("opportunity > 0.5")
+    if phx_commands:
+        tier2_reasons.append("plugin commands used")
+    if len(user_msgs) > 50:
+        tier2_reasons.append("message_count > 50")
+    tier2_eligible = len(tier2_reasons) > 0
+
+    return {
+        "session_id": session_id,
+        "scanned_at": datetime.now(timezone.utc).isoformat(),
+        "project": project,
+        "date": date or (timestamps[0][:10] if timestamps and isinstance(timestamps[0], str) else None),
+        "duration_minutes": duration,
+        "message_count": len(user_msgs),
+        "tool_count": len(tool_calls),
+        "fingerprint": fingerprint,
+        "fingerprint_confidence": fp_confidence,
+        "friction_score": friction_score,
+        "friction_signals": friction_signals,
+        "plugin_opportunity_score": opportunity_score,
+        "plugin_signals": {
+            "phx_commands_used": list(set(phx_commands)),
+            "could_use": could_use,
+            "tidewave_available": tidewave_available,
+            "tidewave_used": tidewave_used,
+        },
+        "tool_profile": tool_profile,
+        "tool_bigrams": bigrams,
+        "file_hotspots": hotspots,
+        "file_categories": categorize_files(list(files_edited)),
+        "session_chain": {"previous_session_id": None, "chain_length": 1},
+        "tier2_eligible": tier2_eligible,
+        "tier2_reason": " AND ".join(tier2_reasons) if tier2_reasons else None,
+        "tier2_completed": False,
+    }
+
+
+# ─── Backfill from v1 Extracts ───────────────────────────────────────────────
+
+
+def backfill_from_v1(extract_path):
+    """Compute v2 metrics from a v1 extract JSON file.
+
+    v1 extracts have tool_usage, user_messages, phx_commands, errors, etc.
+    Some v2 signals (user corrections, approach changes) are approximated.
+    """
+    with open(extract_path) as f:
+        v1 = json.load(f)
+
+    session_id = v1.get("session_id", os.path.basename(extract_path).replace(".json", ""))
+    project = v1.get("project", "unknown")
+    tool_usage = v1.get("tool_usage", {})
+    total_tools = sum(tool_usage.values())
+
+    # Approximate friction from available v1 data
+    error_count = len(v1.get("errors", []))
+    error_tool_ratio = round(error_count / max(total_tools, 1), 3)
+
+    # User corrections approximation from user messages
+    user_msgs = v1.get("user_messages", [])
+    user_corrections = sum(
+        1 for text in user_msgs if CORRECTION_PATTERNS.search(text[:500])
+    )
+
+    friction_signals = {
+        "error_tool_ratio": error_tool_ratio,
+        "retry_loops": 0,  # Can't reliably detect from v1 extracts
+        "user_corrections": user_corrections,
+        "approach_changes": 0,
+        "context_compactions": 0,
+        "interrupted_requests": 0,
+    }
+    raw = sum(friction_signals[k] * FRICTION_WEIGHTS[k] for k in FRICTION_WEIGHTS)
+    friction_score = round(sigmoid(raw), 3)
+
+    # Fingerprint from v1 data
+    user_text = " ".join(user_msgs[:10])
+    scores = defaultdict(float)
+    for fp_type, pattern in FINGERPRINT_KEYWORDS.items():
+        matches = pattern.findall(user_text)
+        scores[fp_type] += len(matches) * 2.0
+
+    # Tool profile from v1 tool_usage
+    read_count = tool_usage.get("Read", 0) + tool_usage.get("Glob", 0)
+    edit_count = tool_usage.get("Edit", 0) + tool_usage.get("Write", 0)
+    bash_count = tool_usage.get("Bash", 0)
+    grep_count = tool_usage.get("Grep", 0)
+    tidewave_count = sum(v for k, v in tool_usage.items() if k.startswith("mcp__tidewave"))
+
+    if read_count / max(total_tools, 1) > 0.5 and edit_count / max(total_tools, 1) < 0.1:
+        scores["exploration"] += 3.0
+    if edit_count / max(total_tools, 1) > 0.3:
+        scores["feature"] += 2.0
+    if bash_count / max(total_tools, 1) > 0.3:
+        scores["bug-fix"] += 2.0
+
+    best = max(scores, key=scores.get) if scores else "unknown"
+    total_score = sum(scores.values())
+    fp_confidence = round(scores.get(best, 0) / max(total_score, 1), 2) if scores else 0.0
+
+    # Plugin opportunity from v1 phx_commands
+    phx_commands = v1.get("phx_commands", [])
+    could_use = []
+    if total_tools > 50 and not phx_commands:
+        could_use.append("plan")
+    mix_cmds = v1.get("mix_commands", [])
+    test_runs = sum(1 for c in mix_cmds if "mix test" in c or "mix compile" in c)
+    if test_runs >= 3:
+        could_use.append("verify")
+
+    opportunity_score = min(len(could_use) * 0.2, 1.0)
+
+    other_count = max(total_tools - read_count - edit_count - bash_count - grep_count - tidewave_count, 0)
+
+    return {
+        "session_id": session_id,
+        "scanned_at": datetime.now(timezone.utc).isoformat(),
+        "backfilled": True,
+        "project": project,
+        "date": None,
+        "duration_minutes": v1.get("duration_minutes"),
+        "message_count": v1.get("user_message_count", len(user_msgs)),
+        "tool_count": total_tools,
+        "fingerprint": best,
+        "fingerprint_confidence": fp_confidence,
+        "friction_score": friction_score,
+        "friction_signals": friction_signals,
+        "plugin_opportunity_score": round(opportunity_score, 2),
+        "plugin_signals": {
+            "phx_commands_used": phx_commands,
+            "could_use": could_use,
+            "tidewave_available": bool(v1.get("tidewave_usage")),
+            "tidewave_used": bool(v1.get("tidewave_usage")),
+        },
+        "tool_profile": {
+            "read_pct": round(read_count / max(total_tools, 1) * 100, 1),
+            "edit_pct": round(edit_count / max(total_tools, 1) * 100, 1),
+            "bash_pct": round(bash_count / max(total_tools, 1) * 100, 1),
+            "grep_pct": round(grep_count / max(total_tools, 1) * 100, 1),
+            "tidewave_pct": round(tidewave_count / max(total_tools, 1) * 100, 1),
+            "other_pct": round(other_count / max(total_tools, 1) * 100, 1),
+        },
+        "tool_bigrams": {},
+        "file_hotspots": [],
+        "file_categories": v1.get("file_categories", {}),
+        "session_chain": {"previous_session_id": None, "chain_length": 1},
+        "tier2_eligible": friction_score > 0.35 or opportunity_score > 0.5,
+        "tier2_reason": None,
+        "tier2_completed": False,
+    }
+
+
+# ─── Trends Computation ──────────────────────────────────────────────────────
+
+
+def compute_trends(metrics_path, memory_path=None, project_filter=None):
+    """Compute windowed aggregates from metrics.jsonl."""
+    entries = []
+    with open(metrics_path) as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                try:
+                    entry = json.loads(line)
+                    if project_filter:
+                        proj = entry.get("project", "")
+                        if project_filter.lower() not in proj.lower():
+                            continue
+                    entries.append(entry)
+                except json.JSONDecodeError:
+                    continue
+
+    if not entries:
+        return {"error": "No metrics found", "total_sessions": 0}
+
+    now = datetime.now(timezone.utc)
+    windows = {
+        "7d": now - timedelta(days=7),
+        "30d": now - timedelta(days=30),
+        "all": datetime.min.replace(tzinfo=timezone.utc),
+    }
+
+    def parse_date(entry):
+        d = entry.get("date") or entry.get("scanned_at", "")
+        if not d:
+            return None
+        try:
+            return datetime.fromisoformat(d.replace("Z", "+00:00"))
+        except (ValueError, TypeError):
+            try:
+                return datetime.strptime(d[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
+            except (ValueError, TypeError):
+                return None
+
+    trends = {}
+    for window_name, cutoff in windows.items():
+        window_entries = [
+            e for e in entries if (parse_date(e) or datetime.min.replace(tzinfo=timezone.utc)) >= cutoff
+        ]
+        if not window_entries:
+            trends[window_name] = {"count": 0}
+            continue
+
+        frictions = [e.get("friction_score") or 0 for e in window_entries]
+        opportunities = [e.get("plugin_opportunity_score") or 0 for e in window_entries]
+        fingerprints = Counter(e.get("fingerprint", "unknown") for e in window_entries)
+        tier2_count = sum(1 for e in window_entries if e.get("tier2_eligible"))
+        phx_users = sum(1 for e in window_entries if e.get("plugin_signals", {}).get("phx_commands_used"))
+        backfilled = sum(1 for e in window_entries if e.get("backfilled"))
+
+        trends[window_name] = {
+            "count": len(window_entries),
+            "backfilled_count": backfilled,
+            "avg_friction": round(sum(frictions) / len(frictions), 3),
+            "max_friction": round(max(frictions), 3),
+            "avg_opportunity": round(sum(opportunities) / len(opportunities), 3),
+            "fingerprint_distribution": dict(fingerprints.most_common()),
+            "tier2_eligible_count": tier2_count,
+            "tier2_eligible_pct": round(tier2_count / len(window_entries) * 100, 1),
+            "plugin_adoption_rate": round(phx_users / len(window_entries) * 100, 1),
+        }
+
+    # Memory comparison (if provided)
+    memory_comparison = None
+    if memory_path and os.path.exists(memory_path):
+        with open(memory_path) as f:
+            memory_text = f.read()
+        memory_comparison = {
+            "plugin_adoption_memory": "8-12%" if "8-12%" in memory_text else "unknown",
+            "plugin_adoption_measured": f"{trends.get('all', {}).get('plugin_adoption_rate', 0)}%",
+        }
+
+    return {
+        "computed_at": now.isoformat(),
+        "total_sessions": len(entries),
+        "windows": trends,
+        "memory_comparison": memory_comparison,
+    }
+
+
+# ─── Batch Mode ──────────────────────────────────────────────────────────────
+
+
+def run_batch(manifest_path):
+    """Process multiple sessions from a manifest file.
+
+    Manifest format: JSON array of {session_id, project, messages_path}
+    Appends results to metrics.jsonl in the same directory.
+    """
+    with open(manifest_path) as f:
+        manifest = json.load(f)
+
+    output_dir = os.path.dirname(manifest_path) or "."
+    metrics_path = os.path.join(output_dir, "metrics.jsonl")
+
+    results = []
+    for i, entry in enumerate(manifest):
+        sid = entry["session_id"]
+        project = entry.get("project", "unknown")
+        msg_path = entry["messages_path"]
+
+        print(f"[{i+1}/{len(manifest)}] {project}/{sid[:12]}... ", end="", flush=True)
+
+        try:
+            with open(msg_path) as f:
+                data = json.load(f)
+            metrics = compute_session_metrics(data, sid, project)
+            results.append(metrics)
+
+            with open(metrics_path, "a") as f:
+                f.write(json.dumps(metrics) + "\n")
+
+            print(f"OK (friction={metrics['friction_score']}, fp={metrics['fingerprint']})")
+        except Exception as e:
+            print(f"ERROR: {e}")
+
+    print(f"\nDone: {len(results)} sessions processed -> {metrics_path}")
+    return results
+
+
+# ─── CLI ──────────────────────────────────────────────────────────────────────
+
+
+def print_usage():
+    print("Usage:")
+    print("  python3 compute-metrics.py <messages.json> --session-id ID --project NAME")
+    print("  python3 compute-metrics.py --batch <manifest.json>")
+    print("  python3 compute-metrics.py --trends <metrics.jsonl> [--memory MEMORY.md] [--project NAME]")
+    print("  python3 compute-metrics.py --backfill <extracts-dir/>")
+    print("  python3 compute-metrics.py --help")
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2 or "--help" in sys.argv:
+        print_usage()
+        sys.exit(0)
+
+    mode = sys.argv[1]
+
+    if mode == "--batch":
+        if len(sys.argv) < 3:
+            print("Error: --batch requires manifest path")
+            sys.exit(1)
+        run_batch(sys.argv[2])
+
+    elif mode == "--trends":
+        if len(sys.argv) < 3:
+            print("Error: --trends requires metrics.jsonl path")
+            sys.exit(1)
+        memory_path = None
+        if "--memory" in sys.argv:
+            idx = sys.argv.index("--memory")
+            if idx + 1 < len(sys.argv):
+                memory_path = sys.argv[idx + 1]
+        project_filter = None
+        if "--project" in sys.argv:
+            idx = sys.argv.index("--project")
+            if idx + 1 < len(sys.argv):
+                project_filter = sys.argv[idx + 1]
+        result = compute_trends(sys.argv[2], memory_path, project_filter)
+        print(json.dumps(result, indent=2))
+
+    elif mode == "--backfill":
+        if len(sys.argv) < 3:
+            print("Error: --backfill requires extracts directory")
+            sys.exit(1)
+        extracts_dir = sys.argv[2]
+        if not os.path.isdir(extracts_dir):
+            print(f"Error: {extracts_dir} is not a directory")
+            sys.exit(1)
+
+        metrics_path = os.environ.get(
+            "METRICS_PATH",
+            os.path.join(os.path.dirname(extracts_dir), "session-metrics", "metrics.jsonl"),
+        )
+        os.makedirs(os.path.dirname(metrics_path), exist_ok=True)
+
+        # Load existing session IDs to skip
+        existing_ids = set()
+        if os.path.exists(metrics_path):
+            with open(metrics_path) as f:
+                for line in f:
+                    try:
+                        existing_ids.add(json.loads(line).get("session_id"))
+                    except json.JSONDecodeError:
+                        continue
+
+        files = sorted(f for f in os.listdir(extracts_dir) if f.endswith(".json") and not f.startswith("_"))
+        processed = 0
+        skipped = 0
+
+        for fname in files:
+            fpath = os.path.join(extracts_dir, fname)
+            try:
+                with open(fpath) as f:
+                    v1 = json.load(f)
+                sid = v1.get("session_id", fname.replace(".json", ""))
+                if sid in existing_ids:
+                    skipped += 1
+                    continue
+                metrics = backfill_from_v1(fpath)
+                with open(metrics_path, "a") as f:
+                    f.write(json.dumps(metrics) + "\n")
+                processed += 1
+                print(f"  Backfilled: {fname} (friction={metrics['friction_score']})")
+            except Exception as e:
+                print(f"  Error: {fname}: {e}")
+
+        print(f"\nBackfill complete: {processed} new, {skipped} skipped -> {metrics_path}")
+
+    else:
+        # Single session mode
+        messages_path = mode
+        session_id = None
+        project = "unknown"
+
+        if "--session-id" in sys.argv:
+            idx = sys.argv.index("--session-id")
+            if idx + 1 < len(sys.argv):
+                session_id = sys.argv[idx + 1]
+
+        if "--project" in sys.argv:
+            idx = sys.argv.index("--project")
+            if idx + 1 < len(sys.argv):
+                project = sys.argv[idx + 1]
+
+        if not session_id:
+            session_id = os.path.basename(messages_path).replace(".json", "")
+
+        with open(messages_path) as f:
+            data = json.load(f)
+
+        metrics = compute_session_metrics(data, session_id, project)
+        print(json.dumps(metrics))

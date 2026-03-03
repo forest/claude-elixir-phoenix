@@ -88,9 +88,9 @@ claude-elixir-phoenix/
 │   │   └── techdebt.md
 │   └── skills/
 │       ├── docs-check/              # /docs-check — validate against Claude Code docs
-│       ├── find-sessions/
-│       ├── analyze-session/
-│       └── session-insights/
+│       ├── session-scan/            # /session-scan — Tier 1 metrics
+│       ├── session-deep-dive/       # /session-deep-dive — Tier 2 analysis
+│       └── session-trends/          # /session-trends — trend reporting
 ├── scripts/
 │   └── fetch-claude-docs.sh         # Download Claude Code docs for validation
 ├── plugins/
@@ -566,9 +566,9 @@ When working on code, automatically consult relevant reference documentation bef
 | PR review comments | `/phx:pr-review` |
 | Performance analysis | `/phx:perf` |
 | Project health | `/phx:audit` |
-| Find sessions to analyze | `/find-sessions` |
-| Analyze a session | `/analyze-session` |
-| Full session analysis pipeline | `/session-insights` |
+| Scan sessions for metrics | `/session-scan` |
+| Deep-analyze sessions | `/session-deep-dive` |
+| View session trends | `/session-trends` |
 | Validate plugin against docs | `/docs-check` |
 
 **Workflow Commands**: `/phx:plan` -> `/phx:brief` (optional) -> `/phx:plan --existing` (optional) -> `/phx:work` -> `/phx:brief` (optional) -> `/phx:review` -> `/phx:triage` (optional) -> `/phx:compound`
@@ -579,7 +579,7 @@ When working on code, automatically consult relevant reference documentation bef
 
 **Analysis**: `/ecto:n1-check`, `/lv:assigns`, `/phx:boundaries`, `/phx:trace`, `/phx:techdebt`
 
-**Session Insights (dev-only, requires ccrider MCP)**: `/find-sessions`, `/analyze-session`, `/session-insights`, `/analyze-sessions`
+**Session Analytics (dev-only, requires ccrider MCP)**: `/session-scan`, `/session-deep-dive`, `/session-trends`
 
 **Plugin Maintenance (dev-only)**: `/docs-check` — validate plugin against latest Claude Code documentation
 
