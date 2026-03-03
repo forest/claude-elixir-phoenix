@@ -569,18 +569,37 @@ Share these findings in issues or PRs to help make the plugin better for everyon
 
 This plugin was built with insights from these articles, repositories, and tools:
 
+### Repositories and Tools
+
 - <https://github.com/tidewave-elixir/tidewave>
-- <https://tidewave.ai/blog/the-future-of-coding-agents-is-vertical-integration>
 - <https://github.com/neilberkman/ccrider>
 - <https://github.com/nicobailon/visual-explainer>
 - <https://github.com/VoltAgent/awesome-claude-code-subagents>
 - <https://github.com/shanraisshan/claude-code-best-practice>
 - <https://github.com/anthropics/claude-code>
 - <https://github.com/anthropics/claude-plugins-official>
+- <https://github.com/anthropics/skills>
+- <https://github.com/rjs/shaping-skills>
+- <https://github.com/affaan-m/everything-claude-code>
+- <https://github.com/blader/theorist>
+- <https://github.com/boshu2/agentops>
+
+### Articles
+
+- <https://tidewave.ai/blog/the-future-of-coding-agents-is-vertical-integration>
+- <https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents>
+- <https://openai.com/index/harness-engineering/>
+- <https://www.ignorance.ai/p/the-emerging-harness-engineering>
+- <https://martinfowler.com/articles/exploring-gen-ai/harness-engineering.html>
+- <https://stripe.dev/blog/minions-stripes-one-shot-end-to-end-coding-agents>
+- <https://boristane.com/blog/how-i-use-claude-code/>
+- <https://mitchellh.com/writing/my-ai-adoption-journey>
+- <https://www.thepragmaticcto.com/p/no-vibes-allowed-context-engineering>
 - <https://basecamp.com/shapeup>
 - <https://pragprog.com/titles/jwpaieng/common-sense-guide-to-ai-engineering/>
 - <https://allanmacgregor.com/posts/setting-up-tidewave-beam-introspection>
 - <https://theengineeringmanager.substack.com/p/councils-of-agents>
+- <https://platform.claude.com/docs/en/agents-and-tools/tool-use/programmatic-tool-calling>
 - <https://x.com/heynavtoor>
 
 ## License
