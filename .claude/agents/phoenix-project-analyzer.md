@@ -194,4 +194,4 @@ Write analysis to stdout as:
 4. **Compare to plugin** - Identify gaps in current skills/agents
 5. **Prioritize** - Focus on high-frequency, high-impact gaps
 
-> **Note**: For analyzing Claude Code session transcripts (not codebases), use `/analyze-sessions` instead. That skill has a dedicated pipeline for extracting, analyzing, and synthesizing session data.
+> **Note**: For analyzing Claude Code session transcripts (not codebases), use `/session-scan`, `/session-deep-dive`, or `/session-trends` instead.

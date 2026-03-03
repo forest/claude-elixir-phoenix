@@ -532,22 +532,17 @@ you can analyze your own sessions to find patterns that the plugin should handle
 **Available tools** (dev-only, not shipped with the plugin):
 
 ```bash
-# Browse and search your sessions
-/find-sessions
-/find-sessions "LiveView errors"
-/find-sessions --project myapp
+# Tier 1: Discover sessions and compute deterministic metrics
+/session-scan
+/session-scan --project myapp
 
-# Analyze a specific session
-/analyze-session abc12345
-/analyze-session --last
+# Tier 2: Qualitative analysis of high-signal sessions
+/session-deep-dive
+/session-deep-dive --date 2026-03-01
 
-# Full pipeline: search + analyze + synthesize
-/session-insights "all my Elixir Phoenix sessions"
-/session-insights --project myapp
-/session-insights "debugging sessions" --after 2026-01-15
-
-# Batch analysis (Python-based, for large-scale analysis)
-/analyze-sessions 20 --synthesize
+# Trends: Windowed aggregates (7d/30d/all) from metrics ledger
+/session-trends
+/session-trends --compare baseline
 ```
 
 ### What session analysis finds
