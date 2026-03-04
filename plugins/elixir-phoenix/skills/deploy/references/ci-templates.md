@@ -2,6 +2,17 @@
 
 GitHub Actions workflows for Phoenix applications with optional Claude Code integration.
 
+## Contents
+
+- [Basic Phoenix CI](#basic-phoenix-ci)
+- [Dialyzer Job](#dialyzer-job-separate-for-caching)
+- [Claude Code PR Review](#claude-code-pr-review)
+- [Credo + Claude Combined Analysis](#credo--claude-combined-analysis)
+- [Full Matrix Build](#full-matrix-build)
+- [Deployment Workflow](#deployment-workflow)
+- [Required Secrets](#required-secrets)
+- [Local Pre-commit Hook](#local-pre-commit-hook)
+
 ## Basic Phoenix CI
 
 ```yaml

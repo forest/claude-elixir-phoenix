@@ -1,5 +1,12 @@
 # Documentation Patterns
 
+## Contents
+
+- [@moduledoc Templates](#moduledoc-templates)
+- [@doc Templates](#doc-templates)
+- [ADR Template](#adr-template)
+- [README Section Template](#readme-section-template)
+
 ## @moduledoc Templates
 
 ### Context Module

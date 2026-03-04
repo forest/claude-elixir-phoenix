@@ -1,5 +1,12 @@
 # Scopes and Authorization Reference
 
+## Contents
+
+- [Version Compatibility](#version-compatibility)
+- [Phoenix 1.8+ Scopes](#phoenix-18-scopes)
+- [Plug Patterns](#plug-patterns)
+- [Pre-Scopes Patterns](#pre-scopes-patterns-phoenix-17-and-earlier)
+
 ## Version Compatibility
 
 | Phoenix Version | Pattern |

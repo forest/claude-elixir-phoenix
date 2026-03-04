@@ -1,5 +1,23 @@
 # OTP Patterns Reference
 
+## Contents
+
+- [Core Rule](#core-rule-no-process-without-a-runtime-reason)
+- [BEAM Architecture Context](#beam-architecture-context)
+- [Decision Tree](#decision-tree)
+- [Quick Reference Table](#quick-reference-table)
+- [Plain Functions](#plain-functions-default-choice)
+- [Agent: Simple State](#agent-simple-state)
+- [ETS](#ets-shared-state-without-serialization)
+- [GenServer](#genserver-complex-state-management)
+- [Task](#task-one-off-async-work)
+- [Supervisor](#supervisor-fault-tolerance)
+- [DynamicSupervisor](#dynamicsupervisor-on-demand-children)
+- [Registry](#registry-dynamic-process-naming)
+- [Common Scenarios](#common-scenarios)
+- [Resource Cleanup](#resource-cleanup-tryafter-not-tryrescue)
+- [Anti-Patterns](#anti-patterns)
+
 ## Core Rule: NO PROCESS WITHOUT A RUNTIME REASON
 
 Processes model **runtime properties**, not code organization:

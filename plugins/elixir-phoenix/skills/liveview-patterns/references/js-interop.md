@@ -2,6 +2,17 @@
 
 LiveView uses morphdom for DOM patching. Third-party JS libraries that manage their own DOM state conflict with this. This reference covers resolution patterns.
 
+## Contents
+
+- [The Core Problem](#the-core-problem)
+- [Solution 1: phx-update="ignore"](#solution-1-phx-updateignore)
+- [Solution 2: Hooks with Lifecycle Management](#solution-2-hooks-with-lifecycle-management)
+- [Solution 3: Server-Driven Updates via pushEvent](#solution-3-server-driven-updates-via-pushevent)
+- [Common Library Patterns](#common-library-patterns)
+- [Anti-Patterns](#anti-patterns)
+- [Decision Tree](#decision-tree)
+- [Multi-Locale DOM Safety](#multi-locale-dom-safety)
+
 ## The Core Problem
 
 ```

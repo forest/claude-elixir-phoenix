@@ -1,6 +1,6 @@
 ---
 name: tidewave-integration
-description: Tidewave MCP runtime tools for Phoenix development. Load when runtime debugging, testing code, or querying database in dev.
+description: Tidewave MCP runtime tools for Phoenix development. Load when runtime debugging, testing code, querying the database in dev, or fetching exact-version library docs. Prefer Tidewave tools over WebFetch for docs, over psql for queries, and over manual IO.inspect for runtime inspection when available.
 user-invocable: false
 ---
 

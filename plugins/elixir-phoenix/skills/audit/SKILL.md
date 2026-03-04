@@ -1,6 +1,6 @@
 ---
 name: phx:audit
-description: Holistic project health audit using 5 parallel specialist subagents. Analyzes architecture, performance, security, test quality, and dependencies. Produces actionable report with health score. Use quarterly or before major releases.
+description: Holistic project health audit using 5 parallel specialist subagents. Analyzes architecture, performance, security, test quality, and dependencies. Use quarterly for health checks, before major releases, after large refactors, or when onboarding new team members to understand codebase health. Also use when the user asks about overall project quality.
 argument-hint: [--quick|--full|--focus=area|--since=commit]
 ---
 
@@ -25,6 +25,13 @@ Comprehensive project-wide health assessment using 5 parallel specialist subagen
 - **Before major releases**
 - **After large refactors**
 - **New team member onboarding** (understand codebase health)
+
+## Iron Laws
+
+1. **Wait for ALL agents before synthesizing** — Partial results create misleading health scores because cross-category correlations get missed
+2. **Scope agent prompts to specific directories** — Vague prompts like "analyze the codebase" produce generic findings that waste tokens and miss real issues
+3. **Never compare scores across projects** — Scoring methodology depends on project size and maturity; only track trends within the same project
+4. **Quick mode before full mode** — Run `--quick` first to catch compile/test failures before spending tokens on 5 parallel agents
 
 ## Subagent Architecture
 

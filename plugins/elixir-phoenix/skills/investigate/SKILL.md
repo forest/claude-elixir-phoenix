@@ -1,6 +1,6 @@
 ---
 name: phx:investigate
-description: Investigate a bug or error in Elixir/Phoenix code. Uses Ralph Wiggum approach - checks obvious things first, reads errors literally. Add --parallel for 4-track deep investigation.
+description: Investigate a bug or error in Elixir/Phoenix code. Use whenever the user reports a bug, error, crash, exception, or unexpected behavior. Also use when seeing stack traces, compile errors, or test failures that need root-cause analysis. Uses Ralph Wiggum approach — checks obvious things first, reads errors literally. Add --parallel for 4-track deep investigation.
 argument-hint: <bug description> [--parallel]
 disable-model-invocation: true
 ---
@@ -30,6 +30,13 @@ bug mentions 3+ modules, spans multiple contexts, is intermittent
 or involves concurrency, or user says `--parallel`/`deep`.
 
 **Otherwise**: Run the sequential workflow below.
+
+## Iron Laws
+
+1. **Read the error message literally first** — Most bugs tell you exactly what's wrong; resist the urge to theorize before reading what the system is saying
+2. **Check the obvious before going deep** — Compile errors, missing migrations, atom/string mismatches explain 80% of bugs; exhausting the Ralph Wiggum checklist saves hours
+3. **Check changeset errors before UI debugging** — Silent form saves are almost always `{:error, changeset}` with validation failures, not viewport or JS issues
+4. **Consult compound docs before investigating fresh** — A previously solved problem saves the entire investigation cycle; always search `.claude/solutions/` first
 
 ## Investigation Workflow
 

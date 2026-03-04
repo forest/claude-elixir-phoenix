@@ -1,18 +1,18 @@
 ---
 name: phx:verify
-description: Full verification loop for Elixir/Phoenix changes. Use after making code changes to ensure quality.
+description: Full verification loop for Elixir/Phoenix changes. Use after completing any code implementation to catch issues before committing. Run before creating PRs, after fixing bugs, or whenever you want to confirm compile, format, and tests all pass together.
 ---
 
 # Verification Loop
 
 Complete verification workflow for Elixir/Phoenix projects. Run this after making changes to ensure code quality before commits or PRs.
 
-## Iron Laws - Never Violate These
+## Iron Laws
 
-1. **Run in order** - Each step must pass before proceeding to the next
-2. **Fix issues immediately** - Don't batch fixes; address each failure before continuing
-3. **Warnings are errors** - Use `--warnings-as-errors` flag; no exceptions
-4. **Full Dialyzer before PR** - Always run Dialyzer before creating pull requests
+1. **Run in order** — Later steps assume earlier ones pass; running tests against code with compile warnings produces misleading failures
+2. **Fix issues immediately** — Batching fixes hides which change caused which failure, making debugging harder than the original problem
+3. **Warnings are errors** — Unused variables and deprecated calls accumulate silently until they mask real problems; `--warnings-as-errors` catches them early
+4. **Full Dialyzer before PR** — Type mismatches caught in review cost 10x more than catching them locally; Dialyzer finds issues tests often miss
 
 ## Verification Sequence
 

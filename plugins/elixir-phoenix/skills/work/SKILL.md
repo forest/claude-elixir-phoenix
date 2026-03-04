@@ -1,6 +1,6 @@
 ---
 name: phx:work
-description: Execute implementation from a plan file. Tracks progress with checkboxes, runs verification after each task. The execution phase of the agentic workflow.
+description: Execute implementation from a plan file with progress tracking and verification after each task. Use after /phx:plan to systematically implement features. Also use with --continue to resume interrupted work sessions.
 argument-hint: <path to plan file>
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: deploy
-description: Elixir/Phoenix deployment patterns - releases, Docker, Kubernetes, Fly.io. Load when deploying to production.
+description: Elixir/Phoenix deployment patterns - releases, Docker, Kubernetes, Fly.io. Use whenever working with Dockerfiles, fly.toml, config/runtime.exs, release configuration, CI/CD pipelines, or production environment setup. Also load when discussing deployment strategy, scaling, or health checks.
 ---
 
 # Elixir/Phoenix Deployment Reference
@@ -9,11 +9,11 @@ Quick reference for deploying Elixir/Phoenix applications.
 
 ## Iron Laws — Never Violate These
 
-1. **CONFIG AT RUNTIME, NOT COMPILE TIME** — All secrets in `runtime.exs` from env vars
-2. **GRACEFUL SHUTDOWN ≥ 60 SECONDS** — Let connections drain
-3. **HEALTH CHECKS REQUIRED** — Startup, liveness, readiness endpoints
-4. **SSL VERIFICATION FOR DATABASE** — `ssl_opts: [verify: :verify_peer]`
-5. **DON'T SET CPU LIMITS** — BEAM scheduler issues with cgroups CPU limits
+1. **Config at runtime, not compile time** — Secrets in `config.exs` get baked into the release binary. Use `runtime.exs` with env vars so secrets are resolved at boot
+2. **Graceful shutdown ≥ 60 seconds** — Shorter timeouts kill in-flight requests and WebSocket connections mid-operation, causing data loss for users
+3. **Health checks required** — Without startup/liveness/readiness endpoints, orchestrators can't distinguish a booting node from a dead one, leading to cascading restarts
+4. **SSL verification for database** — Skipping `verify: :verify_peer` allows MITM attacks between your app and database; production data traverses the connection
+5. **No CPU limits** — The BEAM scheduler assumes it owns all cores; cgroups CPU limits cause scheduler collapse where the VM thinks it has more cores than it can use, leading to latency spikes
 
 ## Quick Configuration
 

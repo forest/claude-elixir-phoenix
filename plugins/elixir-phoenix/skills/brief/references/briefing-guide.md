@@ -4,6 +4,15 @@ Detailed templates for each section of the `/phx:brief` interactive
 briefing. Two modes: pre-work (plan pending) and post-work (plan
 completed or in progress).
 
+## Contents
+
+- [General Rules](#general-rules)
+- [Visual Formatting](#visual-formatting)
+- [Pre-Work Mode Sections](#pre-work-mode-sections)
+- [Post-Work Mode Sections](#post-work-mode-sections)
+- [Handling "Ask me a question about this"](#handling-ask-me-a-question-about-this)
+- [Edge Cases](#edge-cases)
+
 ## General Rules
 
 1. **Each section: max 15-20 lines of output** — scan-friendly

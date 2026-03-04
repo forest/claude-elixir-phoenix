@@ -1,6 +1,6 @@
 ---
 name: phx:techdebt
-description: Analyze project for technical debt, duplicate code, and refactoring opportunities. Use when cleaning up or auditing code quality.
+description: Analyze project for technical debt, duplicate code, and refactoring opportunities. Use when the user mentions code quality concerns, cleanup, refactoring, or asks about what to improve. Also use before major feature work to identify areas that need attention first.
 ---
 
 # Technical Debt Detection

@@ -1,6 +1,6 @@
 ---
 name: phx:document
-description: Generate documentation for implemented features - @moduledoc, README updates, ADRs. Run after /phx:review passes.
+description: Generate documentation for implemented features — @moduledoc, @doc, README updates, ADRs. Use after implementing new modules or features to ensure proper documentation coverage. Run after /phx:review passes or whenever the user asks to document their code.
 argument-hint: [plan-file OR feature-name]
 ---
 
@@ -15,6 +15,13 @@ Generate documentation for newly implemented features.
 /phx:document magic link authentication
 /phx:document  # Auto-detect from recent plan
 ```
+
+## Iron Laws
+
+1. **Never remove existing documentation** — Existing docs may reflect design intent that isn't obvious from code alone; update rather than replace
+2. **@moduledoc on every public module** — Undocumented modules accumulate quickly and create onboarding friction for new team members
+3. **ADRs capture the "why", not the "what"** — Code shows what was built; ADRs explain why this approach was chosen over alternatives
+4. **Match @doc to function's public API** — Document parameters, return values, and edge cases; callers shouldn't need to read the implementation
 
 ## What Gets Documented
 

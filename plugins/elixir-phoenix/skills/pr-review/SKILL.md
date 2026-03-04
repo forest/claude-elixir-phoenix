@@ -1,6 +1,6 @@
 ---
 name: phx:pr-review
-description: Address PR review comments — fetch, categorize, draft responses, optionally fix code. Use when a PR has reviewer feedback to address.
+description: Address PR review comments — fetch, categorize, draft responses, optionally fix code. Use whenever the user has PR feedback to address, mentions review comments, or shares a PR URL or number. Also use when the user asks to respond to or fix reviewer suggestions.
 argument-hint: <PR number or URL> [--fix]
 disable-model-invocation: true
 ---

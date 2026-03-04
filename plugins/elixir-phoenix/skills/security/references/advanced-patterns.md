@@ -2,6 +2,16 @@
 
 Extends core security skill with SSRF prevention, secrets management, and supply chain security.
 
+## Contents
+
+- [SSRF Prevention](#ssrf-prevention-server-side-request-forgery)
+- [Secrets Management](#secrets-management)
+- [Supply Chain Security](#supply-chain-security)
+- [Extended Security Checklist](#extended-security-checklist)
+- [CORS Configuration](#cors-configuration)
+- [Safe Deserialization](#safe-deserialization)
+- [File Upload Content-Type Validation](#file-upload-content-type-validation)
+
 ## SSRF Prevention (Server-Side Request Forgery)
 
 ### The Risk

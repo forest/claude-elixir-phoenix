@@ -1,6 +1,6 @@
 ---
 name: phx:research
-description: Research an Elixir/Phoenix topic on the web. Searches ElixirForum, HexDocs, blogs, and GitHub. Uses efficient markdown conversion.
+description: Research an Elixir/Phoenix topic on the web. Use whenever the user needs to learn about an Elixir library, pattern, or best practice they are unfamiliar with. Also use when evaluating Hex dependencies, comparing approaches, or investigating how other projects solve a problem. Searches ElixirForum, HexDocs, blogs, and GitHub.
 disable-model-invocation: true
 ---
 
@@ -22,6 +22,13 @@ Research a topic by searching the web and fetching relevant sources efficiently.
 `$ARGUMENTS` = Research topic/question. Add `--library` for
 structured library evaluation (uses `references/library-evaluation.md`
 template).
+
+## Iron Laws
+
+1. **Write output to file, never dump inline** — Research output can be 5-8KB; dumping inline floods the conversation and loses the reference for future sessions
+2. **Stop after research — never auto-transition** — Research informs decisions but the user must choose the next step; auto-invoking `/phx:plan` removes that agency
+3. **Prefer official sources over blog posts** — HexDocs and ElixirForum have version-specific context; blog posts may reference outdated APIs
+4. **One document per research question** — Multiple files for one topic fragment the findings and make them harder to reference later
 
 ## Library Evaluation Mode
 

@@ -1,6 +1,6 @@
 ---
 name: phx:review
-description: Review code with parallel specialist agents. Finds and explains issues with severity classification. Part of the agentic workflow cycle.
+description: Review code with parallel specialist agents covering tests, security, Ecto, LiveView, and Oban patterns. Use after any implementation to catch bugs, security vulnerabilities, and anti-patterns before committing. Even quick changes benefit from at least a targeted review track.
 argument-hint: [test|security|oban|deploy|iron-laws|all]
 disable-model-invocation: true
 ---

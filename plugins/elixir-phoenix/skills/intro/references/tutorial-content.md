@@ -4,6 +4,15 @@ Content for each section of the `/phx:intro` tutorial.
 Present ONE section at a time with AskUserQuestion between sections.
 IMPORTANT: Present ALL content in each section — every paragraph, table, and code block. Do NOT abbreviate or summarize.
 
+## Contents
+
+- [Section 1: Welcome](#section-1-welcome)
+- [Section 2: Core Workflow Commands](#section-2-core-workflow-commands)
+- [Section 3: Knowledge & Safety Net](#section-3-knowledge--safety-net)
+- [Section 4: Hooks & Behavioral Rules](#section-4-hooks--behavioral-rules)
+- [Section 5: Init, Review & Gaps](#section-5-init-review--gaps)
+- [Section 6: Cheat Sheet & Next Steps](#section-6-cheat-sheet--next-steps)
+
 ---
 
 ## Section 1: Welcome

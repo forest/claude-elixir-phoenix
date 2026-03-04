@@ -2,6 +2,18 @@
 
 Step-by-step execution details for `/phx:work`.
 
+## Contents
+
+- [Loading a Plan](#loading-a-plan)
+- [Task Routing](#task-routing)
+- [Parallel Task Execution](#parallel-task-execution)
+- [Verification](#verification)
+- [Proactive Patterns](#proactive-patterns)
+- [Checkpoint Pattern](#checkpoint-pattern)
+- [Phase Transitions](#phase-transitions)
+- [Git Integration](#git-integration)
+- [Error Recovery](#error-recovery)
+
 ## Loading a Plan
 
 Read the plan file and count progress:

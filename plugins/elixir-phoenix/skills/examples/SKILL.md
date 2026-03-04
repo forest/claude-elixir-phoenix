@@ -1,6 +1,6 @@
 ---
 name: phx:examples
-description: Practical examples and walkthroughs. References official Phoenix guides for standard patterns, documents plugin-specific workflows.
+description: Practical examples and walkthroughs for Elixir/Phoenix patterns. Use whenever the user asks "how do I...", "show me an example of...", or needs to see a working implementation pattern for Phoenix, LiveView, Ecto, or OTP features. References official guides and documents plugin-specific workflows.
 ---
 
 # Examples & Walkthroughs

@@ -1,6 +1,6 @@
 ---
 name: phoenix-contexts
-description: Phoenix context patterns, bounded context design, scopes, and module structure. Load when designing contexts, organizing business logic, or planning module structure.
+description: Phoenix context patterns, bounded context design, scopes, and module structure. Load when designing new contexts, organizing business logic, planning module structure, or adding functions to existing contexts. Also load when working with router scopes, plugs, or JSON API controllers.
 user-invocable: false
 ---
 

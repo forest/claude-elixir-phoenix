@@ -1,6 +1,6 @@
 ---
 name: liveview-patterns
-description: Phoenix LiveView patterns and best practices. Load when building interactive features with LiveView.
+description: Phoenix LiveView patterns and best practices. Load when working with any LiveView code — mounts, handle_event, streams, assign_async, PubSub, components, forms, uploads, or JS hooks. Critical for avoiding memory leaks and double-subscription bugs.
 user-invocable: false
 ---
 

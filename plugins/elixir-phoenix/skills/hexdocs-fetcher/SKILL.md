@@ -1,6 +1,6 @@
 ---
 name: hexdocs-fetcher
-description: Fetches HexDocs documentation efficiently using WebFetch tool. Converts HTML to markdown automatically for context efficiency.
+description: Fetches HexDocs documentation efficiently using WebFetch tool. Converts HTML to markdown automatically for context efficiency. Always prefer this over direct WebFetch when looking up any Elixir library documentation on hexdocs.pm. Use whenever you need to check API docs, module docs, or guides for any Hex package.
 ---
 
 # HexDocs Fetcher

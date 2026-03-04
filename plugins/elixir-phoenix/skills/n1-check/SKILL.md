@@ -1,6 +1,6 @@
 ---
 name: ecto:n1-check
-description: Detect N+1 query patterns in Ecto code. Use when reviewing database access patterns or optimizing performance.
+description: Detect N+1 query patterns in Ecto code. Use whenever reviewing database access patterns, seeing slow page loads, or when Repo calls appear inside Enum.map/each loops. Also use proactively before deploying code that lists or iterates over associations.
 ---
 
 # N+1 Query Detection

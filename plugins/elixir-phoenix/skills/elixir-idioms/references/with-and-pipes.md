@@ -1,5 +1,14 @@
 # With Statement and Pipe Operator Guide
 
+## Contents
+
+- [Why These Are Idiomatic](#why-these-are-idiomatic)
+- [Pipe Operator](#pipe-operator-)
+- [With Statement](#with-statement)
+- [Real-World Examples from Production Code](#real-world-examples-from-production-code)
+- [Summary](#summary)
+- [Anti-Pattern: Avoiding Pipes and With](#anti-pattern-avoiding-pipes-and-with)
+
 ## Why These Are Idiomatic
 
 Both `with` and `|>` are core Elixir idioms that experienced developers expect. Avoiding them leads to less readable, non-idiomatic code.
