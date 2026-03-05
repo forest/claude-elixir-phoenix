@@ -341,9 +341,27 @@ Only trim when content is purely informational and not execution-critical.
 ### Release
 
 - [ ] All markdown passes linting
-- [ ] Version updated
+- [ ] Version bumped in `plugins/elixir-phoenix/.claude-plugin/plugin.json`
+- [ ] `CHANGELOG.md` updated with all changes under new version heading
 - [ ] README updated
 - [ ] `/phx:intro` tutorial content still accurate (commands, agents, features)
+
+### Versioning
+
+The plugin uses [semantic versioning](https://semver.org/):
+
+- **MAJOR**: Breaking changes (workflow redesign, removed commands)
+- **MINOR**: New features (new hooks, skills, agents, commands)
+- **PATCH**: Bug fixes, doc updates, description improvements
+
+**IMPORTANT**: Users only receive updates when the version in `plugin.json`
+changes. If you push code without bumping the version, existing users won't
+see the changes due to caching.
+
+When making changes, ALWAYS update `CHANGELOG.md` under the current
+`[Unreleased]` section. Use categories: Added, Changed, Fixed, Removed.
+On release, rename `[Unreleased]` to `[X.Y.Z] - YYYY-MM-DD` and bump
+`plugin.json`.
 
 ---
 
