@@ -75,7 +75,7 @@ FINGERPRINT_KEYWORDS = {
 # ─── Plugin Opportunity Signals ───────────────────────────────────────────────
 
 PHX_COMMAND_RE = re.compile(r"/phx:\w+")
-SKILL_COMMAND_RE = re.compile(r"/(?:phx|ecto|lv):\S+")
+SKILL_COMMAND_RE = re.compile(r"/(?:phx|ecto|lv):[a-z][a-z0-9_-]*")
 
 
 def sigmoid(raw):

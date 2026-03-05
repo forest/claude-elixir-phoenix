@@ -80,25 +80,25 @@
   - Candidates: deep-bug-investigator (30), parallel-reviewer (25), workflow-orchestrator (50), call-tracer (25), planning-orchestrator (40)
   - Action: ADD
 
-- [ ] **3.2** Evaluate `Task(agent_type)` restriction syntax
+- [x] **3.2** Evaluate `Task(agent_type)` restriction syntax
   - Feature: Orchestrators can restrict which subagent types they spawn
   - Action: SKIP — current orchestrators have explicit subagent prompts inline
 
-- [ ] **3.3** Evaluate per-agent `hooks` in frontmatter
+- [x] **3.3** Evaluate per-agent `hooks` in frontmatter
   - Feature: Agents can define their own lifecycle hooks
   - Action: SKIP — no clear use case yet
 
-- [ ] **3.4** Evaluate `mcpServers` field for agents
+- [x] **3.4** Evaluate `mcpServers` field for agents
   - Feature: Agents can explicitly bind to MCP servers
   - Action: SKIP — Tidewave detection handled at session level
 
 ### Skills — New Capabilities
 
-- [ ] **3.5** Evaluate `context: fork` for skills
+- [x] **3.5** Evaluate `context: fork` for skills
   - Feature: Skills can fork context to avoid polluting parent conversation
   - Action: SKIP — orchestrator pattern already handles context isolation via Task
 
-- [ ] **3.6** Evaluate `allowed-tools` for skills
+- [x] **3.6** Evaluate `allowed-tools` for skills
   - Feature: Skills can restrict which tools are available during execution
   - Action: SKIP — tool restrictions managed at agent level
 
@@ -107,11 +107,11 @@
   - Applied to: ecto-patterns, liveview-patterns, security, testing, oban, elixir-idioms, phoenix-contexts, compound-docs
   - Action: ADD
 
-- [ ] **3.8** Evaluate dynamic context injection syntax
+- [x] **3.8** Evaluate dynamic context injection syntax
   - Feature: Skills can inject dynamic output from shell commands
   - Action: SKIP — niche, no current skill benefits
 
-- [ ] **3.9** Evaluate positional `$ARGUMENTS[N]` access
+- [x] **3.9** Evaluate positional `$ARGUMENTS[N]` access
   - Feature: Skills can access individual positional arguments by index
   - Action: SKIP — current skills use `$ARGUMENTS` as whole string
 
@@ -132,16 +132,16 @@
   - Applied: log-progress.sh
   - Action: ADD
 
-- [ ] **3.13** Evaluate `SubagentStart` hook for Iron Laws injection
-  - Action: SKIP — subagents already get Iron Laws via preloaded skills
+- [x] **3.13** Evaluate `SubagentStart` hook for Iron Laws injection
+  - Action: IMPLEMENTED (2026-03-05) — `inject-iron-laws.sh` injects all 21 Iron Laws via `additionalContext`
 
-- [ ] **3.14** Evaluate `SessionEnd` hook for cleanup
+- [x] **3.14** Evaluate `SessionEnd` hook for cleanup
   - Action: SKIP — no temp artifacts need cleanup
 
-- [ ] **3.15** Evaluate `TaskCompleted` hook
+- [x] **3.15** Evaluate `TaskCompleted` hook
   - Action: SKIP — would slow iterative workflows
 
-- [ ] **3.16** Evaluate `prompt`/`agent` hook types
+- [x] **3.16** Evaluate `prompt`/`agent` hook types
   - Action: SKIP — shell hooks are deterministic and cheap
 
 ### Config — New Capabilities
