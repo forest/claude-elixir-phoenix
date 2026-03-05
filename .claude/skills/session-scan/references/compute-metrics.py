@@ -942,7 +942,7 @@ def compute_trends(metrics_path, memory_path=None, project_filter=None):
     windows = {
         "7d": now - timedelta(days=7),
         "30d": now - timedelta(days=30),
-        "all": datetime.min.replace(tzinfo=timezone.utc),
+        "all": datetime(2000, 1, 1, tzinfo=timezone.utc),
     }
 
     def parse_date(entry):
@@ -950,7 +950,10 @@ def compute_trends(metrics_path, memory_path=None, project_filter=None):
         if not d:
             return None
         try:
-            return datetime.fromisoformat(d.replace("Z", "+00:00"))
+            dt = datetime.fromisoformat(d.replace("Z", "+00:00"))
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            return dt
         except (ValueError, TypeError):
             try:
                 return datetime.strptime(d[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
@@ -960,7 +963,7 @@ def compute_trends(metrics_path, memory_path=None, project_filter=None):
     trends = {}
     for window_name, cutoff in windows.items():
         window_entries = [
-            e for e in entries if (parse_date(e) or datetime.min.replace(tzinfo=timezone.utc)) >= cutoff
+            e for e in entries if (parse_date(e) or datetime(2000, 1, 1, tzinfo=timezone.utc)) >= cutoff
         ]
         if not window_entries:
             trends[window_name] = {"count": 0}
