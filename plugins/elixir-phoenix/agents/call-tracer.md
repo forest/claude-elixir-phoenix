@@ -1,7 +1,7 @@
 ---
 name: call-tracer
 description: Orchestrates parallel call tree tracing using subagents for each entry point category (Controllers, LiveViews, Workers, GenServers). Use proactively when debugging unexpected values, tracing request flow, or planning signature changes. Spawns fresh-context subagents for deep analysis.
-tools: Read, Grep, Glob, Bash, Task
+tools: Read, Grep, Glob, Bash, Agent
 disallowedTools: Write, Edit, NotebookEdit
 permissionMode: bypassPermissions
 model: sonnet
@@ -53,7 +53,7 @@ mix xref callers MyApp.Accounts.update_user/2
 Spawn subagents for each relevant entry point category **in parallel**:
 
 ```
-Task(subagent_type: "general-purpose", prompt: "...", run_in_background: true)
+Agent(subagent_type: "general-purpose", prompt: "...", run_in_background: true)
 ```
 
 **Agent prompts must be FOCUSED.** Scope each prompt to the

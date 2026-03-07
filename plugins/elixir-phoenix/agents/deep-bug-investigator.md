@@ -1,7 +1,7 @@
 ---
 name: deep-bug-investigator
 description: Deep bug investigation using 4 parallel subagents (reproduction, root cause, impact, fix strategy). Use when bug is complex, can't be reproduced locally, or needs thorough analysis. Spawns fresh-context subagents for each investigation track.
-tools: Read, Grep, Glob, Bash, Task
+tools: Read, Grep, Glob, Bash, Agent
 disallowedTools: Write, Edit, NotebookEdit
 permissionMode: bypassPermissions
 model: sonnet
@@ -210,10 +210,10 @@ mix compile --warnings-as-errors 2>&1 | head -50
 ### Phase 2: Spawn All 4 Subagents in Parallel
 
 ```
-Task(subagent_type: "general-purpose", prompt: "Reproduction track...", run_in_background: true)
-Task(subagent_type: "general-purpose", prompt: "Root cause track...", run_in_background: true)
-Task(subagent_type: "general-purpose", prompt: "Impact track...", run_in_background: true)
-Task(subagent_type: "general-purpose", prompt: "Fix strategy track...", run_in_background: true)
+Agent(subagent_type: "general-purpose", prompt: "Reproduction track...", run_in_background: true)
+Agent(subagent_type: "general-purpose", prompt: "Root cause track...", run_in_background: true)
+Agent(subagent_type: "general-purpose", prompt: "Impact track...", run_in_background: true)
+Agent(subagent_type: "general-purpose", prompt: "Fix strategy track...", run_in_background: true)
 ```
 
 **Agent prompts must be FOCUSED.** Scope each prompt to the
@@ -240,7 +240,7 @@ again. NEVER proceed while any subagent is still running.
 context-supervisor (haiku) to compress before synthesis:
 
 ```
-Task(subagent_type: "elixir-phoenix:context-supervisor",
+Agent(subagent_type: "elixir-phoenix:context-supervisor",
   prompt: "Compress investigation track outputs.
     input_dir: {output_dir}/tracks/
     output_dir: {output_dir}/summaries/

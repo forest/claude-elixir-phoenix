@@ -61,7 +61,7 @@ contexts affected? These push toward deeper planning.
 
 ## Agent Spawning
 
-Spawn agents using the Task tool based on what's actually needed.
+Spawn agents using the Agent tool based on what's actually needed.
 Delegate broad research to agents. You MAY read specific files
 (CI config, a single module) for plan detail, but do NOT do the
 agents' job -- let them handle pattern discovery.

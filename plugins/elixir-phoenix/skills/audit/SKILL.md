@@ -35,7 +35,7 @@ Comprehensive project-wide health assessment using 5 parallel specialist subagen
 
 ## Subagent Architecture
 
-Spawn 5 specialists in parallel using Task tool:
+Spawn 5 specialists in parallel using Agent tool:
 
 | Subagent | Focus | Output File |
 |----------|-------|-------------|
@@ -47,14 +47,24 @@ Spawn 5 specialists in parallel using Task tool:
 
 ## Workflow
 
-### Step 1: Spawn All 5 Auditors (Parallel)
+### Step 1: Create Task List and Spawn All 5 Auditors (Parallel)
+
+**Create Claude Code tasks** for real-time progress visibility:
 
 ```
-Task(subagent_type: "general-purpose", prompt: "Architecture audit...", run_in_background: true)
-Task(subagent_type: "general-purpose", prompt: "Performance audit...", run_in_background: true)
-Task(subagent_type: "general-purpose", prompt: "Security audit...", run_in_background: true)
-Task(subagent_type: "general-purpose", prompt: "Test health audit...", run_in_background: true)
-Task(subagent_type: "general-purpose", prompt: "Dependency audit...", run_in_background: true)
+For each auditor:
+  TaskCreate({subject: "{Area} audit", activeForm: "Auditing {area}..."})
+  TaskUpdate({taskId, status: "in_progress"})
+```
+
+Then spawn all 5 agents with Agent tool (parallel):
+
+```
+Agent(subagent_type: "general-purpose", prompt: "Architecture audit...", run_in_background: true)
+Agent(subagent_type: "general-purpose", prompt: "Performance audit...", run_in_background: true)
+Agent(subagent_type: "general-purpose", prompt: "Security audit...", run_in_background: true)
+Agent(subagent_type: "general-purpose", prompt: "Test health audit...", run_in_background: true)
+Agent(subagent_type: "general-purpose", prompt: "Dependency audit...", run_in_background: true)
 ```
 
 **Agent prompts must be FOCUSED.** Scope each prompt to the
@@ -63,9 +73,9 @@ like "analyze the codebase."
 
 ### Step 2: Collect Results
 
-Wait for ALL auditors to FULLY complete using TaskOutput. If
-TaskOutput shows an auditor is still running, wait and check
-again. NEVER proceed while any auditor is still running.
+Wait for ALL auditors to complete. Mark each auditor's task as
+`completed` via `TaskUpdate` as it finishes. NEVER proceed while
+any auditor is still running.
 
 Read reports from `.claude/audit/reports/`.
 
@@ -74,7 +84,7 @@ Read reports from `.claude/audit/reports/`.
 After all 5 auditors complete, spawn context-supervisor:
 
 ```
-Task(subagent_type: "context-supervisor", prompt: """
+Agent(subagent_type: "context-supervisor", prompt: """
 Compress audit findings.
 Input: .claude/audit/reports/
 Output: .claude/audit/summaries/

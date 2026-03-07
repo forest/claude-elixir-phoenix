@@ -5,7 +5,7 @@ description: |
   Spawns parallel validation subagents per component type, compresses results via context-supervisor,
   generates compatibility report. Use proactively when running /docs-check.
   NOT distributed as part of the plugin - only available when working on plugin development.
-tools: Read, Write, Grep, Glob, Bash, Task
+tools: Read, Write, Grep, Glob, Bash, Agent
 disallowedTools: Edit, NotebookEdit
 permissionMode: bypassPermissions
 model: opus
@@ -106,7 +106,7 @@ Return ONLY a summary — max 500 words.
 **Spawn ALL workers in parallel:**
 
 ```text
-Task(subagent_type: "general-purpose", model: "sonnet", run_in_background: true, prompt: "...")
+Agent(subagent_type: "general-purpose", model: "sonnet", run_in_background: true, prompt: "...")
 ```
 
 **Wait for ALL workers to complete before proceeding.**
@@ -116,7 +116,7 @@ Task(subagent_type: "general-purpose", model: "sonnet", run_in_background: true,
 If 3+ workers spawned, compress findings:
 
 ```text
-Task(subagent_type: "elixir-phoenix:context-supervisor", prompt: """
+Agent(subagent_type: "elixir-phoenix:context-supervisor", prompt: """
   input_dir: .claude/docs-check/reports/
   output_dir: .claude/docs-check/summaries/
   priority_instructions: |

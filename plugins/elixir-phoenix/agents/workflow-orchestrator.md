@@ -1,7 +1,7 @@
 ---
 name: workflow-orchestrator
 description: Orchestrates the full agentic workflow cycle (plan → work → review). Internal use by /phx:full command.
-tools: Read, Write, Grep, Glob, Bash, Task
+tools: Read, Write, Grep, Glob, Bash, Agent
 disallowedTools: NotebookEdit
 permissionMode: bypassPermissions
 model: opus
@@ -212,7 +212,7 @@ that per-task compile checks miss (test failures, credo violations, type errors)
 1. Delegate to parallel-reviewer with output paths:
 
    ```
-   Task(subagent_type: "parallel-reviewer", prompt: """
+   Agent(subagent_type: "parallel-reviewer", prompt: """
    Review changes for feature '{slug}'.
    Output directory: .claude/plans/{slug}/reviews/
    Summaries directory: .claude/plans/{slug}/summaries/
@@ -286,7 +286,7 @@ orchestrator (which may be at 150k+ tokens by this point).
 1. Spawn compound agent in fresh context:
 
    ```
-   Task(subagent_type: "general-purpose", prompt: """
+   Agent(subagent_type: "general-purpose", prompt: """
    Run COMPOUNDING phase for feature '{slug}'.
 
    Read context from plan namespace:

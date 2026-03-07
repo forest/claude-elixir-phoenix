@@ -56,13 +56,26 @@ If `.claude/plans/${SLUG}/reviews/` has prior output, include consolidated
 summary in each agent's prompt as "PRIOR FINDINGS" with instruction:
 "Focus on NEW issues. Mark still-present issues as PERSISTENT."
 
-### Step 2: Spawn Review Agents (MANDATORY)
+### Step 2: Create Task List and Spawn Review Agents (MANDATORY)
 
 **NEVER spawn the same agent role twice in one review.** If reviewing
 a plan, scope ALL agents to the plan's changed files in a single pass.
 Do NOT run a scoped review followed by a broader review — one pass per role.
 
-You MUST spawn agents using the Task tool. Do NOT analyze code
+**Create Claude Code tasks** for each review agent BEFORE spawning.
+This gives real-time progress visibility:
+
+```
+For each agent to spawn:
+  TaskCreate({
+    subject: "{Agent Name} review",
+    description: "Review changed files for {focus area}",
+    activeForm: "Running {Agent Name}..."
+  })
+  TaskUpdate({taskId, status: "in_progress"})
+```
+
+Then spawn agents using the Agent tool. Do NOT analyze code
 yourself — delegate to agents.
 
 **For `/phx:review` or `/phx:review all` — spawn ALL 5 in ONE
@@ -94,8 +107,9 @@ Zero agents spawned = skill failure.
 
 ### Step 3: Collect and Compress Findings
 
-Wait for ALL agents to FULLY complete using TaskOutput with
-`block: true`. **Do NOT report status until every agent completes.**
+Wait for ALL agents to FULLY complete. **Do NOT report status
+until every agent completes.** Mark each agent's Claude Code task
+as `completed` via `TaskUpdate` as it finishes.
 
 **Verification-runner fallback**: If it fails/times out, run directly:
 `mix compile --warnings-as-errors && mix format --check-formatted $(git diff --name-only HEAD~5 | grep '\.exs\?$' | tr '\n' ' ') && mix credo --strict && mix test`

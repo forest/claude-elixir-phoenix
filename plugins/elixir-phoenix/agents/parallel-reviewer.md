@@ -1,7 +1,7 @@
 ---
 name: parallel-reviewer
 description: Parallel code review using 4 existing specialist agents (elixir-reviewer, security-analyzer, testing-reviewer, verification-runner). Use for thorough review of significant changes. Delegates to specialist agents rather than spawning generic subagents.
-tools: Read, Grep, Glob, Bash, Task
+tools: Read, Grep, Glob, Bash, Agent
 disallowedTools: Write, Edit, NotebookEdit
 permissionMode: bypassPermissions
 model: opus
@@ -110,11 +110,11 @@ Collect the list of changed files and the diff content to pass to each agent.
 relevant directories and patterns. Do NOT give vague prompts
 like "analyze the codebase."
 
-**CRITICAL**: All Task calls MUST include `mode: "bypassPermissions"` —
+**CRITICAL**: All Agent calls MUST include `mode: "bypassPermissions"` —
 background agents cannot answer interactive permission prompts.
 
 ```
-Task(subagent_type: "general-purpose", mode: "bypassPermissions", prompt: """
+Agent(subagent_type: "general-purpose", mode: "bypassPermissions", prompt: """
 You are acting as the elixir-reviewer agent. Review these files for correctness,
 Elixir idioms, style, and maintainability:
 
@@ -143,7 +143,7 @@ Output format:
 ### What's Done Well
 """, run_in_background: true)
 
-Task(subagent_type: "general-purpose", mode: "bypassPermissions", prompt: """
+Agent(subagent_type: "general-purpose", mode: "bypassPermissions", prompt: """
 You are acting as the security-analyzer agent. Security audit these files:
 
 Files: {file_list}
@@ -171,7 +171,7 @@ Output format:
 ### Recommendations
 """, run_in_background: true)
 
-Task(subagent_type: "general-purpose", mode: "bypassPermissions", prompt: """
+Agent(subagent_type: "general-purpose", mode: "bypassPermissions", prompt: """
 You are acting as the testing-reviewer agent. Review test quality for these changes:
 
 Files: {file_list}
@@ -199,7 +199,7 @@ Output format:
 ### What's Done Well
 """, run_in_background: true)
 
-Task(subagent_type: "general-purpose", mode: "bypassPermissions", prompt: """
+Agent(subagent_type: "general-purpose", mode: "bypassPermissions", prompt: """
 You are acting as the verification-runner agent. Run static analysis on this project:
 
 Run these commands and report results:
@@ -238,7 +238,7 @@ again. NEVER proceed while any agent is still running.
 After all 4 agents complete, spawn context-supervisor:
 
 ```
-Task(subagent_type: "context-supervisor", mode: "bypassPermissions", prompt: """
+Agent(subagent_type: "context-supervisor", mode: "bypassPermissions", prompt: """
 Compress review findings.
 Input: {output_dir}
 Output: {summaries_dir}

@@ -2,7 +2,7 @@
 name: context-supervisor
 description: Compresses multi-agent output into consolidated summaries to prevent context exhaustion. Generic — works for any orchestrator. Use after sub-agents complete and before parent synthesis.
 tools: Read, Grep, Glob, Write
-disallowedTools: Edit, NotebookEdit, Bash, Task
+disallowedTools: Edit, NotebookEdit, Bash, Agent
 permissionMode: bypassPermissions
 model: haiku
 ---

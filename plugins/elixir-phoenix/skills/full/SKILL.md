@@ -55,21 +55,22 @@ Cycles back automatically if review finds issues.
 ```
 STATES: INITIALIZING → DISCOVERING → PLANNING → WORKING →
         VERIFYING → REVIEWING → COMPLETED → COMPOUNDING | BLOCKED
-
-TRANSITIONS:
-  INITIALIZING → DISCOVERING (always)
-  DISCOVERING → PLANNING ("research it" or "plan it")
-  DISCOVERING → WORKING ("just do it" - LOW complexity only)
-  PLANNING → WORKING (plan file complete)
-  WORKING → VERIFYING (all tasks done OR blocker limit)
-  VERIFYING → VERIFYING (issues found, fix and re-verify)
-  VERIFYING → REVIEWING (all checks pass)
-  REVIEWING → VERIFYING (review issues fixed, re-verify)
-  REVIEWING → COMPLETED (no critical issues)
-  ANY → BLOCKED (max cycles OR fatal error)
 ```
 
-Track state in `.claude/plans/{slug}/progress.md` (plan checkboxes + progress log).
+Track state in `.claude/plans/{slug}/progress.md` AND via Claude Code
+tasks. Create one task per phase at start, mark `in_progress` on
+entry and `completed` on exit:
+
+```
+TaskCreate({subject: "Discover & assess complexity", activeForm: "Discovering..."})
+TaskCreate({subject: "Plan feature", activeForm: "Planning..."})
+TaskCreate({subject: "Implement tasks", activeForm: "Working..."})
+TaskCreate({subject: "Verify implementation", activeForm: "Verifying..."})
+TaskCreate({subject: "Review with specialists", activeForm: "Reviewing..."})
+TaskCreate({subject: "Capture solutions", activeForm: "Compounding..."})
+```
+
+Set up `blockedBy` dependencies between phases (sequential).
 
 On COMPLETED: auto-run COMPOUNDING phase to capture solved problems as searchable
 solution docs in `.claude/solutions/`. Then suggest `/phx:document` for docs and

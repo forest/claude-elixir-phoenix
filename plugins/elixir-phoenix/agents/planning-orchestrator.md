@@ -1,7 +1,7 @@
 ---
 name: planning-orchestrator
 description: Orchestrates feature planning by coordinating specialized agents. Internal use - spawns research, architecture, and review agents. Use proactively when comprehensive planning needed.
-tools: Read, Write, Grep, Glob, Task
+tools: Read, Write, Grep, Glob, Agent
 disallowedTools: Edit, NotebookEdit
 permissionMode: bypassPermissions
 model: opus
@@ -132,7 +132,7 @@ After ALL research agents complete, spawn the context-supervisor
 to compress their output before synthesis:
 
 ```
-Task(subagent_type: "context-supervisor", prompt: """
+Agent(subagent_type: "context-supervisor", prompt: """
 Compress research output for plan.
 Input: .claude/plans/{slug}/research/
 Output: .claude/plans/{slug}/summaries/
@@ -200,7 +200,7 @@ Agent 3 — Codebase Fit:
 After all 3 complete, run context-supervisor to compress:
 
 ```
-Task(subagent_type: "context-supervisor", prompt: """
+Agent(subagent_type: "context-supervisor", prompt: """
 Compress decision council output.
 Input: .claude/plans/{slug}/research/decision-{topic}-*.md
 Output: .claude/plans/{slug}/summaries/decision-{topic}.md
@@ -474,14 +474,14 @@ GOOD: One task per pattern, list locations within:
   tasks
 - A task should be completable in one sitting (not too big either)
 
-## Task Invocation
+## Agent Invocation
 
-Use the Task tool to spawn agents with **FOCUSED prompts**.
+Use the Agent tool to spawn agents with **FOCUSED prompts**.
 Scope each prompt to the relevant directories and patterns.
 Do NOT give vague prompts like "analyze the codebase."
 
 ```
-Task({
+Agent({
   subagent_type: "phoenix-patterns-analyst",
   prompt: "Analyze test patterns in test/int_support/ and
     test/features/. Focus on: helper organization, JS usage,
@@ -530,9 +530,5 @@ This is Iron Law #1. The user decides when and how to start work.
 
 ## Error Handling
 
-If an agent fails or returns empty:
-
-1. Note the gap in the plan
-2. Do the research yourself with Read/Grep
-3. Document assumptions clearly
-4. Suggest manual review of that area
+If an agent fails: note the gap, research with Read/Grep yourself,
+document assumptions, suggest manual review of that area.

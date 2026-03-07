@@ -41,9 +41,11 @@ structured plan with checkboxes.
 3. **Detect depth** — Auto-detect quick/standard/deep
 4. **Runtime context** (Tidewave) — Gather live schemas, routes,
    and warnings before spawning agents (see planning-orchestrator)
-5. **Spawn research agents** — Selective, parallel, based on need
-6. **Wait for ALL agents** — Call `TaskOutput(task_id, block: true)`
-   for EVERY spawned agent. Do NOT proceed until all return
+5. **Spawn research agents** — Selective, parallel, based on need.
+   Create a Claude Code task per agent for progress visibility:
+   `TaskCreate({subject: "{Agent} research", activeForm: "Researching..."})`,
+   mark `in_progress` on spawn, `completed` when done
+6. **Wait for ALL agents** — Do NOT proceed until all return
    "completed". NEVER write plan while any agent is still running
 7. **Breadboard** (LiveView) — System map for multi-page features
 8. **Completeness check** — MANDATORY when planning from review
@@ -65,7 +67,7 @@ Enhances an existing plan instead of creating a new one:
 2. Spawn SPECIALIST agents (not Explore) for thin sections.
    Each agent writes to `.claude/plans/{slug}/research/` and
    returns only a 500-word summary. Same agent selection rules
-3. Wait for ALL agents (`TaskOutput` with `block: true`)
+3. Wait for ALL agents (mark tasks `completed` as each finishes)
 4. Add implementation detail, resolve spikes, add verification
 5. Present diff summary — **NEVER delete existing tasks**
 

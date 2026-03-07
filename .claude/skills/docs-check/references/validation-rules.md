@@ -19,14 +19,16 @@ Check each agent `.md` YAML frontmatter against `sub-agents.md` docs.
 | Field | Valid Values | Notes |
 |-------|-------------|-------|
 | `model` | `sonnet`, `opus`, `haiku`, `inherit` | Default: inherit |
-| `permissionMode` | `default`, `acceptEdits`, `delegate`, `dontAsk`, `bypassPermissions`, `plan` | |
-| `tools` | `Read`, `Write`, `Edit`, `Bash`, `Grep`, `Glob`, `Task`, `WebFetch`, `WebSearch`, `NotebookEdit` | Check docs for new tools |
+| `permissionMode` | `default`, `acceptEdits`, `dontAsk`, `bypassPermissions`, `plan` | |
+| `tools` | `Read`, `Write`, `Edit`, `Bash`, `Grep`, `Glob`, `Agent`, `WebFetch`, `WebSearch`, `NotebookEdit`, `Skill`, `AskUserQuestion`, `TaskCreate`, `TaskUpdate`, `TaskOutput`, `KillShell`, `MCPSearch`, `ExitPlanMode` | Check docs for new tools |
 | `disallowedTools` | Same tool names as `tools` | |
 | `maxTurns` | Positive integer | |
 | `skills` | List of skill names | Verify referenced skills exist |
 | `mcpServers` | Object or list | |
-| `hooks` | Object | |
+| `hooks` | Object | Per-agent lifecycle hooks |
 | `memory` | `user`, `project`, `local` | Auto-enables Read/Write/Edit |
+| `background` | `true`, `false` | Always run as background task |
+| `isolation` | `worktree` | Run in temporary git worktree |
 
 **Cross-checks:**
 
@@ -45,7 +47,7 @@ Check each agent `.md` YAML frontmatter against `sub-agents.md` docs.
 
 - Valid markdown with YAML frontmatter (between `---` delimiters)
 - Specialist agents: ≤365 lines
-- Orchestrator agents (has `Task` in tools): ≤535 lines
+- Orchestrator agents (has `Agent` in tools): ≤535 lines
 
 ## Skill Validation Rules
 
@@ -64,7 +66,13 @@ Check each `skills/*/` directory against `skills.md` docs.
 | `name` | Yes | Pattern: `phx:{name}` or `{domain}:{name}` |
 | `description` | No | Used for auto-loading |
 | `argument-hint` | No | Shown in command help |
-| `disable-model-invocation` | No | Boolean |
+| `disable-model-invocation` | No | Boolean, default false |
+| `user-invocable` | No | Boolean, default true. Set false to hide from `/` menu |
+| `allowed-tools` | No | Restrict tools when skill is active |
+| `model` | No | Model to use when skill is active |
+| `context` | No | Set to `fork` to run in forked subagent |
+| `agent` | No | Subagent type when `context: fork` is set |
+| `hooks` | No | Lifecycle hooks scoped to this skill |
 
 **Forbidden:** `triggers:` — MUST NOT be present.
 
@@ -91,7 +99,8 @@ Check `hooks/hooks.json` against `hooks.md` docs.
 
 `PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `PermissionRequest`,
 `UserPromptSubmit`, `Notification`, `Stop`, `SubagentStart`, `SubagentStop`,
-`SessionStart`, `SessionEnd`, `TeammateIdle`, `TaskCompleted`, `PreCompact`
+`SessionStart`, `SessionEnd`, `TeammateIdle`, `TaskCompleted`, `PreCompact`,
+`InstructionsLoaded`, `ConfigChange`, `WorktreeCreate`, `WorktreeRemove`
 
 **Valid hook types:**
 

@@ -73,10 +73,26 @@ Apply findings: skip dead-ends, follow decisions, reuse patterns.
 If a task's intent is ambiguous, ask the user before implementing
 rather than guessing — corrections are expensive.
 
-## Step 3: Load and Resume
+## Step 3: Load, Create Task List, and Resume
 
 Read plan file, count `[x]` (completed) vs `[ ]` (remaining).
 Find first unchecked task by `[Pn-Tm]` ID.
+
+**Create Claude Code tasks** from ALL unchecked plan items using
+`TaskCreate`. This gives real-time progress visibility in the UI:
+
+```
+For each unchecked `- [ ] [Pn-Tm] Description`:
+  TaskCreate({
+    subject: "[Pn-Tm] Description",
+    description: "Full task details from plan",
+    activeForm: "Implementing: Description"
+  })
+```
+
+Already-checked items (`[x]`): skip, don't create tasks for them.
+Set up `blockedBy` dependencies between phases (Phase 2 tasks
+blocked by Phase 1 tasks).
 
 With `--from P2-T3`: Skip to that specific task.
 
@@ -86,15 +102,17 @@ See `references/resume-strategies.md` for all resume modes.
 
 For each unchecked task (`- [ ] [Pn-Tm][agent] Description`):
 
-1. **Route** by `[agent]` annotation (see `references/execution-guide.md`)
-2. **Implement** the task
-3. **Verify**: `mix format` + `mix compile --warnings-as-errors`
+1. **Start task**: `TaskUpdate({taskId, status: "in_progress"})`
+2. **Route** by `[agent]` annotation (see `references/execution-guide.md`)
+3. **Implement** the task
+4. **Verify**: `mix format` + `mix compile --warnings-as-errors`
    (at phase end, also run `mix test <affected>` — see tiers below)
-4. **Mark** checkbox `[x]` on pass, **append implementation note**
-   inline: key decisions, gotchas, actual values used. Example:
+5. **Complete task**: Mark checkbox `[x]` on pass, **append
+   implementation note** inline, AND
+   `TaskUpdate({taskId, status: "completed"})`. Example:
    `- [x] [P1-T3] Add user schema — citext for email, composite index on [user_id, status]`
    This survives context compaction; the plan is re-read on resume.
-5. **On failure**: retry up to 3 times, then create BLOCKER
+6. **On failure**: retry up to 3 times, then create BLOCKER
    and write DEAD-END to scratchpad (see error-recovery.md)
 
 **Parallel groups**: Tasks under `### Parallel:` header spawn

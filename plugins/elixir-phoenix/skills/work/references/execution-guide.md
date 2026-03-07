@@ -113,10 +113,10 @@ Tasks are parallelizable if they:
 
 ### Spawning Pattern
 
-Spawn ALL parallel tasks in ONE message using the Task tool:
+Spawn ALL parallel tasks in ONE message using the Agent tool:
 
 ```
-Task({
+Agent({
   subagent_type: "general-purpose",
   prompt: "Implement P2-T1: Add currency/area unit selectors to
     occupier deal form at lib/.../occupier_deal/.../details_form.ex.
@@ -124,7 +124,7 @@ Task({
   run_in_background: true,
   mode: "bypassPermissions"
 })
-Task({
+Agent({
   subagent_type: "general-purpose",
   prompt: "Implement P2-T2: Add selectors to landlord deal form...",
   run_in_background: true,
@@ -217,28 +217,11 @@ attempts, create a BLOCKER (see error-recovery.md).
 
 ### Factory Updates for Required Fields
 
-When a task adds fields to `@required_fields` in a schema changeset,
-BEFORE running tests:
-
-1. Grep for all factories/fixtures that build the affected struct:
-
-   ```bash
-   grep -rn "build(:deal" test/ --include="*.exs"
-   grep -rn "insert(:deal" test/ --include="*.exs"
-   grep -rn "params_for(:deal" test/ --include="*.exs"
-   ```
-
-2. Also check factory definitions:
-
-   ```bash
-   grep -rn "def deal_factory" test/ --include="*.exs"
-   ```
-
-3. Add the new required fields with sensible defaults to EVERY factory
-4. THEN run the test suite
-
-This prevents cascading test failures (a previous session hit 21
-failures from missing factory fields that took ~3 min to debug).
+When a task adds fields to `@required_fields`, BEFORE running tests:
+grep for all factories/fixtures that build the affected struct
+(`build(:X`, `insert(:X`, `def X_factory`), add new required fields
+with sensible defaults to EVERY factory, THEN run the test suite.
+Prevents cascading test failures from missing factory fields.
 
 ### Module Existence Check
 
@@ -261,9 +244,12 @@ After each task passes verification:
    implementation note** — key decisions, gotchas, actual values.
    Example: `- [x] [P2-T2] Add password_hash — used Bcrypt, 12 rounds, added virtual :password`
    These notes survive context compaction since the plan is re-read on resume.
-2. **Update phase status**: If all tasks done, change to `[COMPLETED]`
-3. **Log progress**: Append to `.claude/plans/{feature}/progress.md`
-4. **Continue**: Move to next unchecked task
+2. **Complete Claude Code task**: `TaskUpdate({taskId, status: "completed"})`
+   This updates the live progress indicator visible in the UI.
+3. **Update phase status**: If all tasks done, change to `[COMPLETED]`
+4. **Log progress**: Append to `.claude/plans/{feature}/progress.md`
+5. **Start next task**: `TaskUpdate({nextTaskId, status: "in_progress"})`
+   then move to next unchecked task
 
 ### Progress Log Entry
 

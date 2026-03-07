@@ -288,7 +288,7 @@ For large or critical changes, spawn `parallel-reviewer` for thorough multi-aspe
 | "Thorough review please" | ❌ | ✅ |
 
 ```
-Task(subagent_type: "parallel-reviewer", prompt: "Thorough review of: {files_or_diff}")
+Agent(subagent_type: "parallel-reviewer", prompt: "Thorough review of: {files_or_diff}")
 ```
 
 Parallel reviewer spawns 4 specialist subagents:

@@ -50,7 +50,7 @@ mix xref callers MyApp.Accounts.update_user/2
 For full recursive tree with argument extraction and **parallel category tracing**:
 
 ```
-Task(subagent_type: "call-tracer", prompt: "Build call tree for MyApp.Accounts.update_user/2")
+Agent(subagent_type: "call-tracer", prompt: "Build call tree for MyApp.Accounts.update_user/2")
 ```
 
 The call-tracer agent uses **parallel subagents** for each entry point category:
