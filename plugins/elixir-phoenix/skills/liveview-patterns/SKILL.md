@@ -1,6 +1,6 @@
 ---
 name: liveview-patterns
-description: Phoenix LiveView patterns and best practices. Load when working with any LiveView code — mounts, handle_event, streams, assign_async, PubSub, components, forms, uploads, or JS hooks. Critical for avoiding memory leaks and double-subscription bugs. DO NOT load for dead views (non-LiveView controllers) or plain Phoenix.Component modules without LiveView lifecycle.
+description: LiveView lifecycle & real-time UI. For *_live.ex, mount, handle_event, handle_params, handle_info, assign_async, streams, PubSub, phx-change/phx-submit, uploads, JS hooks, LiveComponent, push_patch, on_mount, socket assigns. NOT for controllers, REST APIs, Ecto, or plain Phoenix.Component.
 user-invocable: false
 ---
 

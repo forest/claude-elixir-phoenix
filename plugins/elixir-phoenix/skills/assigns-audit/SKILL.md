@@ -1,6 +1,6 @@
 ---
 name: lv:assigns
-description: Audit LiveView socket assigns for memory issues and clarity. Use whenever working on any LiveView module — even if performance has not been flagged — to catch memory leaks early. Also use when debugging high memory usage, slow LiveView renders, or when socket assigns hold large lists without streams.
+description: "Diagnostic audit of LiveView socket assigns — inventories every assign with memory footprint estimates, detects missing temporary_assigns, finds unused assigns, and flags unbounded lists needing streams. Use when investigating LiveView memory bloat, auditing assign efficiency, or explicitly requested via /lv:assigns. NOT for general LiveView patterns or building features."
 argument-hint: path/to/live_view.ex
 allowed-tools: Read, Grep, Glob, Bash
 ---

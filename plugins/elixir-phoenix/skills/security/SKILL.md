@@ -1,6 +1,6 @@
 ---
 name: security
-description: Elixir/Phoenix security patterns - authentication, authorization, input validation, OWASP. Load when touching any auth code, session handling, password logic, user input validation, or access control. Critical for preventing SQL injection, XSS, atom exhaustion, and authorization bypass. DO NOT load for test helper files (*_test.exs, test/support/*) unless testing auth logic directly.
+description: "Elixir/Phoenix security: authentication, authorization, OAuth, session handling, password hashing, access control, input validation, secrets management. Load for: login/signup, RBAC, CSRF/CSP/CORS headers, rate limiting, path traversal, SSRF prevention, token handling, API key/credential protection, XSS, SQL injection, atom exhaustion. Skip for non-auth test helpers."
 user-invocable: false
 ---
 

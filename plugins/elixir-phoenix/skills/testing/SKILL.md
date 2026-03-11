@@ -1,6 +1,6 @@
 ---
 name: testing
-description: Elixir testing patterns - ExUnit, Mox, property testing, LiveView testing. Load when writing, reviewing, or fixing any test code. Ensures proper async setup, sandbox isolation, factory patterns, and mock boundaries. Prevents Process.sleep anti-patterns and flaky tests.
+description: "Elixir testing patterns - ExUnit, Mox, factories (ExMachina), LiveView test helpers. Load when working on *_test.exs files, test/support/ helpers, factory files, or fixing test failures (sandbox, async, flaky). Covers ConnCase, DataCase, assert_receive, verify_on_exit!. DO NOT load for non-test .ex files or manual QA tasks."
 user-invocable: false
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: elixir-idioms
-description: Idiomatic Elixir patterns, BEAM architecture, OTP patterns, and best practices. Load when writing any Elixir code to ensure idiomatic style — pattern matching, with chains, GenServer design, supervision trees, and error handling. Prevents common BEAM anti-patterns.
+description: "OTP/BEAM patterns and core Elixir idioms — GenServer, Supervisor, Task, Registry, pattern matching, with chains, pipes, error tuples, mix tasks. Load for process design, supervision trees, language idiom refactoring, or BEAM debugging. NOT for Ecto/LiveView/Oban/Phoenix — use dedicated skills."
 user-invocable: false
 ---
 

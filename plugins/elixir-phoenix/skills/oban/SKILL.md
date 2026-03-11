@@ -1,6 +1,6 @@
 ---
 name: oban
-description: Oban background job patterns - workers, queues, error handling, testing. Load when working with any background job code — Oban workers, queue configuration, cron jobs, or job testing. Prevents non-idempotent jobs, atom key bugs, and struct serialization errors.
+description: "Oban job processing — workers, perform/1, queues, cron scheduling, retries, unique jobs, idempotency. Oban Pro workflows/batches/process/1. Oban.Worker, Oban.Testing, assert_enqueued, perform_job, queue config, backoff. Prevents atom-key args, struct serialization, non-idempotent jobs."
 user-invocable: false
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: intent-detection
-description: Detect user intent from their first message and suggest the appropriate /phx: workflow command. Loaded automatically on session start.
+description: "Internal router for ambiguous work requests. Load when user says \"add/build/implement feature\", \"fix/debug/investigate bug\", \"review/audit code\", \"refactor/clean up\", \"slow/performance\", \"PR comments\", \"research/evaluate library\", or \"that fixed it\" — WITHOUT an explicit /phx: slash command."
 user-invocable: false
 ---
 
