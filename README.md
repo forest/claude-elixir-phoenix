@@ -582,6 +582,7 @@ This plugin was built with insights from these articles, repositories, and tools
 - <https://github.com/affaan-m/everything-claude-code>
 - <https://github.com/blader/theorist>
 - <https://github.com/tmchow/tmc-marketplace> (iterative-engineering plugin)
+- <https://github.com/Carmack-Council/Carmack-Council> (persona-grounded expert council review)
 - <https://github.com/boshu2/agentops>
 
 ### Articles

@@ -4,7 +4,7 @@
 **Sources**:
 - https://github.com/affaan-m/everything-claude-code (54.8K stars)
 - https://github.com/blader/theorist (strategic memory skill)
-**Our Plugin**: elixir-phoenix v2.0.0 (20 agents, 37 skills, 4 hook types)
+**Our Plugin**: elixir-phoenix v2.0.0 (20 agents, 38 skills, 6 hook types)
 
 ---
 
@@ -657,3 +657,223 @@ Four distinct philosophies now visible across the landscape:
 The optimal synthesis: **Domain depth** (Iron Laws) + **dynamic review intelligence** (persona selection + confidence calibration from iterative-engineering) + **strategic memory** (THEORY.md from Theorist) + **self-improving knowledge** (auto-compound from everything-claude-code).
 
 Our plugin already has the strongest foundation (domain expertise + hooks + multi-agent orchestration). The highest-ROI additions from iterative-engineering are the review intelligence patterns (dynamic selection, confidence scoring, structured JSON, pre-existing separation) — these directly improve our existing `/phx:review` without adding new skills or changing the workflow.
+
+---
+
+# Part 4: Carmack Council Plugin Analysis
+
+**Source**: https://github.com/Carmack-Council/Carmack-Council
+**Structure**: 4 skills, 9 shared reference docs, 0 hooks, 0 agents (inline subagent prompts)
+**Total content**: ~5,230 lines of markdown + build scripts
+**Stack**: Next.js / tRPC / Prisma / Neon (but designed for forking via STACK.md)
+
+## What It Is
+
+A persona-grounded multi-expert review system where each subagent embodies a named industry expert (Troy Hunt for security, Kent Beck for testing, Martin Fowler for refactoring, etc.). John Carmack serves as the philosophical "Chair" who orchestrates, filters, and guards against over-recommendation. The plugin ships as individual `.skill` zip files rather than a Claude Code plugin manifest.
+
+## Architecture Comparison
+
+| Aspect | Carmack Council | Our Plugin |
+|--------|----------------|------------|
+| **Distribution** | Individual `.skill` zips | Plugin marketplace (`plugin.json`) |
+| **Skills** | 4 (review, plan, implement, spec-writer) | 38 domain-specific |
+| **Agents** | 0 files — 10+ inline subagent prompts in SKILL.md | 20 agent files with YAML frontmatter |
+| **Hooks** | None | 6 hook types across 8+ hooks |
+| **Review model** | 10 named-expert parallel review | 4-agent parallel review |
+| **Reference docs** | 9 shared (250-340 lines each, deeply sourced) | 30+ per-skill references |
+| **Compound learning** | `conventions.md` (auto-updated from reviews) | `solutions/{category}/` (manual via `/phx:compound`) |
+| **Iron Laws** | None (expert personas instead) | 21 domain-specific rules |
+| **File I/O** | Subagents write to disk, return 1-line summaries | Context-supervisor compresses worker output |
+| **Max findings** | Hard cap at 15 per review | No explicit cap |
+
+## Novel Patterns Worth Adopting
+
+### 1. Named-Expert Persona Grounding (High Value — Technique)
+
+**What they do:** Each subagent is assigned a real expert's persona backed by a 250-340 line reference document built from that expert's published work, specific quotes, production case studies, and documented opinions. This isn't roleplay — it's structured knowledge attribution.
+
+Example: The security reference contains Troy Hunt's specific breach case studies (CloudPets, VTech, Nissan LEAF) as evidence for principles. The testing reference uses Kent Beck's quotes about TDD and a dedicated section on "AI agents cheat" with detection patterns.
+
+**What we do:** Our review agents have domain names (security-analyzer, elixir-reviewer) but no persona grounding or attributed knowledge sources.
+
+**Gap:** Our agents apply generic "best practices" rather than opinionated, sourced expertise. This makes findings less persuasive and harder to trust.
+
+**Recommendation:** Enhance our reference docs with attributed expert sources where relevant:
+- `security/references/authentication.md` → Add OWASP case studies, cite specific CVEs
+- `ecto-patterns/references/queries.md` → Cite Ecto author (José Valim) documented recommendations
+- `liveview-patterns/references/` → Cite Chris McCord's published patterns and conference talks
+
+This doesn't require persona roleplay — just grounding recommendations in real, citable sources.
+
+**Effort:** Medium (reference doc enhancement) | **Impact:** Medium-High — more trustworthy findings
+
+### 2. File-Based Inter-Agent Communication with 1-Line Summaries (High Value)
+
+**What they do:** Each subagent writes full findings to a file on disk and returns ONLY a one-line summary to the parent: `"Findings written to .council/review-output/$TIMESTAMP/hunt.md — 3 findings (1 P1, 2 P2)"`. The chair then reads all 10 output files for synthesis.
+
+Instructions are emphatic: "Do NOT return your full findings to the parent. The file is your deliverable."
+
+**What we do:** Our context-supervisor pattern is similar — workers write to files, supervisor compresses. But our subagents still return substantial content to the parent, and the supervisor reads worker output files rather than just summary pointers.
+
+**Gap:** When spawning 4+ agents in parallel, the parent context can still get large from return values.
+
+**Recommendation:** Adopt the strict "file is your deliverable, return only a pointer" pattern for review subagents. This is especially valuable as we consider adding more review agents (dynamic persona selection from Part 3).
+
+**Effort:** Low | **Impact:** Medium — prevents context exhaustion at scale
+
+### 3. The "Carmack Filter" — Anti-Over-Recommendation Gate (High Value)
+
+**What they do:** During synthesis, every finding must pass a meta-filter:
+- "Is this actually needed for THIS feature at THIS scale?"
+- "Would Carmack build this, or would he call it premature?"
+- "What's the concrete consequence if this isn't fixed?"
+
+This structurally guards against the known LLM tendency to recommend everything.
+
+**What we do:** No equivalent filter. Review findings go through deduplication but not an economic relevance test.
+
+**Gap:** Our reviews sometimes surface technically correct but practically irrelevant findings, especially for small changes.
+
+**Recommendation:** Add an "overriding filter" step to the `parallel-reviewer` synthesis phase. Before finalizing, apply 3-4 questions:
+1. Does this finding affect the code that was actually changed?
+2. What is the concrete production consequence if this isn't fixed?
+3. Is this a real risk or pattern-matching against generic best practices?
+4. Would a senior Elixir dev flag this in a real PR review?
+
+**Effort:** Low (add to reviewer prompt) | **Impact:** High — reduces noise significantly
+
+### 4. Conventions.md Compound Learning Loop (High Value)
+
+**What they do:** After each review (Phase 7), the Chair surfaces "convention candidates":
+- **Type A — Accepted Patterns:** "Don't flag this again" (e.g., "Fire-and-forget analytics calls are intentional")
+- **Type B — Adopted Fixes:** "Always do this going forward" (e.g., "All tRPC mutations must verify ownership")
+
+Users select which to adopt. These are written to `conventions.md` with numbered IDs, attributed to the review timestamp and expert. All four skills read this file at startup and respect it.
+
+**What we do:** `/phx:compound` captures solved problems manually. No automated convention extraction from reviews.
+
+**Gap:** Review findings are one-shot — if a team intentionally uses a pattern that gets flagged, it gets re-flagged every review. And good patterns discovered in reviews don't automatically feed back into future reviews.
+
+**Recommendation:** Add a Phase 7 to `/phx:review` that offers convention extraction:
+- After presenting findings, ask: "Any findings to suppress (accepted pattern) or adopt (new convention)?"
+- Write to `.claude/conventions.md` with IDs and attribution
+- All review agents read `conventions.md` at start and skip suppressed patterns
+
+This is the missing link between our review and compound systems.
+
+**Effort:** Medium | **Impact:** Very High — reviews improve over time automatically
+
+### 5. Explicit Lane Discipline with Deduplication Rules (Medium Value)
+
+**What they do:** Every subagent prompt ends with "Stay in your lane." The synthesis phase defines 7 specific overlap resolution rules:
+- "Saarinen vs Dodds: Saarinen takes priority for visual/design concerns. Dodds for architectural."
+- "Beck vs all others: Beck reviews test quality only. If Beck flags no tests and another expert flags a bug, keep both — they're complementary."
+
+**What we do:** Review agents have implicit domain boundaries but no explicit overlap resolution rules. Context-supervisor deduplicates via LLM judgment (non-deterministic).
+
+**Recommendation:** Add explicit overlap rules to `parallel-reviewer`:
+- `security-analyzer` vs `elixir-reviewer`: Security takes priority for auth/input validation. Elixir takes priority for idiomatic patterns.
+- `testing-reviewer` vs all: Testing reviews test quality only. If testing flags no test and another agent flags a bug, keep both.
+
+**Effort:** Low | **Impact:** Medium — more consistent deduplication
+
+### 6. Mandatory Conversational Summary Table (Medium Value)
+
+**What they do:** Every review ends with a scannable table presented in conversation. "This table is NON-NEGOTIABLE. The user should never have to ask 'what did you find?'"
+
+**What we do:** Reviews write to files. The user gets a brief summary but must open files for details.
+
+**Recommendation:** Add a mandatory summary table at the end of `/phx:review` output:
+
+```
+| # | Finding | Severity | Expert | File |
+|---|---------|----------|--------|------|
+| 1 | Missing auth check in handle_event | P1 | Security | user_live.ex:45 |
+| 2 | N+1 query in listing | P2 | Ecto | accounts.ex:78 |
+```
+
+**Effort:** Very Low | **Impact:** Medium — better UX
+
+### 7. Compact Instructions for Long Sessions (Low-Medium Value)
+
+**What they do:** Skills include explicit "Compact Instructions" sections telling Claude exactly what to preserve when context compaction happens: timestamp, file paths, which subagents dispatched, current phase number, etc.
+
+**What we do:** PreCompact hook re-injects Iron Laws and workflow rules. But we don't tell skills what session-specific state to preserve.
+
+**Recommendation:** Add compact-preservation hints to long-running skills (`/phx:work`, `/phx:full`, `/phx:review`):
+- Current plan path and completion state
+- Which review agents have run
+- Active findings list
+- Current phase number
+
+**Effort:** Low | **Impact:** Low-Medium — helps long sessions
+
+### 8. Triple-Redundant Anti-Code Enforcement (Technique — Already Applicable)
+
+**What they do:** "No code in output" is stated 3+ times in different formulations across the skill. This addresses the known LLM tendency to include code even when told not to.
+
+**Lesson:** For any critical behavioral constraint in our skills, state it at minimum twice — once in the dispatch and once in the output format section. Single-statement rules get ignored under pressure.
+
+## Patterns NOT to Adopt
+
+### Inline Subagent Prompts (Architectural Mismatch)
+Their 857-line SKILL.md files embed all subagent prompts inline. This works for `.skill` zip distribution but would bloat our agent files beyond hard limits. Our separate agent files with YAML frontmatter + `skills:` preloading is better for maintenance.
+
+### No Hooks
+Zero hooks means no auto-formatting, no progress tracking, no Iron Laws injection into subagents. Our hooks system is a major advantage.
+
+### 10-Expert Review (Diminishing Returns)
+10 parallel reviewers is impressive but expensive. Our 4-agent model with dynamic selection (from Part 3) would achieve similar coverage at lower cost. The key insight isn't the number of experts — it's the quality of their reference documents.
+
+### Stack-Specific Stack (Prisma/tRPC/Next.js)
+Their reference docs are deeply Prisma/Next.js specific (13 Prisma defaults to override, etc.). Not applicable to Elixir/Phoenix. But the *pattern* of documenting known-bad framework defaults is excellent — we should do the same for Ecto/Phoenix.
+
+## Updated Implementation Priority Matrix
+
+| # | Feature | Source | Effort | Impact | Priority |
+|---|---------|--------|--------|--------|----------|
+| 1 | Conventions.md compound loop from reviews | Carmack Council | Medium | Very High | **P0** |
+| 2 | Anti-over-recommendation filter | Carmack Council | Low | High | **P0** |
+| 3 | Mandatory conversational summary table | Carmack Council | Very Low | Medium | **P0** |
+| 4 | File-based 1-line return pattern for agents | Carmack Council | Low | Medium | **P1** |
+| 5 | Expert-sourced reference docs | Carmack Council | Medium | Medium-High | **P1** |
+| 6 | Explicit lane discipline / dedup rules | Carmack Council | Low | Medium | **P1** |
+| 7 | Compact instructions for long skills | Carmack Council | Low | Low-Medium | **P2** |
+
+---
+
+## Consolidated Cross-Plugin Landscape
+
+Five distinct philosophies now visible across the analyzed projects:
+
+| Approach | Project | Strength | Weakness |
+|----------|---------|----------|----------|
+| **Domain depth** | Our plugin | Deep Elixir expertise, Iron Laws, specialist agents | Learning is manual, no strategic context layer |
+| **Self-improvement loops** | everything-claude-code | Auto-extracts patterns, evolves skills | Breadth over depth, no domain Iron Laws |
+| **Strategic memory** | Theorist | Living mental model, holistic understanding | No workflow integration, no domain specificity |
+| **Iterative refinement** | iterative-engineering | Dynamic persona selection, structured review, TDD gates | No domain expertise, no hooks, no Iron Laws |
+| **Expert council** | Carmack Council | Deep sourced references, persona grounding, compound conventions | No hooks, inline prompts, stack-specific |
+
+### Highest-ROI Synthesis for Our Plugin
+
+Combining the best patterns from all four external projects, prioritized by effort-to-impact ratio:
+
+| Priority | Feature | Source | Why It's High-ROI |
+|----------|---------|--------|-------------------|
+| **P0** | Anti-over-recommendation filter | Carmack Council | Low effort, immediately reduces review noise |
+| **P0** | Mandatory summary table in reviews | Carmack Council | Very low effort, immediate UX improvement |
+| **P0** | Conventions.md from review findings | Carmack Council | Medium effort, compounds value over every review |
+| **P0** | PreToolUse dangerous ops blocking | everything-claude-code | Low effort, prevents data loss |
+| **P0** | Debug statement detection hook | everything-claude-code | Low effort, catches common mistake |
+| **P0** | Dynamic reviewer persona selection | iterative-engineering | Medium effort, faster + more focused reviews |
+| **P1** | Confidence scoring + calibration | iterative-engineering | Reduces noise, surfaces critical issues |
+| **P1** | Structured JSON review schema | iterative-engineering | Deterministic dedup, better triage |
+| **P1** | `/phx:theory` Phase 1 (manual) | Theorist | Strategic memory layer |
+| **P1** | Expert-sourced reference docs | Carmack Council | More trustworthy findings |
+| **P1** | Pre-existing issue separation | iterative-engineering | Reduces review frustration |
+| **P1** | `/phx:coverage` test coverage skill | everything-claude-code | Directly improves code quality |
+| **P2** | Scope-adaptive planning | iterative-engineering | Reduces friction for simple features |
+| **P2** | Enhanced continuous learning | everything-claude-code | Compounds value over time |
+| **P2** | `/phx:theory` Phase 2-3 (auto) | Theorist | Full strategic memory integration |
+
+The theme: **review intelligence is the biggest gap**. Three of four external projects (Carmack Council, iterative-engineering, everything-claude-code) offer complementary improvements to our review pipeline. Combining the Carmack filter (reduces noise), dynamic selection (reduces waste), conventions loop (enables learning), and structured schema (enables automation) would make `/phx:review` dramatically more effective.
