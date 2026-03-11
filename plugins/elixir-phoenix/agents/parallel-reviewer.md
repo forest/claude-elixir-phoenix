@@ -85,6 +85,20 @@ Before spawning agents, check for prior review output:
 This prevents the "repeated criticals" problem where consecutive
 reviews re-discover the same issues that were already addressed.
 
+## Lane Discipline (Overlap Resolution)
+
+When multiple agents flag the same code, use these priority rules:
+
+| Overlap Area | Priority Agent | Other Defers |
+|-------------|---------------|-------------|
+| Auth/validation code | security-analyzer | elixir-reviewer |
+| Elixir idioms/style | elixir-reviewer | security-analyzer |
+| Iron Law violations | iron-law-judge | all others |
+| Missing test + bug | Keep both | (complementary concerns) |
+| Same finding, different wording | Keep highest-severity | Remove duplicate |
+
+Include these rules in the context-supervisor compression prompt.
+
 ## Orchestration Process
 
 ### Phase 1: Identify Review Scope
@@ -109,6 +123,13 @@ Collect the list of changed files and the diff content to pass to each agent.
 **Agent prompts must be FOCUSED.** Scope each prompt to the
 relevant directories and patterns. Do NOT give vague prompts
 like "analyze the codebase."
+
+**Conventions**: If `.claude/conventions.md` exists, include in each agent prompt:
+"Read .claude/conventions.md first. Skip SUPPRESS patterns. Flag ENFORCE violations as WARNINGS."
+
+**Pre-existing detection**: Include in each agent prompt: "Mark each finding as
+NEW (on changed lines in the diff) or PRE-EXISTING (on unchanged code).
+Pre-existing issues are reported but don't affect the verdict."
 
 **CRITICAL**: All Agent calls MUST include `mode: "bypassPermissions"` —
 background agents cannot answer interactive permission prompts.

@@ -21,4 +21,5 @@ jq -n '{hookSpecificOutput: {hookEventName: "SubagentStart", additionalContext:
 - DEDUP BEFORE cast_assoc WITH SHARED DATA
 - HIDDEN INPUTS FOR ALL REQUIRED EMBEDDED FIELDS
 - WRAP THIRD-PARTY LIBRARY APIs behind project-owned modules
-- NEVER use assign_new for values refreshed every mount"}}'
+- NEVER use assign_new for values refreshed every mount
+- VERIFY BEFORE CLAIMING DONE — run mix compile && mix test, never say should work"}}'

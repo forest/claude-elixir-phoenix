@@ -61,6 +61,14 @@ end
 **Issue**: No test for expired token scenario
 **Recommendation**: Add expiration test case
 
+## At a Glance
+
+| # | Finding | Severity | Reviewer | File | New? |
+|---|---------|----------|----------|------|------|
+| 1 | Magic token never expires | BLOCKER | security-analyzer | auth.ex:45 | Yes |
+| 2 | Missing rate limiting | WARNING | security-analyzer | request_magic_link_live.ex | Yes |
+| 3 | No expired token test | WARNING | testing-reviewer | auth_test.exs | Yes |
+
 ## Next Steps
 
 How would you like to proceed?

@@ -5,6 +5,44 @@ All notable changes to the Elixir/Phoenix Claude Code plugin.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-03-11
+
+### Added
+
+- **Iron Law #22** — VERIFY BEFORE CLAIMING DONE: never say "should work"
+  without running `mix compile && mix test` (inspired by Superpowers plugin)
+- **PreToolUse `block-dangerous-ops.sh` hook** — blocks `mix ecto.reset/drop`,
+  `git push --force`, and `MIX_ENV=prod` before execution
+- **PostToolUse `debug-statement-warning.sh` hook** — warns about `IO.inspect`,
+  `dbg()`, `IO.puts` left in production `.ex` files
+- **Review conventions system** (`references/conventions.md`) — after review,
+  offer to suppress accepted patterns or enforce new conventions via
+  `.claude/conventions.md`. Review agents read conventions and skip suppressed
+  patterns (inspired by Carmack Council plugin)
+- **Pre-existing issue separation** — review findings on unchanged code marked
+  PRE-EXISTING and excluded from verdict (inspired by iterative-engineering)
+
+### Changed
+
+- **Review system: dynamic reviewer selection** — analyze diff to select 3-5
+  agents from pool instead of always spawning all 5. Always-on: elixir-reviewer,
+  iron-law-judge, verification-runner. Conditional: security-analyzer,
+  testing-reviewer, oban-specialist, deployment-validator
+  (inspired by iterative-engineering)
+- **Review system: anti-over-recommendation filter** — 5 noise-filtering
+  questions applied to findings before writing review
+  (inspired by Carmack Council)
+- **Review system: mandatory summary table** — every review ends with
+  at-a-glance `| # | Finding | Severity | Reviewer | File | New? |` table
+- **Review system: lane discipline** — explicit overlap resolution rules
+  between parallel review agents for consistent deduplication
+- **Skill descriptions: CSO audit** — 4 skills (full, work, plan, compound)
+  reworded to lead with trigger conditions instead of workflow summaries
+  (inspired by Superpowers CSO discovery)
+- **Skill descriptions: anti-trigger patterns** — ecto-patterns, security,
+  liveview-patterns now include `DO NOT load for...` conditions
+  (inspired by Anthropic Skills repo)
+
 ## [2.2.0] - 2026-03-11
 
 ### Fixed

@@ -39,8 +39,9 @@ mkdir -p ".claude/plans/${SLUG}/reviews" ".claude/plans/${SLUG}/summaries"
 # If no plan context, use fallback directory
 mkdir -p .claude/reviews
 
-git diff --name-only HEAD~5   # Recent changes
+git diff --name-only HEAD~5   # Recent changes (also save as DIFF_BASE)
 git diff --name-only main     # Or changes from main
+# Save diff base for pre-existing detection in Step 3b
 ```
 
 ### Step 1b: Load Plan Context (Scratchpad)
@@ -78,20 +79,21 @@ For each agent to spawn:
 Then spawn agents using the Agent tool. Do NOT analyze code
 yourself — delegate to agents.
 
-**For `/phx:review` or `/phx:review all` — spawn ALL 5 in ONE
-message (parallel).** Use these EXACT subagent_type values:
+**For `/phx:review` or `/phx:review all` — select agents dynamically
+based on the diff, then spawn selected agents in ONE message (parallel):**
 
-| Agent | subagent_type |
-|-------|---------------|
-| Elixir Reviewer | `elixir-phoenix:elixir-reviewer` |
-| Testing Reviewer | `elixir-phoenix:testing-reviewer` |
-| Security Analyzer | `elixir-phoenix:security-analyzer` |
-| Verification Runner | `elixir-phoenix:verification-runner` |
-| Iron Law Judge | `elixir-phoenix:iron-law-judge` |
+| Agent | subagent_type | When to spawn |
+|-------|---------------|---------------|
+| Elixir Reviewer | `elixir-phoenix:elixir-reviewer` | **Always** |
+| Iron Law Judge | `elixir-phoenix:iron-law-judge` | **Always** |
+| Verification Runner | `elixir-phoenix:verification-runner` | **Always** |
+| Security Analyzer | `elixir-phoenix:security-analyzer` | Auth/session/password/token files changed |
+| Testing Reviewer | `elixir-phoenix:testing-reviewer` | Test files changed OR new public functions |
+| Oban Specialist | `elixir-phoenix:oban-specialist` | Worker files changed (*_worker.ex) |
+| Deploy Validator | `elixir-phoenix:deployment-validator` | Dockerfile/fly.toml/runtime.exs changed |
 
-Spawn ALL agents with `mode: "bypassPermissions"` and
-`run_in_background: true` — background agents cannot answer
-interactive Bash permission prompts.
+Min 3 agents, max 5. Log selection rationale in review output.
+Spawn with `mode: "bypassPermissions"` and `run_in_background: true`.
 
 **For focused reviews — spawn the specified agent only:**
 
@@ -130,10 +132,21 @@ Prompt: "Compress review agent output.
 **For focused reviews (1 agent):** Skip supervisor, read
 agent output directly.
 
+### Step 3b: Filter Findings (Anti-Noise)
+
+Before writing the review, apply these overriding filters to each finding:
+
+1. Would a senior Elixir dev dismiss this as noise?
+2. Does the finding add complexity exceeding the problem's complexity?
+3. Are any findings duplicates reworded by different agents?
+4. Does the finding affect code actually changed in this diff?
+5. Is the finding on unchanged code (not in diff)? → Mark PRE-EXISTING
+
+Demote or remove findings that fail filters 1-4. Mark pre-existing per filter 5.
+
 ### Step 4: Generate Review Summary
 
-Read the consolidated summary (full review) or agent output
-(focused review). Write to `.claude/plans/{slug}/reviews/{feature}-review.md`
+Read consolidated/agent output. Write to `.claude/plans/{slug}/reviews/{feature}-review.md`
 with verdict: PASS | PASS WITH WARNINGS | REQUIRES CHANGES | BLOCKED.
 
 ### Step 5: Present Findings and Ask User
@@ -141,21 +154,14 @@ with verdict: PASS | PASS WITH WARNINGS | REQUIRES CHANGES | BLOCKED.
 **STOP and present the review.** Do NOT create tasks or fix
 anything.
 
-**On BLOCKED or REQUIRES CHANGES**: Show finding count by
-severity, then offer concrete options via `AskUserQuestion`:
+**On BLOCKED or REQUIRES CHANGES**: Show finding count by severity,
+then offer via `AskUserQuestion`: `/phx:triage` (recommended), `/phx:plan`,
+fix directly, or "I'll handle it myself".
 
-- **Triage first** — `/phx:triage` to convert findings to tasks (recommended)
-- **Replan fixes** — `/phx:plan .claude/plans/{slug}/reviews/{file}.md`
-- **Fix directly** — fix blockers now in this session
-- **Handle myself** — I'll take it from here
+**On PASS / PASS WITH WARNINGS**: Suggest `/phx:compound`, `/phx:learn`.
 
-Example: "Review complete — 3 blockers, 5 warnings, 2 suggestions.
-Recommend triaging first to prioritize."
-
-**On PASS / PASS WITH WARNINGS**: Suggest `/phx:compound`,
-`/phx:document`, `/phx:learn`. If warnings reveal scope gaps,
-also suggest: `/phx:plan .claude/plans/{slug}/reviews/{file}.md`
-to create a follow-up plan from review findings.
+**Convention extraction**: After presenting findings, offer: "Any findings
+to suppress or enforce as conventions?" See `references/conventions.md`.
 
 ## Iron Laws
 
@@ -165,19 +171,8 @@ to create a follow-up plan from review findings.
 4. **Research before claiming** — Agents MUST research before
    making claims about CI/CD or external services
 
-## Integration with Workflow
+## Integration
 
-```text
-/phx:plan → /phx:work
-       ↓
-/phx:review  ← YOU ARE HERE (findings only, no tasks)
-       ↓
-   Blocked? → /phx:triage, /phx:plan, or /phx:work
-   Pass    → /phx:compound (capture solutions)
-```
+`/phx:plan` → `/phx:work` → `/phx:review` (YOU ARE HERE) → Blocked? `/phx:triage` or `/phx:plan` | Pass? `/phx:compound`
 
-## References
-
-- `references/review-template.md` — Full review template format
-- `references/example-review.md` — Example review output
-- `references/blocker-handling.md` — Severity classification
+See: `references/review-template.md`, `references/example-review.md`, `references/blocker-handling.md`

@@ -200,7 +200,8 @@ Defined in `hooks/hooks.json`:
 ```json
 {
   "hooks": {
-    "PostToolUse": [...],          // Format + Iron Law verify + security + progress + plan STOP
+    "PreToolUse": [...],            // Block dangerous ops (ecto.reset, force push, MIX_ENV=prod)
+    "PostToolUse": [...],          // Format + Iron Law verify + security + progress + plan STOP + debug stmt
     "PostToolUseFailure": [...],   // Elixir failure hints + error critic for mix commands
     "SubagentStart": [...],        // Iron Laws injection into all subagents
     "SessionStart": [...],         // Setup dirs + Tidewave + resume detection
@@ -212,9 +213,11 @@ Defined in `hooks/hooks.json`:
 
 **Current hooks:**
 
+- `PreToolUse` (Bash): Block destructive operations (`mix ecto.reset/drop`, `git push --force`, `MIX_ENV=prod`) before execution
 - `PostToolUse` (Edit|Write): Auto `mix format --check-formatted`, **programmatic Iron Law verification**
   (scans code content for violations), security Iron Laws for auth files,
-  async progress logging, plan STOP reminder on plan.md write (all use exit 2 + stderr)
+  async progress logging, plan STOP reminder on plan.md write, **debug statement detection**
+  (`IO.inspect`/`dbg()`/`IO.puts` in production .ex files) (all use exit 2 + stderr)
 - `PostToolUseFailure` (Bash): Elixir-specific debugging hints when mix compile/test/credo/ecto fails,
   **error critic** that detects repeated failures and escalates to structured analysis (both via `additionalContext`)
 - `SubagentStart`: Inject all Iron Laws into every spawned subagent via `additionalContext` (addresses zero skill auto-loading gap)
@@ -508,6 +511,10 @@ These rules are NEVER violated. If code would violate them, **STOP and explain**
 ### LiveView Iron Laws (continued)
 
 21. **NEVER use `assign_new` for values refreshed every mount** - `assign_new` skips the function if the key exists. Use `assign/3` for locale, current user, or any value that must be set on every mount
+
+### Verification Iron Laws
+
+22. **VERIFY BEFORE CLAIMING DONE** - Never say "should work" or "this fixes it." Run `mix compile && mix test` and show the result. If you can't verify, explicitly state what remains unverified
 
 ### Violation Response
 

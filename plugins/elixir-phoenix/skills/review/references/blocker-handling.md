@@ -75,6 +75,13 @@ How would you like to proceed?
 
 Always enumerate actual findings -- never just show a count.
 
+## Pre-existing Issues
+
+Findings on code NOT changed in this diff are marked **PRE-EXISTING**.
+Pre-existing issues appear in the report and summary table but do NOT
+affect the verdict. A PASS verdict is possible even with pre-existing
+blockers, as long as no NEW blockers exist.
+
 ## Research Requirement for Infrastructure
 
 When reviewing CI/CD, deployment, or external service configuration:

@@ -1,6 +1,6 @@
 ---
 name: phx:work
-description: Execute implementation from a plan file with progress tracking and verification after each task. Use after /phx:plan to systematically implement features. Also use with --continue to resume interrupted work sessions.
+description: Use after /phx:plan to systematically implement features, or with --continue to resume interrupted work. Executes plan tasks with progress tracking and verification after each step.
 argument-hint: <path to plan file>
 ---
 

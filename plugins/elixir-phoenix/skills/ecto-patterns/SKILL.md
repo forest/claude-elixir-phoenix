@@ -1,6 +1,6 @@
 ---
 name: ecto-patterns
-description: Ecto patterns for schemas, queries, changesets, and migrations. Load when working with any database code — schemas, migrations, Repo calls, Ecto.Query, changesets, or multi-tenancy patterns. Essential for avoiding N+1 queries, SQL injection, and float-for-money bugs.
+description: Ecto patterns for schemas, queries, changesets, and migrations. Load when working with any database code — schemas, migrations, Repo calls, Ecto.Query, changesets, or multi-tenancy patterns. Essential for avoiding N+1 queries, SQL injection, and float-for-money bugs. DO NOT load for Ash.Resource or Ash.Domain modules — Ash has its own patterns.
 user-invocable: false
 ---
 
