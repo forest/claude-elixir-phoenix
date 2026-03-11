@@ -606,6 +606,7 @@ This plugin was built with insights from these articles, repositories, and tools
 - <https://allanmacgregor.com/posts/setting-up-tidewave-beam-introspection>
 - <https://theengineeringmanager.substack.com/p/councils-of-agents>
 - <https://platform.claude.com/docs/en/agents-and-tools/tool-use/programmatic-tool-calling>
+- <https://arxiv.org/abs/2603.03329> (AutoHarness: improving LLM agents by automatically synthesizing a code harness)
 - <https://x.com/heynavtoor>
 
 ## License
