@@ -29,6 +29,53 @@ No prompt engineering. No "please check for N+1 queries." The plugin auto-loads
 the right domain knowledge based on what files you're editing and enforces rules
 that prevent the mistakes Elixir developers actually make in production.
 
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  ⚗  Elixir/Phoenix Plugin for Claude Code                           │
+│                                                                     │
+│  ┌──────────┬──────────┬──────────┬──────────┬──────────┐           │
+│  │    20    │    38    │    92    │    18    │    22    │           │
+│  │  Agents  │  Skills  │   Refs   │  Hooks   │Iron Laws │           │
+│  └──────────┴──────────┴──────────┴──────────┴──────────┘           │
+│                                                                     │
+│  AGENTS                          COMMANDS                           │
+│  ─────────────────────           ──────────────────────────         │
+│  Orchestrators (opus)            Workflow                           │
+│    workflow-orchestrator           /phx:plan    /phx:work           │
+│    planning-orchestrator           /phx:review  /phx:full           │
+│    parallel-reviewer               /phx:compound /phx:quick         │
+│    context-supervisor              /phx:brief   /phx:triage         │
+│                                                                     │
+│  Reviewers (sonnet)              Investigation & Debug              │
+│    elixir-reviewer                 /phx:investigate /phx:trace      │
+│    testing-reviewer                /ecto:n1-check   /phx:perf       │
+│    security-analyzer               /ecto:constraint-debug           │
+│    iron-law-judge                  /lv:assigns                      │
+│                                                                     │
+│  Architecture (sonnet)           Analysis & Review                  │
+│    liveview-architect              /phx:audit    /phx:verify        │
+│    ecto-schema-designer            /phx:techdebt /phx:boundaries    │
+│    phoenix-patterns-analyst        /phx:pr-review /phx:challenge    │
+│    otp-advisor                     /phx:research  /phx:document     │
+│                                                                     │
+│  Investigation (sonnet/haiku)    Knowledge (auto-loaded)            │
+│    deep-bug-investigator           liveview-patterns  ecto-patterns │
+│    call-tracer                     elixir-idioms      security      │
+│    xref-analyzer                   phoenix-contexts   oban          │
+│    verification-runner             testing   deploy   tidewave      │
+│                                                                     │
+│  Domain (sonnet)                 Hooks                              │
+│    oban-specialist                 auto-format · auto-compile       │
+│    deployment-validator            iron-law-verify · security-scan  │
+│    hex-library-researcher          debug-stmt-detect · error-critic │
+│    web-researcher                  progress-tracking · block-danger │
+│                                                                     │
+│  ───────────────────────────────────────────────────────────        │
+│  22 Iron Laws · Tidewave MCP · plan→work→verify→review→compound     │
+│  github.com/oliver-kriska/claude-elixir-phoenix                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
 > **Early Stage** -- Under active development. Feedback and contributions welcome via [issues](https://github.com/oliver-kriska/claude-elixir-phoenix/issues).
 
 ## Installation
@@ -426,20 +473,20 @@ The plugin enforces critical rules and **stops with an explanation** if code wou
 
 ### Workflow
 
-| Command                 | Description                                          |
-| ----------------------- | ---------------------------------------------------- |
+| Command                 | Description                                                  |
+| ----------------------- | ------------------------------------------------------------ |
 | `/phx:full <feature>`   | Full autonomous cycle (plan, work, verify, review, compound) |
-| `/phx:plan <input>`     | Create implementation plan with specialist agents    |
-| `/phx:plan --existing`  | Enhance existing plan with deeper research           |
-| `/phx:work <plan-file>` | Execute plan tasks with verification                 |
-| `/phx:review [focus]`   | Multi-agent code review (4 parallel agents)          |
-| `/phx:compound`         | Capture solved problem as reusable knowledge         |
-| `/phx:triage`           | Interactive triage of review findings                 |
-| `/phx:document`         | Generate @moduledoc, @doc, README, ADRs              |
-| `/phx:learn <lesson>`   | Capture lessons learned                              |
-| `/phx:brief <plan>`     | Interactive plan walkthrough                         |
-| `/phx:perf`             | Performance analysis with specialist agents          |
-| `/phx:pr-review`        | Address PR review comments                           |
+| `/phx:plan <input>`     | Create implementation plan with specialist agents            |
+| `/phx:plan --existing`  | Enhance existing plan with deeper research                   |
+| `/phx:work <plan-file>` | Execute plan tasks with verification                         |
+| `/phx:review [focus]`   | Multi-agent code review (4 parallel agents)                  |
+| `/phx:compound`         | Capture solved problem as reusable knowledge                 |
+| `/phx:triage`           | Interactive triage of review findings                        |
+| `/phx:document`         | Generate @moduledoc, @doc, README, ADRs                      |
+| `/phx:learn <lesson>`   | Capture lessons learned                                      |
+| `/phx:brief <plan>`     | Interactive plan walkthrough                                 |
+| `/phx:perf`             | Performance analysis with specialist agents                  |
+| `/phx:pr-review`        | Address PR review comments                                   |
 
 ### Utility
 
@@ -453,7 +500,7 @@ The plugin enforces critical rules and **stops with an explanation** if code wou
 | `/phx:verify`            | Run full verification (compile, format, credo, test)       |
 | `/phx:trace <function>`  | Build call trees to trace function flow                    |
 | `/phx:boundaries`        | Analyze Phoenix context boundaries with mix xref           |
-| `/phx:examples`          | Practical examples and pattern walkthroughs                 |
+| `/phx:examples`          | Practical examples and pattern walkthroughs                |
 | `/ecto:constraint-debug` | Debug Ecto constraint violations                           |
 
 ### Analysis
@@ -499,19 +546,19 @@ architectural decisions; pattern analysts skip redundant discovery.
 
 These load automatically based on file context -- no commands needed:
 
-| Skill                  | Triggers On                                |
-| ---------------------- | ------------------------------------------ |
-| `elixir-idioms`        | OTP/BEAM code, GenServer, Supervisor, Task |
-| `phoenix-contexts`     | Context modules, router, plugs, controllers|
-| `liveview-patterns`    | `*_live.ex`, mount, handle_event, streams  |
-| `ecto-patterns`        | Schemas, migrations, Repo calls, changesets|
-| `testing`              | `*_test.exs`, factories, test support      |
-| `oban`                 | Oban workers, perform/1, queue config      |
-| `security`             | Auth, sessions, CSRF/CSP, input validation |
-| `deploy`               | Dockerfile, fly.toml, runtime.exs, releases|
-| `tidewave-integration` | Runtime debugging, live process inspection |
-| `intent-detection`     | First message routing to /phx: commands    |
-| `compound-docs`        | Solution documentation lookups             |
+| Skill                  | Triggers On                                 |
+| ---------------------- | ------------------------------------------- |
+| `elixir-idioms`        | OTP/BEAM code, GenServer, Supervisor, Task  |
+| `phoenix-contexts`     | Context modules, router, plugs, controllers |
+| `liveview-patterns`    | `*_live.ex`, mount, handle_event, streams   |
+| `ecto-patterns`        | Schemas, migrations, Repo calls, changesets |
+| `testing`              | `*_test.exs`, factories, test support       |
+| `oban`                 | Oban workers, perform/1, queue config       |
+| `security`             | Auth, sessions, CSRF/CSP, input validation  |
+| `deploy`               | Dockerfile, fly.toml, runtime.exs, releases |
+| `tidewave-integration` | Runtime debugging, live process inspection  |
+| `intent-detection`     | First message routing to /phx: commands     |
+| `compound-docs`        | Solution documentation lookups              |
 
 ## Tidewave MCP Integration
 
