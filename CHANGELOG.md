@@ -5,6 +5,18 @@ All notable changes to the Elixir/Phoenix Claude Code plugin.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.1] - 2026-03-12
+
+### Changed
+
+- **Skill descriptions: full optimization pass** — Applied Skill Creator
+  methodology (trigger eval queries + train/test optimization) to all 12
+  auto-triggered reference skills. Average triggering accuracy improved from
+  15.0/20 to 19.3/20 (+29%). Key techniques: replaced generic terms with
+  specific API/file keywords, added negative boundaries to prevent skill
+  overlap, used user vocabulary instead of meta-language. Biggest wins:
+  intent-detection (+10), assigns-audit (+7), oban (+6), elixir-idioms (+5)
+
 ## [2.3.0] - 2026-03-11
 
 ### Added
