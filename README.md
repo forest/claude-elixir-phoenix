@@ -42,7 +42,7 @@ New to the plugin? Run the interactive tutorial:
 /phx:intro
 ```
 
-It walks through the workflow, commands, and features in 5 short sections (~5 min).
+It walks through the workflow, commands, and features in 6 short sections (~5 min).
 Skip to any section with `/phx:intro --section N`.
 
 ## Quick Examples
@@ -415,12 +415,15 @@ The plugin enforces critical rules and **stops with an explanation** if code wou
 | `/phx:triage`           | Interactive triage of review findings                 |
 | `/phx:document`         | Generate @moduledoc, @doc, README, ADRs              |
 | `/phx:learn <lesson>`   | Capture lessons learned                              |
+| `/phx:brief <plan>`     | Interactive plan walkthrough                         |
+| `/phx:perf`             | Performance analysis with specialist agents          |
+| `/phx:pr-review`        | Address PR review comments                           |
 
 ### Utility
 
 | Command                  | Description                                                |
 | ------------------------ | ---------------------------------------------------------- |
-| `/phx:intro`             | Interactive plugin tutorial (5 sections, ~5 min)           |
+| `/phx:intro`             | Interactive plugin tutorial (6 sections, ~5 min)           |
 | `/phx:init`              | Initialize plugin in a project (auto-activation rules)     |
 | `/phx:quick <task>`      | Fast implementation, skip ceremony                         |
 | `/phx:investigate <bug>` | Systematic bug debugging (4 parallel investigation tracks) |
@@ -428,6 +431,8 @@ The plugin enforces critical rules and **stops with an explanation** if code wou
 | `/phx:verify`            | Run full verification (compile, format, credo, test)       |
 | `/phx:trace <function>`  | Build call trees to trace function flow                    |
 | `/phx:boundaries`        | Analyze Phoenix context boundaries with mix xref           |
+| `/phx:examples`          | Practical examples and pattern walkthroughs                 |
+| `/ecto:constraint-debug` | Debug Ecto constraint violations                           |
 
 ### Analysis
 
@@ -472,16 +477,19 @@ architectural decisions; pattern analysts skip redundant discovery.
 
 These load automatically based on file context -- no commands needed:
 
-| Skill               | Triggers On                             |
-| ------------------- | --------------------------------------- |
-| `elixir-idioms`     | Any `.ex`/`.exs` file                   |
-| `phoenix-contexts`  | Context modules, `lib/*/[a-z]*.ex`      |
-| `liveview-patterns` | `*_live.ex`, `*_component.ex`           |
-| `ecto-patterns`     | Migrations, schemas, `from(` queries    |
-| `testing`           | `*_test.exs` files                      |
-| `oban`              | `*_worker.ex`, `use Oban.Worker`        |
-| `security`          | Auth, session, password code            |
-| `deploy`            | `Dockerfile`, `fly.toml`, `runtime.exs` |
+| Skill                  | Triggers On                                |
+| ---------------------- | ------------------------------------------ |
+| `elixir-idioms`        | OTP/BEAM code, GenServer, Supervisor, Task |
+| `phoenix-contexts`     | Context modules, router, plugs, controllers|
+| `liveview-patterns`    | `*_live.ex`, mount, handle_event, streams  |
+| `ecto-patterns`        | Schemas, migrations, Repo calls, changesets|
+| `testing`              | `*_test.exs`, factories, test support      |
+| `oban`                 | Oban workers, perform/1, queue config      |
+| `security`             | Auth, sessions, CSRF/CSP, input validation |
+| `deploy`               | Dockerfile, fly.toml, runtime.exs, releases|
+| `tidewave-integration` | Runtime debugging, live process inspection |
+| `intent-detection`     | First message routing to /phx: commands    |
+| `compound-docs`        | Solution documentation lookups             |
 
 ## Tidewave MCP Integration
 
