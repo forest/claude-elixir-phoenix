@@ -31,6 +31,12 @@ or involves concurrency, or user says `--parallel`/`deep`.
 
 **Otherwise**: Run the sequential workflow below.
 
+**Avoid confirmatory subagents**: Do NOT spawn parallel subagents
+to "verify" findings you already identified in the main context.
+If Step 3-4 already identified the root cause with high confidence,
+present it directly — don't spend ~80K tokens on 4 subagents to
+confirm what's already obvious (confirmed waste: session c135330a).
+
 ## Iron Laws
 
 1. **Read the error message literally first** — Most bugs tell you exactly what's wrong; resist the urge to theorize before reading what the system is saying

@@ -34,6 +34,18 @@ Generate documentation for newly implemented features.
 
 ## Workflow
 
+### Step 0: Pre-check (avoid no-op runs)
+
+```bash
+# Check if any NEW .ex files exist in recent commits
+git diff --name-only HEAD~5 | grep '\.ex$' | head -20
+```
+
+If NO new `.ex` files were added (only modifications), skip the full
+audit and report: "No new modules — documentation coverage unchanged."
+This prevents 35-message analysis sessions that conclude "PASS" with
+zero output (confirmed: session bb0a0454 wasted ~2K tokens on no-op).
+
 1. **Identify** new modules from recent commits or plan file
 2. **Check** documentation coverage (`@moduledoc`, `@doc`)
 3. **Generate** missing docs using templates

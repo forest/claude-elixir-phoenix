@@ -119,14 +119,19 @@ For each unchecked task (`- [ ] [Pn-Tm][agent] Description`):
 as background subagents. See `references/execution-guide.md`
 for spawning pattern, prompt template, and checkpoint flow.
 
-**Verification tiers**:
+**Verification tiers** (scoped to minimize redundant runs):
 
-- Per-task: `mix format` + `mix compile --warnings-as-errors`
-  (when Tidewave available, also check `get_logs :error` after edits)
-- Per-phase: above + `mix test <affected>` + `mix credo --strict`
+- Per-task: `mix compile --warnings-as-errors` only
+  (format is checked by PostToolUse hook automatically)
+- Per-phase: `mix compile --warnings-as-errors` + `mix test <affected_files>` + `mix credo --strict`
+  (scope tests: `mix test test/path/to_affected_test.exs` — NOT full suite)
 - Per-feature (Tidewave): behavioral smoke test via `project_eval`
   (create record, fetch, verify -- see execution-guide.md)
-- Final gate: `mix test` (full suite)
+- Final gate: `mix test` (full suite — run ONCE at the end, not per-phase)
+
+**Token efficiency**: Do NOT narrate each verification step. Execute
+tool calls directly without "Let me now run..." preamble. Only narrate
+when explaining a non-obvious decision or reporting a failure.
 
 > **Linter note**: The PostToolUse hook checks formatting but does
 > NOT modify files. Run `mix format` explicitly during verification

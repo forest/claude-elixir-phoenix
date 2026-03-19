@@ -85,14 +85,16 @@ based on the diff, then spawn selected agents in ONE message (parallel):**
 | Agent | subagent_type | When to spawn |
 |-------|---------------|---------------|
 | Elixir Reviewer | `elixir-phoenix:elixir-reviewer` | **Always** |
-| Iron Law Judge | `elixir-phoenix:iron-law-judge` | **Always** |
-| Verification Runner | `elixir-phoenix:verification-runner` | **Always** |
+| Iron Law Judge | `elixir-phoenix:iron-law-judge` | Only if >200 lines changed AND auth/LiveView/Oban files in diff. **Skip** if PostToolUse hooks already verified all files (hooks check Iron Laws on every Edit/Write) |
+| Verification Runner | `elixir-phoenix:verification-runner` | Only if `mix test` has NOT been run in this session. **Skip** if `/phx:work` just passed all verification tiers |
 | Security Analyzer | `elixir-phoenix:security-analyzer` | Auth/session/password/token files changed |
 | Testing Reviewer | `elixir-phoenix:testing-reviewer` | Test files changed OR new public functions |
 | Oban Specialist | `elixir-phoenix:oban-specialist` | Worker files changed (*_worker.ex) |
 | Deploy Validator | `elixir-phoenix:deployment-validator` | Dockerfile/fly.toml/runtime.exs changed |
 
-Min 3 agents, max 5. Log selection rationale in review output.
+**Agent count**: Min 1, max 5. For <200 lines changed: spawn only
+elixir-reviewer + security-analyzer (if auth files). Log selection
+rationale in review output.
 Spawn with `mode: "bypassPermissions"` and `run_in_background: true`.
 
 **For focused reviews — spawn the specified agent only:**
@@ -107,6 +109,12 @@ Spawn with `mode: "bypassPermissions"` and `run_in_background: true`.
 
 Zero agents spawned = skill failure.
 
+### Step 2b: Scope Agents to the Diff (MANDATORY)
+
+Include `git diff --name-only` in each agent's prompt. Add instruction:
+"Focus on NEW code from the diff. Pre-existing issues get one line:
+'Pre-existing: {file}:{line} — {brief}'. Do NOT deep-analyze unchanged files."
+
 ### Step 3: Collect and Compress Findings
 
 Wait for ALL agents to FULLY complete. **Do NOT report status
@@ -116,7 +124,7 @@ as `completed` via `TaskUpdate` as it finishes.
 **Verification-runner fallback**: If it fails/times out, run directly:
 `mix compile --warnings-as-errors && mix format --check-formatted $(git diff --name-only HEAD~5 | grep '\.exs\?$' | tr '\n' ' ') && mix credo --strict && mix test`
 
-**For full reviews (5 agents):** Spawn `elixir-phoenix:context-supervisor` to compress output:
+**For 4+ agents:** Spawn `elixir-phoenix:context-supervisor` to compress output:
 
 ```
 Prompt: "Compress review agent output.

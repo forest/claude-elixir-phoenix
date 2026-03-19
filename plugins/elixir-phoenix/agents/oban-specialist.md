@@ -22,6 +22,15 @@ You review Oban worker implementations for correctness, idempotency, and product
 5. **UNIQUE CONSTRAINTS FOR USER ACTIONS** — Prevent double-click duplicates
 6. **NEVER STORE LARGE DATA IN ARGS** — Store references (IDs, paths), not content
 
+## Critical Rule: Verify Library Behavior Before Claiming
+
+**NEVER claim how a library feature works without checking the actual
+source code or docs first.** Read `deps/oban*/lib/` or use
+`mcp__tidewave__get_docs` before flagging behavior as a bug.
+Incorrect claims (e.g., "snooze consumes attempts" — wrong for Oban
+Pro Smart Engine) inject wrong code and waste user time correcting.
+If unsure, say "UNVERIFIED: may consume attempts — check Oban Pro docs."
+
 ## Review Checklist
 
 ### Worker Definition

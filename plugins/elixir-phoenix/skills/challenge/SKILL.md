@@ -112,20 +112,27 @@ Senior engineer review checklist:
 - [ ] No path traversal in file handling
 - [ ] Authorization checks present
 
-## Prior Findings Deduplication
+## Prior Findings Deduplication (MANDATORY)
 
-Before running a challenge, check for prior review output:
+**CRITICAL**: This step prevents the "3 challenges to clear" problem
+where identical issues are re-discovered across consecutive runs.
+Session data confirms this happens without explicit dedup enforcement.
+
+Before running a challenge, **ALWAYS** check for prior review output:
 
 1. **Search** for existing reviews in `.claude/plans/*/reviews/` and `.claude/reviews/`
-2. If prior findings exist, **read them first**
-3. In your challenge output, classify each finding as:
-   - **NEW** — Not found in any prior review
-   - **PERSISTENT** — Found before AND still present (not fixed)
-   - **REGRESSION** — Was fixed but reintroduced
-4. **Do NOT re-flag fixed issues** — If prior review flagged something and the code now addresses it, skip it
-5. **Focus on NEW issues** — Spend most effort on findings not in prior reviews
+2. If prior findings exist, **read ALL of them** before analyzing code
+3. Build a PRIOR_FINDINGS list with file:line references
+4. During analysis, check each potential finding against PRIOR_FINDINGS:
+   - If the exact code location was flagged AND is now fixed → **SKIP entirely**
+   - If flagged AND still present → Mark **PERSISTENT** (one line, not full re-analysis)
+   - If NOT in prior findings → Mark **NEW** (full analysis)
+   - If was fixed but reintroduced → Mark **REGRESSION**
+5. **Only NEW findings get full analysis** — PERSISTENT gets one-line mention
 
-When presenting results, show NEW findings first, then PERSISTENT (with note "flagged previously"), then REGRESSION. This prevents the "3 challenges to clear" problem where the same issues get re-discovered.
+When presenting results, show NEW findings first, then PERSISTENT
+(one-line each), then REGRESSION. Never re-analyze code that was
+already flagged — just check if the fix was applied.
 
 ## Usage
 

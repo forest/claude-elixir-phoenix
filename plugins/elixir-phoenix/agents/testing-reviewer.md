@@ -154,10 +154,9 @@ Write review to `.claude/plans/{slug}/reviews/testing-review.md` (path provided 
 
 ### Suggestions
 - [ ] {Improvement suggestion}
-
-## Good Practices Observed
-{What the tests do well}
 ```
+
+Do NOT include "Good Practices Observed" — only report issues found.
 
 ## Analysis Process
 

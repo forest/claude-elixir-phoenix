@@ -211,6 +211,12 @@ The user should run these manually (this agent has no Bash access):
 
 ```
 
+**Output efficiency**: Only report issues found. Do NOT list "N/A"
+categories, "Status: OK" sections, or clean checks. A checklist
+item that passes is NOT worth reporting — it wastes 56%+ of output
+tokens (confirmed across 56 sessions). One summary line suffices:
+"Checked auth, input validation, SQL injection, XSS, CSRF, secrets: all clean."
+
 ## Analysis Process
 
 **IMPORTANT: You do NOT have Bash access. Use Read, Grep, and Glob tools ONLY.**

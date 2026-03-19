@@ -5,6 +5,88 @@ All notable changes to the Elixir/Phoenix Claude Code plugin.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [2.4.0] - 2026-03-19
+
+### Fixed
+
+- **Document: no-op pre-check** — `/phx:document` now checks `git diff`
+  for new `.ex` files before running full audit. Prevents 35-message
+  analysis sessions that conclude "PASS — nothing needed" (session bb0a0454)
+- **Challenge: dedup enforcement** — Strengthened prior findings dedup
+  to prevent "3 challenges to clear" problem where same critical issues
+  re-appear across consecutive runs. Now MANDATORY with explicit SKIP
+  for fixed issues and one-line PERSISTENT mentions
+- **Investigate: no confirmatory subagents** — Added rule to avoid
+  spawning parallel subagents when root cause already identified in
+  main context (~80K tokens wasted in session c135330a)
+- **Audit: lean agent output** — Added output efficiency rule to audit
+  subagent prompts (report only issues, not clean checks)
+
+- **Full: Stronger no-narration enforcement** — Post-PR validation (19
+  sessions, 5 days) showed 30% of messages still had "Let me now..."
+  preamble. Upgraded from soft suggestion to HARD rule with explicit
+  prohibited phrases and self-correction instruction
+- **Review agents: Verify before claiming** — Added mandatory rule to
+  elixir-reviewer and oban-specialist: never claim library behavior
+  without checking source/docs first. Prevents incorrect BLOCKER
+  findings that inject wrong code (confirmed: session f0242cf5 had
+  two agents independently make wrong Oban Pro snooze claim, causing
+  revert + user correction cycle)
+
+### Changed
+
+- **Review: Conditional agent spawning** — Iron-law-judge now skipped when
+  PostToolUse hooks already verified all files; verification-runner skipped
+  when work phase passed all tests. Saves 80-150K tokens per review
+  (validated across 56 sessions: iron-law-judge used 78K tokens for zero
+  violations in R3 /phx:full; verification-runner was always redundant)
+- **Review: Lightweight path** — For <200 lines changed, spawn only
+  elixir-reviewer + security-analyzer. Saves 30-50K tokens per small review
+- **Review: Diff-scoped agents** — All review agents now receive
+  `git diff --name-only` with instruction to focus on NEW code only.
+  Pre-existing issues get one-line mentions. Eliminates 25-50% of
+  false positives from pre-existing code flagging
+- **Iron-law-judge: Violations only** — Removed "Clean Checks" output
+  section (was 62% of output = ~2,800 words of "checked and it's fine").
+  Now outputs only violations with one summary line for clean checks
+- **All review agents: No praise sections** — Removed "What's Good" from
+  elixir-reviewer, "Good Practices Observed" from testing-reviewer, and
+  "N/A" category listings from security-analyzer. These consumed 16-56%
+  of output tokens for zero actionable value
+- **Context-supervisor now mandatory for 4+ agents** — Previously
+  optional, now required. Prevents 12-20K tokens of raw agent output
+  flooding the parent context (never used in any of 6 review sessions)
+- **Plan: Skip research from review** — New Iron Law #7: when planning
+  from review/investigation output, skip research agents. The findings
+  ARE the research. (56-session analysis: same finding discovered 3-4x
+  across review→investigate→plan, wasting ~96K tokens)
+- **Work: Scoped verification** — Per-task: compile only (format
+  handled by hook). Per-phase: compile + scoped tests. Full suite
+  only at final gate. Eliminates 40-50% of redundant verification runs
+- **Full: Lean review + no narration** — Added Iron Laws #6 (skip
+  redundant review agents) and #7 (no narration in autonomous mode).
+  Execute tool calls directly without "Let me now..." preamble
+
+### Added
+
+- **Skill eval framework** (`evals/`) — 3-phase automated testing for plugin
+  skills with structural assertions (16 matcher types, zero API cost) and
+  behavioral tests (LLM-as-judge with synthetic Phoenix scenarios)
+- **`/eval` command skill** — Run structural, behavioral, A/B, and regression
+  evals from Claude Code sessions
+- **4 synthetic test scenarios** — acme_shop (18 files, 4 bugs), demo_blog
+  (10 files, 2 bugs), sample_crm (25 files, 3 bugs), tiny_api (6 files,
+  greenfield)
+- **9 structural assertion specs** — compound, plan, review, work, verify,
+  quick, ecto-patterns, liveview-patterns, security
+- **5 behavioral behavior specs** — plan, review, investigate, compound, work
+- **eval-judge agent** — Sonnet-based read-only judge for behavioral scoring
+- **Eval suite orchestrator** (`run_suite.py`) — baseline management, regression
+  detection, A/B comparison, trend tracking
+- **npm scripts**: `eval:structural`, `eval:structural:changed`, `eval:full`
+
 ## [2.3.1] - 2026-03-12
 
 ### Changed

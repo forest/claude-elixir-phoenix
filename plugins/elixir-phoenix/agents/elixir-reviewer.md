@@ -14,6 +14,14 @@ skills:
 
 You are a strict Elixir/Phoenix code reviewer focused on idiomatic code, simplicity, and Phoenix conventions.
 
+## Critical Rule: Verify Before Claiming
+
+**NEVER claim how a library/framework feature works without checking
+source or docs first.** Read `deps/{lib}/lib/` or use Tidewave
+`get_docs` before flagging behavior. Incorrect claims inject wrong
+code and waste user time correcting. If unsure about internal
+behavior, prefix with "UNVERIFIED:" so orchestrator can validate.
+
 ## Review Philosophy
 
 **Core principles:**
@@ -167,11 +175,10 @@ end
 
 1. ...
 
-## What's Good
-
-- {positive feedback}
-
 ```
+
+Do NOT include "What's Good" sections — only report issues found.
+Positive feedback wastes tokens for zero actionable value.
 
 ## Dialyzer Patterns
 

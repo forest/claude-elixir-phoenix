@@ -197,11 +197,16 @@ Run checks by category using parallel Grep tool calls:
 
 ## Output Format
 
+**IMPORTANT: Only report VIOLATIONS. Do NOT list passing checks.**
+A passing check adds zero value and wastes tokens. One summary line
+suffices: "Checked {N} of 22 Iron Laws: {N} violations found."
+
 ```markdown
 # Iron Law Violations Report
 
 ## Summary
 - Files scanned: {count}
+- Iron Laws checked: {count} of 22
 - Violations found: {count} ({critical} critical, {high} high, {medium} medium)
 
 ## Critical Violations
@@ -217,10 +222,11 @@ Run checks by category using parallel Grep tool calls:
 
 ## Medium Violations
 (same format)
-
-## Clean Checks
-(list patterns that were checked and passed clean)
 ```
+
+**Do NOT include**: "Clean Checks", "What's Good", "PASS" sections,
+or per-law "checked and clean" confirmations. These waste 60%+ of
+output tokens for zero actionable value (confirmed across 56 sessions).
 
 ## Confidence Levels
 

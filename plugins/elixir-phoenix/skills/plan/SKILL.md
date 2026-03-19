@@ -79,6 +79,12 @@ Enhances an existing plan instead of creating a new one:
 4. **NEVER write plan while agents still running**
 5. **NEVER skip input findings** — Every finding MUST have a task
 6. **Do NOT spawn hex-library-researcher for existing deps**
+7. **Skip research when planning from review/investigation** — When
+   input is a review file or `/phx:investigate` output, the findings
+   ARE the research. Do NOT spawn agents to re-discover what the
+   review already found. Convert findings directly to plan tasks.
+   (Confirmed: 56-session analysis showed same findings discovered
+   3-4x across review→investigate→plan phases, wasting ~96K tokens)
 
 ## Integration with Workflow
 

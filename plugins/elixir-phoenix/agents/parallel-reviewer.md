@@ -112,16 +112,34 @@ git diff main...HEAD --name-only
 
 # Focus on Elixir files
 git diff main...HEAD --name-only | grep "\.ex$\|\.exs$"
+
+# Get line count for lightweight path decision
+git diff main...HEAD --stat | tail -1
 ```
 
 Collect the list of changed files and the diff content to pass to each agent.
 
-### Phase 2: Spawn All 4 Specialist Agents in Parallel
+### Phase 1b: Select Agents (Conditional Spawning)
 
-**CRITICAL**: Spawn ALL 4 agents in ONE Tool Use block with `run_in_background: true`.
+**Skip verification-runner** when `mix test` already passed in the
+current session (work phase just completed verification tiers).
 
-**Agent prompts must be FOCUSED.** Scope each prompt to the
-relevant directories and patterns. Do NOT give vague prompts
+**Skip iron-law-judge** when the PostToolUse hook (`iron-law-verifier.sh`)
+already verified all edited files during the work phase. The hook checks
+the same Iron Law patterns in real-time on every Edit/Write.
+
+**Lightweight path** (<200 lines changed): Spawn only elixir-reviewer +
+security-analyzer (if auth files changed). Skip testing-reviewer and
+verification-runner. This saves 30-50K tokens per small review.
+
+### Phase 2: Spawn Selected Specialist Agents in Parallel
+
+**CRITICAL**: Spawn selected agents in ONE Tool Use block with `run_in_background: true`.
+
+**Agent prompts must be DIFF-SCOPED.** Include `git diff --name-only`
+output in each agent prompt with instruction: "Focus analysis on
+NEW code from the diff. Pre-existing issues get one line only.
+Do NOT deep-analyze unchanged files." Do NOT give vague prompts
 like "analyze the codebase."
 
 **Conventions**: If `.claude/conventions.md` exists, include in each agent prompt:
@@ -161,7 +179,7 @@ Output format:
 ### Critical Issues (Must Fix)
 ### Warnings (Should Fix)
 ### Style Suggestions
-### What's Done Well
+Do NOT include "What's Done Well" — only report issues found.
 """, run_in_background: true)
 
 Agent(subagent_type: "general-purpose", mode: "bypassPermissions", prompt: """
@@ -189,7 +207,7 @@ Output format:
 ### Critical Vulnerabilities
 ### Security Warnings
 ### Authorization Gaps
-### Recommendations
+Only report issues found — do NOT list "N/A" categories or clean checks.
 """, run_in_background: true)
 
 Agent(subagent_type: "general-purpose", mode: "bypassPermissions", prompt: """
@@ -217,7 +235,7 @@ Output format:
 ### Missing Test Coverage
 ### Test Quality Issues
 ### Pattern Recommendations
-### What's Done Well
+Do NOT include "What's Done Well" — only report gaps and issues.
 """, run_in_background: true)
 
 Agent(subagent_type: "general-purpose", mode: "bypassPermissions", prompt: """
@@ -345,9 +363,6 @@ found. Present both perspectives so the developer decides.
 
 1. [ ] {suggestion} - {agent}
 
-## What's Done Well
-
-{Positive feedback from all agents}
 ```
 
 ## Error Handling

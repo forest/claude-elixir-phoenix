@@ -71,6 +71,10 @@ Agent(subagent_type: "general-purpose", prompt: "Dependency audit...", run_in_ba
 relevant directories and patterns. Do NOT give vague prompts
 like "analyze the codebase."
 
+**Output efficiency**: Tell each agent: "Report ONLY issues found.
+Do NOT list clean checks, passing categories, or 'What's Good'.
+One summary line per clean area suffices."
+
 ### Step 2: Collect Results
 
 Wait for ALL auditors to complete. Mark each auditor's task as
