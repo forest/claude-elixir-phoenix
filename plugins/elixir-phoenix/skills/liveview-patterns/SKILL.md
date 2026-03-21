@@ -1,6 +1,7 @@
 ---
 name: liveview-patterns
 description: LiveView lifecycle & real-time UI. For *_live.ex, mount, handle_event, handle_params, handle_info, assign_async, streams, PubSub, phx-change/phx-submit, uploads, JS hooks, LiveComponent, push_patch, on_mount, socket assigns. NOT for controllers, REST APIs, Ecto, or plain Phoenix.Component.
+effort: medium
 user-invocable: false
 ---
 
@@ -102,9 +103,9 @@ Does component need BOTH internal state AND event handling?
 
 For detailed patterns, see:
 
-- `references/async-streams.md` - assign_async, stream_async, streams
-- `references/forms-uploads.md` - Forms, validation, file uploads
-- `references/components.md` - Function components, LiveComponents
-- `references/pubsub-navigation.md` - PubSub, navigation, JS commands
-- `references/js-interop.md` - Third-party JS libraries, phx-update="ignore", hooks
-- `references/channels-presence.md` - Phoenix Channels, Presence, token auth
+- `${CLAUDE_SKILL_DIR}/references/async-streams.md` - assign_async, stream_async, streams
+- `${CLAUDE_SKILL_DIR}/references/forms-uploads.md` - Forms, validation, file uploads
+- `${CLAUDE_SKILL_DIR}/references/components.md` - Function components, LiveComponents
+- `${CLAUDE_SKILL_DIR}/references/pubsub-navigation.md` - PubSub, navigation, JS commands
+- `${CLAUDE_SKILL_DIR}/references/js-interop.md` - Third-party JS libraries, phx-update="ignore", hooks
+- `${CLAUDE_SKILL_DIR}/references/channels-presence.md` - Phoenix Channels, Presence, token auth

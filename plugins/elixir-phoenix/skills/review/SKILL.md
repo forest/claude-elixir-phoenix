@@ -1,6 +1,7 @@
 ---
 name: phx:review
 description: Review code with parallel specialist agents covering tests, security, Ecto, LiveView, and Oban patterns. Use after any implementation to catch bugs, security vulnerabilities, and anti-patterns before committing. Even quick changes benefit from at least a targeted review track.
+effort: high
 argument-hint: [test|security|oban|deploy|iron-laws|all]
 disable-model-invocation: true
 ---
@@ -169,7 +170,7 @@ fix directly, or "I'll handle it myself".
 **On PASS / PASS WITH WARNINGS**: Suggest `/phx:compound`, `/phx:learn`.
 
 **Convention extraction**: After presenting findings, offer: "Any findings
-to suppress or enforce as conventions?" See `references/conventions.md`.
+to suppress or enforce as conventions?" See `${CLAUDE_SKILL_DIR}/references/conventions.md`.
 
 ## Iron Laws
 
@@ -183,4 +184,4 @@ to suppress or enforce as conventions?" See `references/conventions.md`.
 
 `/phx:plan` → `/phx:work` → `/phx:review` (YOU ARE HERE) → Blocked? `/phx:triage` or `/phx:plan` | Pass? `/phx:compound`
 
-See: `references/review-template.md`, `references/example-review.md`, `references/blocker-handling.md`
+See: `${CLAUDE_SKILL_DIR}/references/review-template.md`, `${CLAUDE_SKILL_DIR}/references/example-review.md`, `${CLAUDE_SKILL_DIR}/references/blocker-handling.md`

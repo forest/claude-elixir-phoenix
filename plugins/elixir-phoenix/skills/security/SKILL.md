@@ -1,6 +1,7 @@
 ---
 name: security
 description: "Elixir/Phoenix security: authentication, authorization, OAuth, session handling, password hashing, access control, input validation, secrets management. Load for: login/signup, RBAC, CSRF/CSP/CORS headers, rate limiting, path traversal, SSRF prevention, token handling, API key/credential protection, XSS, SQL injection, atom exhaustion. Skip for non-auth test helpers."
+effort: medium
 user-invocable: false
 ---
 
@@ -93,10 +94,10 @@ from(u in User, where: fragment("name = '#{user_input}'"))
 
 For detailed patterns, see:
 
-- `references/authentication.md` - phx.gen.auth, MFA, sessions
-- `references/authorization.md` - Bodyguard, scopes, LiveView auth
-- `references/input-validation.md` - Changesets, file uploads, paths
-- `references/security-headers.md` - CSP, CSRF, rate limiting, headers
-- `references/oauth-linking.md` - OAuth account linking, token management
-- `references/rate-limiting.md` - Composite key strategies, Hammer patterns
-- `references/advanced-patterns.md` - SSRF prevention, secrets management, supply chain
+- `${CLAUDE_SKILL_DIR}/references/authentication.md` - phx.gen.auth, MFA, sessions
+- `${CLAUDE_SKILL_DIR}/references/authorization.md` - Bodyguard, scopes, LiveView auth
+- `${CLAUDE_SKILL_DIR}/references/input-validation.md` - Changesets, file uploads, paths
+- `${CLAUDE_SKILL_DIR}/references/security-headers.md` - CSP, CSRF, rate limiting, headers
+- `${CLAUDE_SKILL_DIR}/references/oauth-linking.md` - OAuth account linking, token management
+- `${CLAUDE_SKILL_DIR}/references/rate-limiting.md` - Composite key strategies, Hammer patterns
+- `${CLAUDE_SKILL_DIR}/references/advanced-patterns.md` - SSRF prevention, secrets management, supply chain

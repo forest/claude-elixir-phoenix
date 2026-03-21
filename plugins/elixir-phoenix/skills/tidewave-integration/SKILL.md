@@ -1,6 +1,7 @@
 ---
 name: tidewave-integration
 description: "Tidewave MCP runtime tools for Phoenix development. Load when evaluating Elixir code in a running app, inspecting live process state, checking application logs, querying the dev database via SQL, introspecting Ecto schemas at runtime, or looking up exact-version hex library docs. Enables runtime debugging, smoke testing, and live state inspection."
+effort: low
 user-invocable: false
 ---
 
@@ -90,12 +91,12 @@ workflow checkpoints** automatically:
 - **When investigating**: Auto-capture errors before asking user
 - **LiveView UI bugs**: `browser_eval` to inspect DOM state before editing components
 
-See `references/proactive-patterns.md` for full integration points.
+See `${CLAUDE_SKILL_DIR}/references/proactive-patterns.md` for full integration points.
 
 ## References
 
 For detailed patterns, see:
 
-- `references/proactive-patterns.md` - Push-like runtime patterns at workflow checkpoints
-- `references/tool-examples.md` - Complete tool usage examples
-- `references/validation-checklist.md` - Runtime validation patterns
+- `${CLAUDE_SKILL_DIR}/references/proactive-patterns.md` - Push-like runtime patterns at workflow checkpoints
+- `${CLAUDE_SKILL_DIR}/references/tool-examples.md` - Complete tool usage examples
+- `${CLAUDE_SKILL_DIR}/references/validation-checklist.md` - Runtime validation patterns

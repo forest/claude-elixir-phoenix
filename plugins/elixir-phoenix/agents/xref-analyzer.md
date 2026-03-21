@@ -5,6 +5,7 @@ tools: Read, Grep, Glob, Bash
 disallowedTools: Write, Edit, NotebookEdit
 permissionMode: bypassPermissions
 model: haiku
+effort: low
 skills:
   - boundaries
   - phoenix-contexts

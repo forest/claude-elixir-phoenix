@@ -1,6 +1,7 @@
 ---
 name: phx:research
 description: Research an Elixir/Phoenix topic on the web, or evaluate a Hex library with --library flag. Use whenever the user needs to learn about an Elixir library, pattern, or best practice they are unfamiliar with. Also use when evaluating Hex dependencies, comparing approaches, or investigating how other projects solve a problem. Searches ElixirForum, HexDocs, blogs, and GitHub.
+effort: high
 disable-model-invocation: true
 ---
 
@@ -19,7 +20,7 @@ Research a topic by searching the web and fetching relevant sources efficiently.
 ## Arguments
 
 `$ARGUMENTS` = Research topic/question. Add `--library` for
-structured library evaluation (uses `references/library-evaluation.md`
+structured library evaluation (uses `${CLAUDE_SKILL_DIR}/references/library-evaluation.md`
 template).
 
 ## Iron Laws
@@ -36,7 +37,7 @@ If `$ARGUMENTS` contains `--library` or the topic is clearly
 about evaluating a Hex dependency (e.g., "should we use permit",
 "evaluate sagents", "compare oban vs exq"):
 
-1. Read `references/library-evaluation.md` for the template
+1. Read `${CLAUDE_SKILL_DIR}/references/library-evaluation.md` for the template
 2. Follow the structured evaluation workflow
 3. Output ONE document to `.claude/research/{lib}-evaluation.md`
 4. Skip the general research workflow below

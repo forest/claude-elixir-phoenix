@@ -5,6 +5,7 @@ tools: WebSearch, WebFetch
 disallowedTools: Write, Edit, NotebookEdit, Bash
 permissionMode: bypassPermissions
 model: haiku
+effort: low
 ---
 
 # Web Research Worker

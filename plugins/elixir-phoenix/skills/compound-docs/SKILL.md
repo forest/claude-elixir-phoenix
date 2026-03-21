@@ -1,6 +1,7 @@
 ---
 name: compound-docs
 description: Searchable solution documentation system with YAML frontmatter. Builds institutional knowledge from solved problems. Use proactively when consulting past solutions before investigating new issues.
+effort: low
 user-invocable: false
 ---
 
@@ -30,7 +31,7 @@ debugging session easier than the last.
 1. **ALWAYS search solutions before investigating** — Check
    `.claude/solutions/` for existing fixes before debugging
 2. **YAML frontmatter is MANDATORY** — Every solution needs
-   validated metadata per `references/schema.md`
+   validated metadata per `${CLAUDE_SKILL_DIR}/references/schema.md`
 3. **One problem per file** — Never combine multiple solutions
 4. **Include prevention** — Every solution documents how to
    prevent recurrence
@@ -86,5 +87,5 @@ grep -rl "component: ecto" .claude/solutions/
 
 ## References
 
-- `references/schema.md` — YAML frontmatter validation schema
-- `references/resolution-template.md` — Full solution template
+- `${CLAUDE_SKILL_DIR}/references/schema.md` — YAML frontmatter validation schema
+- `${CLAUDE_SKILL_DIR}/references/resolution-template.md` — Full solution template

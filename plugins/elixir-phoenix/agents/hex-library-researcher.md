@@ -5,6 +5,7 @@ tools: Bash, Read, Grep, Glob, WebFetch
 disallowedTools: Write, Edit, NotebookEdit
 permissionMode: bypassPermissions
 model: sonnet
+effort: medium
 skills:
   - elixir-idioms
 ---

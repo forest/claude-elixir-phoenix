@@ -136,6 +136,7 @@ tools: Read, Grep, Glob, Bash
 disallowedTools: Write, Edit, NotebookEdit
 permissionMode: bypassPermissions
 model: sonnet
+effort: medium
 memory: project
 skills:
   - relevant-skill
@@ -148,6 +149,7 @@ skills:
 - Use `opus` for primary workflow orchestrators and security-critical agents only
 - Use `sonnet` for secondary orchestrators (investigation, tracing) and judgment-heavy tasks
 - Use `haiku` for mechanical tasks: compression, verification, dependency analysis
+- Set `effort:` to match cognitive load: `low` for haiku/mechanical agents, `medium` for sonnet specialists, `high` for opus orchestrators and security-critical agents
 - Review agents are **read-only** (`disallowedTools: Write, Edit, NotebookEdit`)
 - Use `permissionMode: bypassPermissions` for all agents — `default` causes "Bash command permission check failed"
   when agents run in background (safety system scans skill content for shell-like patterns)
@@ -174,6 +176,8 @@ skills/{name}/
 - SKILL.md: ~100 lines max (~500 tokens)
 - Include "Iron Laws" section for critical rules
 - Move detailed examples to `references/`
+- Set `effort:` to match skill complexity: `low` for mechanical (verify, quick, compound), `medium` for reference skills, `high` for complex reasoning (plan, full, investigate, review)
+- Use `${CLAUDE_SKILL_DIR}/references/` for reference file paths (not bare `references/`)
 - No `triggers:` field (use `description` for auto-loading)
 
 ### Workflow Skills
@@ -206,6 +210,8 @@ Defined in `hooks/hooks.json`:
     "SubagentStart": [...],        // Iron Laws injection into all subagents
     "SessionStart": [...],         // Setup dirs + Tidewave + resume detection
     "PreCompact": [...],           // Re-inject workflow rules before compaction
+    "PostCompact": [...],          // Verify plan state survived compaction
+    "StopFailure": [...],          // Log API failures to scratchpad for resume
     "Stop": [...]                  // Warn if uncompleted tasks
   }
 }
@@ -224,6 +230,8 @@ Defined in `hooks/hooks.json`:
 - `PreCompact`: Re-inject workflow rules (plan/work/full) before compaction via JSON `systemMessage`
 - `SessionStart` (all): Setup `.claude/` directories + Tidewave detection
 - `SessionStart` (startup|resume only): Scratchpad check + resume workflow detection + branch freshness + workflow hints
+- `PostCompact`: Verify active plan state survived compaction, warn Claude to re-read plan and scratchpad
+- `StopFailure`: Log API failure to plan scratchpad for resume detection in next session
 - `Stop`: Warn if plans have unchecked tasks
 
 **Hook output patterns (important for contributors):**
@@ -233,6 +241,8 @@ Defined in `hooks/hooks.json`:
 - `SessionStart` stdout IS added to Claude's context (one of two exceptions along with `UserPromptSubmit`)
 - `SubagentStart` uses `hookSpecificOutput.additionalContext` to inject context into subagents
 - `PostToolUseFailure` uses `hookSpecificOutput.additionalContext` for debugging hints
+- `PostCompact` uses `exit 2` + stderr to warn Claude (same pattern as PostToolUse)
+- `StopFailure` uses `exit 2` + stderr and writes to scratchpad file
 
 ### Tidewave Integration
 
@@ -326,6 +336,7 @@ Only trim when content is purely informational and not execution-critical.
 - [ ] `disallowedTools: Write, Edit, NotebookEdit` for review agents
 - [ ] `Write` allowed for agents that output reports (e.g., research agents, context-supervisor)
 - [ ] `permissionMode: bypassPermissions`
+- [ ] `effort:` set (low for haiku, medium for sonnet, high for opus/security)
 - [ ] Skills preloaded
 - [ ] Under target (300 lines), hard limit only if justified by inline subagent prompts
 
@@ -333,7 +344,8 @@ Only trim when content is purely informational and not execution-critical.
 
 - [ ] SKILL.md under target (~100 lines), hard limit for command skills (~185)
 - [ ] "Iron Laws" section
-- [ ] `references/` for details
+- [ ] `references/` paths use `${CLAUDE_SKILL_DIR}/references/`
+- [ ] `effort:` set (low/medium/high)
 - [ ] No `triggers:` field
 
 ### New workflow skill

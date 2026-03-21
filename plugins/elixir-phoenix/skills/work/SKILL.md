@@ -1,6 +1,7 @@
 ---
 name: phx:work
 description: Use after /phx:plan to systematically implement features, or with --continue to resume interrupted work. Executes plan tasks with progress tracking and verification after each step.
+effort: high
 argument-hint: <path to plan file>
 ---
 
@@ -96,14 +97,14 @@ blocked by Phase 1 tasks).
 
 With `--from P2-T3`: Skip to that specific task.
 
-See `references/resume-strategies.md` for all resume modes.
+See `${CLAUDE_SKILL_DIR}/references/resume-strategies.md` for all resume modes.
 
 ## Step 4: Execute Tasks
 
 For each unchecked task (`- [ ] [Pn-Tm][agent] Description`):
 
 1. **Start task**: `TaskUpdate({taskId, status: "in_progress"})`
-2. **Route** by `[agent]` annotation (see `references/execution-guide.md`)
+2. **Route** by `[agent]` annotation (see `${CLAUDE_SKILL_DIR}/references/execution-guide.md`)
 3. **Implement** the task
 4. **Verify**: `mix format` + `mix compile --warnings-as-errors`
    (at phase end, also run `mix test <affected>` — see tiers below)
@@ -116,7 +117,7 @@ For each unchecked task (`- [ ] [Pn-Tm][agent] Description`):
    and write DEAD-END to scratchpad (see error-recovery.md)
 
 **Parallel groups**: Tasks under `### Parallel:` header spawn
-as background subagents. See `references/execution-guide.md`
+as background subagents. See `${CLAUDE_SKILL_DIR}/references/execution-guide.md`
 for spawning pattern, prompt template, and checkpoint flow.
 
 **Verification tiers** (scoped to minimize redundant runs):
@@ -183,8 +184,8 @@ If pending plans exist, inform the user. Do NOT auto-start.
 
 ## References
 
-- `references/execution-guide.md` -- Task routing, parallel execution, verification
-- `references/resume-strategies.md` -- Resume modes and state persistence
-- `references/file-formats.md` -- Plan and progress file formats
-- `references/error-recovery.md` -- Error handling and blockers
-- `references/harness-patterns.md` -- Critic-refiner pattern for debugging loops
+- `${CLAUDE_SKILL_DIR}/references/execution-guide.md` -- Task routing, parallel execution, verification
+- `${CLAUDE_SKILL_DIR}/references/resume-strategies.md` -- Resume modes and state persistence
+- `${CLAUDE_SKILL_DIR}/references/file-formats.md` -- Plan and progress file formats
+- `${CLAUDE_SKILL_DIR}/references/error-recovery.md` -- Error handling and blockers
+- `${CLAUDE_SKILL_DIR}/references/harness-patterns.md` -- Critic-refiner pattern for debugging loops

@@ -5,6 +5,7 @@ tools: Read, Grep, Glob, Bash, Agent
 disallowedTools: Write, Edit, NotebookEdit
 permissionMode: bypassPermissions
 model: opus
+effort: high
 maxTurns: 25
 skills:
   - elixir-idioms

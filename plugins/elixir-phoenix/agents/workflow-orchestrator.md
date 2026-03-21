@@ -5,6 +5,7 @@ tools: Read, Write, Grep, Glob, Bash, Agent
 disallowedTools: NotebookEdit
 permissionMode: bypassPermissions
 model: opus
+effort: high
 maxTurns: 50
 memory: project
 skills:

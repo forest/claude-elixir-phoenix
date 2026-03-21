@@ -1,6 +1,7 @@
 ---
 name: phx:plan
 description: Use for any multi-file feature, new context, or change that benefits from upfront design. Also accepts review output files to create follow-up plans from findings. Use --existing to enhance an existing plan with research. Spawns specialist agents for architecture, Ecto schema, and security analysis.
+effort: high
 argument-hint: <feature description OR path to review/plan file>
 disable-model-invocation: true
 ---
@@ -57,7 +58,7 @@ structured plan with checkboxes.
 **When planning from review**: Every finding must appear in the
 plan — either as a task OR explicitly deferred by the user.
 
-See `references/planning-workflow.md` for detailed step-by-step.
+See `${CLAUDE_SKILL_DIR}/references/planning-workflow.md` for detailed step-by-step.
 
 ### --existing Mode (Deepening)
 
@@ -131,9 +132,9 @@ This is Iron Law #1. Violating it wastes user context.
 
 ## References (DO NOT read — for human reference only)
 
-- `references/planning-workflow.md` — Detailed step-by-step
-- `references/plan-template.md`
-- `references/complexity-detail.md`
-- `references/example-plan.md`
-- `references/agent-selection.md`
-- `references/breadboarding.md`
+- `${CLAUDE_SKILL_DIR}/references/planning-workflow.md` — Detailed step-by-step
+- `${CLAUDE_SKILL_DIR}/references/plan-template.md`
+- `${CLAUDE_SKILL_DIR}/references/complexity-detail.md`
+- `${CLAUDE_SKILL_DIR}/references/example-plan.md`
+- `${CLAUDE_SKILL_DIR}/references/agent-selection.md`
+- `${CLAUDE_SKILL_DIR}/references/breadboarding.md`

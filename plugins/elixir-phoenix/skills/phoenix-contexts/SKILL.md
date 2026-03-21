@@ -1,6 +1,7 @@
 ---
 name: phoenix-contexts
 description: "Phoenix context module design: creating/splitting contexts, adding context functions, cross-context boundaries, Scope struct (1.8+), Ecto.Multi in contexts, PubSub broadcasting. Also: router pipelines, scope blocks, verified routes, plugs, controller delegation to contexts, JSON API controllers."
+effort: medium
 user-invocable: false
 ---
 
@@ -85,14 +86,14 @@ Repo.all(from o in Order, join: u in User, ...)  # Don't query other schemas
 ## Version Notes
 
 - **Phoenix 1.8+**: Uses built-in `%Scope{}` struct for authorization context
-- **Phoenix 1.7**: Requires manual authorization context (see `references/scopes-auth.md` "Pre-Scopes Patterns")
+- **Phoenix 1.7**: Requires manual authorization context (see `${CLAUDE_SKILL_DIR}/references/scopes-auth.md` "Pre-Scopes Patterns")
 
 ## References
 
 For detailed patterns, see:
 
-- `references/context-patterns.md` - Full context module, PubSub, Multi, cross-boundary
-- `references/scopes-auth.md` - Scope struct, multi-tenant, authorization, plugs
-- `references/routing-patterns.md` - Verified routes, pipelines, API auth
-- `references/plug-patterns.md` - Function/module plugs, placement, guards
-- `references/json-api-patterns.md` - JSON controllers, FallbackController, API auth
+- `${CLAUDE_SKILL_DIR}/references/context-patterns.md` - Full context module, PubSub, Multi, cross-boundary
+- `${CLAUDE_SKILL_DIR}/references/scopes-auth.md` - Scope struct, multi-tenant, authorization, plugs
+- `${CLAUDE_SKILL_DIR}/references/routing-patterns.md` - Verified routes, pipelines, API auth
+- `${CLAUDE_SKILL_DIR}/references/plug-patterns.md` - Function/module plugs, placement, guards
+- `${CLAUDE_SKILL_DIR}/references/json-api-patterns.md` - JSON controllers, FallbackController, API auth

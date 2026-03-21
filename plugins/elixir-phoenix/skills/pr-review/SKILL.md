@@ -1,6 +1,7 @@
 ---
 name: phx:pr-review
 description: Address PR review comments — fetch, categorize, draft responses, optionally fix code. Use whenever the user has PR feedback to address, mentions review comments, or shares a PR URL or number. Also use when the user asks to respond to or fix reviewer suggestions.
+effort: high
 argument-hint: <PR number or URL> [--fix]
 disable-model-invocation: true
 ---
@@ -65,7 +66,7 @@ For each code-change comment:
 ### Step 4: Draft Responses
 
 For each comment, draft a response following patterns in
-`references/response-patterns.md`.
+`${CLAUDE_SKILL_DIR}/references/response-patterns.md`.
 
 Present ALL draft responses to the user for review:
 
@@ -141,4 +142,4 @@ After addressing review comments, suggest follow-up:
 
 ## References
 
-- `references/response-patterns.md` — Response templates and common patterns
+- `${CLAUDE_SKILL_DIR}/references/response-patterns.md` — Response templates and common patterns

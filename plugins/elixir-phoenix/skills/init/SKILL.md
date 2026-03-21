@@ -1,6 +1,7 @@
 ---
 name: phx:init
 description: Initialize Elixir/Phoenix plugin in a project. Installs auto-activation rules into CLAUDE.md for complexity detection, interview mode, Iron Laws enforcement, and reference auto-loading.
+effort: low
 argument-hint: [--update]
 ---
 
@@ -107,7 +108,7 @@ Run /phx:audit for a full project health check.
 
 ## Content Template
 
-The exact content to inject is in `references/injectable-template.md`.
+The exact content to inject is in `${CLAUDE_SKILL_DIR}/references/injectable-template.md`.
 
 **Key structure:**
 
@@ -130,7 +131,7 @@ The exact content to inject is in `references/injectable-template.md`.
 | `{ECTO_VERSION}` | From mix.exs |
 | `{OPTIONAL_STACK}` | Detected optional deps |
 
-See `references/injectable-template.md` for full template with all placeholders and conditional sections.
+See `${CLAUDE_SKILL_DIR}/references/injectable-template.md` for full template with all placeholders and conditional sections.
 
 ## Validation
 

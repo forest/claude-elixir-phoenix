@@ -1,6 +1,7 @@
 ---
 name: elixir-idioms
 description: "OTP/BEAM patterns and core Elixir idioms — GenServer, Supervisor, Task, Registry, pattern matching, with chains, pipes, error tuples, mix tasks. Load for process design, supervision trees, language idiom refactoring, or BEAM debugging. NOT for Ecto/LiveView/Oban/Phoenix — use dedicated skills."
+effort: medium
 user-invocable: false
 ---
 
@@ -96,11 +97,11 @@ Task.Supervisor.async_nolink(TaskSup, fn -> work() end)
 
 For detailed patterns, see:
 
-- `references/pattern-matching.md` - Pattern matching, guards, binary matching
-- `references/otp-patterns.md` - GenServer, Supervisor, Task, Registry
-- `references/error-handling.md` - Tagged tuples, rescue, with
-- `references/with-and-pipes.md` - When to use `with` and `|>` (idiomatic patterns)
-- `references/troubleshooting.md` - Production BEAM debugging (memory, performance, crashes)
-- `references/anti-patterns.md` - Common mistakes and fixes
-- `references/mix-tasks.md` - Mix task naming, option parsing, shell output
-- `references/elixir-118-features.md` - Duration module, dbg improvements (1.18+)
+- `${CLAUDE_SKILL_DIR}/references/pattern-matching.md` - Pattern matching, guards, binary matching
+- `${CLAUDE_SKILL_DIR}/references/otp-patterns.md` - GenServer, Supervisor, Task, Registry
+- `${CLAUDE_SKILL_DIR}/references/error-handling.md` - Tagged tuples, rescue, with
+- `${CLAUDE_SKILL_DIR}/references/with-and-pipes.md` - When to use `with` and `|>` (idiomatic patterns)
+- `${CLAUDE_SKILL_DIR}/references/troubleshooting.md` - Production BEAM debugging (memory, performance, crashes)
+- `${CLAUDE_SKILL_DIR}/references/anti-patterns.md` - Common mistakes and fixes
+- `${CLAUDE_SKILL_DIR}/references/mix-tasks.md` - Mix task naming, option parsing, shell output
+- `${CLAUDE_SKILL_DIR}/references/elixir-118-features.md` - Duration module, dbg improvements (1.18+)

@@ -1,6 +1,7 @@
 ---
 name: testing
 description: "Elixir testing patterns - ExUnit, Mox, factories (ExMachina), LiveView test helpers. Load when working on *_test.exs files, test/support/ helpers, factory files, or fixing test failures (sandbox, async, flaky). Covers ConnCase, DataCase, assert_receive, verify_on_exit!. DO NOT load for non-test .ex files or manual QA tasks."
+effort: medium
 user-invocable: false
 ---
 
@@ -80,7 +81,7 @@ html = render_async(view)  # MUST call for assign_async
 
 For detailed patterns, see:
 
-- `references/exunit-patterns.md` - Setup, assertions, tags
-- `references/mox-patterns.md` - Behaviours, expect/stub, async
-- `references/liveview-testing.md` - Forms, async, uploads
-- `references/factory-patterns.md` - ExMachina, sequences, traits
+- `${CLAUDE_SKILL_DIR}/references/exunit-patterns.md` - Setup, assertions, tags
+- `${CLAUDE_SKILL_DIR}/references/mox-patterns.md` - Behaviours, expect/stub, async
+- `${CLAUDE_SKILL_DIR}/references/liveview-testing.md` - Forms, async, uploads
+- `${CLAUDE_SKILL_DIR}/references/factory-patterns.md` - ExMachina, sequences, traits

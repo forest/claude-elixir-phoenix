@@ -1,6 +1,7 @@
 ---
 name: ecto-constraint-debug
 description: Debug Ecto constraint violations - trace triggers, check migrations, find duplicate data. Use when seeing unique_constraint, foreign_key_constraint, or check_constraint errors.
+effort: medium
 ---
 
 # Ecto Constraint Debugging
@@ -60,7 +61,7 @@ grep -r "Repo.insert\|Repo.update\|Repo.insert_all\|cast_assoc.*:schema_name" li
 
 ### Step 6: Apply Fix
 
-See `references/constraint-patterns.md` for detailed fix patterns.
+See `${CLAUDE_SKILL_DIR}/references/constraint-patterns.md` for detailed fix patterns.
 
 ## Quick Fixes by Constraint Type
 
@@ -72,4 +73,4 @@ See `references/constraint-patterns.md` for detailed fix patterns.
 
 ## References
 
-- `references/constraint-patterns.md` - Detailed patterns for each constraint type
+- `${CLAUDE_SKILL_DIR}/references/constraint-patterns.md` - Detailed patterns for each constraint type

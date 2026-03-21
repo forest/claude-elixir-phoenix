@@ -1,6 +1,7 @@
 ---
 name: phx:brief
 description: Interactive briefing of a plan file. Explains reasoning and solution in progressive sections so developers understand before approving or after completion. Use when team members need to understand a plan without reading the full document.
+effort: low
 argument-hint: [path to plan file]
 ---
 
@@ -59,7 +60,7 @@ Read what's available (don't fail if missing):
 ### Step 3: Present Briefing Sections
 
 Present ONE section at a time, wrapped in the visual briefing block
-(see `references/briefing-guide.md` Visual Formatting). After each
+(see `${CLAUDE_SKILL_DIR}/references/briefing-guide.md` Visual Formatting). After each
 section, use `AskUserQuestion` with options:
 
 - If sections remain: **"Next: {title}"**, **"Ask me a question
@@ -84,7 +85,7 @@ section, use `AskUserQuestion` with options:
 | 3 | How It Was Built | Phases with implementation notes |
 | 4 | Lessons & Patterns | Risks encountered + patterns used |
 
-See `references/briefing-guide.md` for section content templates.
+See `${CLAUDE_SKILL_DIR}/references/briefing-guide.md` for section content templates.
 
 ## Iron Laws
 
@@ -128,7 +129,7 @@ Consider `/phx:compound` to capture key learnings for future reference.
 
 For plans with 5+ phases or 4+ key decisions, consider suggesting
 visual rendering after Section 3. See
-`references/visual-explainer.md` for thresholds and commands.
+`${CLAUDE_SKILL_DIR}/references/visual-explainer.md` for thresholds and commands.
 
 ## Notes
 

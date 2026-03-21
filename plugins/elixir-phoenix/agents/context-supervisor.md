@@ -5,6 +5,7 @@ tools: Read, Grep, Glob, Write
 disallowedTools: Edit, NotebookEdit, Bash, Agent
 permissionMode: bypassPermissions
 model: haiku
+effort: low
 ---
 
 # Context Supervisor

@@ -1,6 +1,7 @@
 ---
 name: phx:perf
 description: Analyze Elixir/Phoenix code for performance issues — N+1 queries, LiveView memory, query patterns, OTP bottlenecks. Use whenever the user mentions slowness, timeouts, high memory, slow queries, or wants to optimize any part of their Phoenix application. Also use before deploying performance-sensitive features.
+effort: high
 argument-hint: [page|context|module] [--focus ecto|liveview|otp]
 disable-model-invocation: true
 ---
@@ -120,4 +121,4 @@ If Tidewave MCP is available:
 
 ## References
 
-- `references/benchmarking.md` — Benchee patterns, profiling, flame graphs
+- `${CLAUDE_SKILL_DIR}/references/benchmarking.md` — Benchee patterns, profiling, flame graphs

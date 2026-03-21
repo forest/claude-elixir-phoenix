@@ -1,6 +1,7 @@
 ---
 name: phx:audit
 description: Project health audit across 5 areas (architecture, performance, security, tests, dependencies) using parallel specialist agents. Use quarterly, before major releases, after large refactors, or when onboarding. Also use when the user mentions "project health", "code quality overview", "how healthy is this codebase", or any request for holistic assessment.
+effort: high
 argument-hint: [--quick|--full|--focus=area|--since=commit]
 ---
 
@@ -102,7 +103,7 @@ Read `.claude/audit/summaries/consolidated.md` for synthesis.
 
 ### Step 4: Calculate Health Score
 
-Each category scores 0-100. See `references/scoring-methodology.md`.
+Each category scores 0-100. See `${CLAUDE_SKILL_DIR}/references/scoring-methodology.md`.
 
 ### Step 5: Generate Report
 
@@ -164,5 +165,5 @@ Combines with other flags: `/phx:audit --since HEAD~5 --focus=security`
 
 ## References
 
-- `references/scoring-methodology.md` - How scores are calculated
-- `references/architecture-checks.md` - Detailed architecture criteria
+- `${CLAUDE_SKILL_DIR}/references/scoring-methodology.md` - How scores are calculated
+- `${CLAUDE_SKILL_DIR}/references/architecture-checks.md` - Detailed architecture criteria

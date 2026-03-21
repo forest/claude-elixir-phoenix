@@ -7,6 +7,45 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [2.5.0] - 2026-03-21
+
+### Added
+
+- **`effort` frontmatter on all 38 skills** — Skills now declare effort level
+  (low/medium/high) per Claude Code v2.1.80. Mechanical skills (verify, quick,
+  compound, brief) use `low`; reference skills (ecto-patterns, security) use
+  `medium`; complex reasoning skills (plan, full, investigate, review) use `high`.
+  Reduces token usage on simple tasks while preserving quality on complex ones
+- **`effort` frontmatter on all 20 agents** — Agents declare effort matching
+  their cognitive load. Haiku agents (context-supervisor, verification-runner,
+  web-researcher, xref-analyzer) use `low`; sonnet specialists use `medium`;
+  opus orchestrators and security-analyzer use `high`
+- **`PostCompact` hook (`postcompact-verify.sh`)** — Verifies active plan state
+  survived context compaction. Warns Claude to re-read plan and scratchpad files
+  when unchecked tasks detected post-compaction (Claude Code v2.1.76)
+- **`StopFailure` hook (`stop-failure-log.sh`)** — Logs API failures to plan
+  scratchpad for resume detection. Next session's check-resume hook picks up
+  the failure context and suggests `/phx:work --continue` (Claude Code v2.1.78)
+- **Plugin `settings.json`** — Ships recommended defaults: `effort: medium`,
+  `showTurnDuration: true`. Users inherit these unless overridden in their own
+  settings (Claude Code v2.1.49)
+- **`${CLAUDE_PLUGIN_DATA}` persistent storage** — setup-dirs creates
+  `${CLAUDE_PLUGIN_DATA}/skill-metrics/` for cross-project metrics that survive
+  plugin updates. log-progress writes edit events as JSONL for cross-project
+  aggregation (Claude Code v2.1.78)
+- **`${CLAUDE_SKILL_DIR}` variable in 30 skills** — Reference file paths now
+  use `${CLAUDE_SKILL_DIR}/references/` instead of bare `references/`, making
+  paths explicit and reliable across plugin cache locations (Claude Code v2.1.71)
+
+### Changed
+
+- **hooks.json** — Added PostCompact and StopFailure hook events (now 9 hook
+  types total, up from 7)
+- **setup-dirs.sh** — Creates persistent plugin data directory when
+  `${CLAUDE_PLUGIN_DATA}` is available
+- **log-progress.sh** — Writes cross-project edit metrics to JSONL in
+  persistent plugin data directory
+
 ## [2.4.0] - 2026-03-19
 
 ### Fixed
