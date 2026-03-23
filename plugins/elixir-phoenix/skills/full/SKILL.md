@@ -1,6 +1,7 @@
 ---
 name: phx:full
 description: Use for large features spanning multiple contexts, new domain modules, or when the user wants autonomous end-to-end implementation. Runs the full plan-implement-review-compound cycle with specialist agents and Iron Laws enforcement.
+effort: high
 argument-hint: <feature description>
 ---
 
@@ -120,7 +121,7 @@ For fully autonomous execution with Ralph Wiggum Loop:
 
 ## References
 
-- `references/execution-steps.md` — Detailed step-by-step execution
-- `references/example-run.md` — Example full cycle run
-- `references/safety-recovery.md` — Safety rails, resume, rollback
-- `references/cycle-patterns.md` — Advanced cycling strategies
+- `${CLAUDE_SKILL_DIR}/references/execution-steps.md` — Detailed step-by-step execution
+- `${CLAUDE_SKILL_DIR}/references/example-run.md` — Example full cycle run
+- `${CLAUDE_SKILL_DIR}/references/safety-recovery.md` — Safety rails, resume, rollback
+- `${CLAUDE_SKILL_DIR}/references/cycle-patterns.md` — Advanced cycling strategies

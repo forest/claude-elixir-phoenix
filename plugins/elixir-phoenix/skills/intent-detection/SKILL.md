@@ -1,6 +1,7 @@
 ---
 name: intent-detection
 description: "Internal router for ambiguous work requests. Load when user says \"add/build/implement feature\", \"fix/debug/investigate bug\", \"review/audit code\", \"refactor/clean up\", \"slow/performance\", \"PR comments\", \"research/evaluate library\", or \"that fixed it\" — WITHOUT an explicit /phx: slash command."
+effort: medium
 user-invocable: false
 ---
 

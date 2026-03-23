@@ -1,6 +1,7 @@
 ---
 name: phx:document
 description: Generate documentation for implemented features — @moduledoc, @doc, README updates, ADRs. Use after implementing new modules or features to ensure proper documentation coverage. Run after /phx:review passes or whenever the user asks to document their code.
+effort: low
 argument-hint: [plan-file OR feature-name]
 ---
 
@@ -74,7 +75,7 @@ zero output (confirmed: session bb0a0454 wasted ~2K tokens on no-op).
 
 ## References
 
-- `references/doc-templates.md` — @moduledoc, @doc, README, ADR templates
-- `references/output-format.md` — Documentation report format
-- `references/doc-best-practices.md` — Elixir documentation best practices
-- `references/documentation-patterns.md` — Detailed documentation patterns
+- `${CLAUDE_SKILL_DIR}/references/doc-templates.md` — @moduledoc, @doc, README, ADR templates
+- `${CLAUDE_SKILL_DIR}/references/output-format.md` — Documentation report format
+- `${CLAUDE_SKILL_DIR}/references/doc-best-practices.md` — Elixir documentation best practices
+- `${CLAUDE_SKILL_DIR}/references/documentation-patterns.md` — Detailed documentation patterns

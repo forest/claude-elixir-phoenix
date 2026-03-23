@@ -1,6 +1,7 @@
 ---
 name: deploy
 description: "Elixir/Phoenix deployment: Dockerfile, fly.toml, config/runtime.exs, mix release, rel/ overlays, vm.args.eex, env.sh.eex. Covers Fly.io, Docker, Kubernetes, CI/CD, health checks, production migrations, libcluster/distributed nodes, SSL database verification, BEAM resource limits, asset pipeline, scaling strategy."
+effort: medium
 ---
 
 # Elixir/Phoenix Deployment Reference
@@ -91,5 +92,5 @@ Phoenix 1.8 uses esbuild + tailwind (no Node.js required):
 
 For detailed patterns, see:
 
-- `references/docker-config.md` - Multi-stage Dockerfile, best practices
-- `references/flyio-config.md` - fly.toml, clustering, commands
+- `${CLAUDE_SKILL_DIR}/references/docker-config.md` - Multi-stage Dockerfile, best practices
+- `${CLAUDE_SKILL_DIR}/references/flyio-config.md` - fly.toml, clustering, commands

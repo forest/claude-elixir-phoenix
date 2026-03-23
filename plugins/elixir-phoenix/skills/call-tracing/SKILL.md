@@ -1,6 +1,7 @@
 ---
 name: phx:trace
 description: Build recursive call trees to trace how functions are reached from entry points. Use when debugging "where does this value come from?", planning function signature changes, tracing data flow through the app, or understanding how a bug reaches a specific code path.
+effort: medium
 ---
 
 # Call Tracing
@@ -70,6 +71,6 @@ Each gets fresh 200k context for deep exploration.
 
 For detailed patterns:
 
-- `references/mix-xref-usage.md` - Full mix xref commands and options
-- `references/entry-points.md` - All Phoenix/OTP entry point patterns
-- `references/argument-extraction.md` - AST parsing for argument patterns
+- `${CLAUDE_SKILL_DIR}/references/mix-xref-usage.md` - Full mix xref commands and options
+- `${CLAUDE_SKILL_DIR}/references/entry-points.md` - All Phoenix/OTP entry point patterns
+- `${CLAUDE_SKILL_DIR}/references/argument-extraction.md` - AST parsing for argument patterns

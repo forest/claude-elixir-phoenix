@@ -1,6 +1,7 @@
 ---
 name: phx:boundaries
 description: Validate Phoenix context boundaries and dependencies using mix xref. Use when reviewing PRs, before major refactors, when contexts feel tangled, or when a module has too many cross-context dependencies. Also use when planning context splits or evaluating architecture health.
+effort: medium
 argument-hint: [--assess|--fix]
 allowed-tools: Read, Grep, Glob, Bash
 ---
@@ -153,5 +154,5 @@ get lost:
 
 For detailed patterns, see:
 
-- `references/context-design.md` - Context design principles
-- `references/refactoring-boundaries.md` - Fixing boundary violations
+- `${CLAUDE_SKILL_DIR}/references/context-design.md` - Context design principles
+- `${CLAUDE_SKILL_DIR}/references/refactoring-boundaries.md` - Fixing boundary violations

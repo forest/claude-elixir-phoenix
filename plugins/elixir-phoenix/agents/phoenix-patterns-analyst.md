@@ -5,6 +5,7 @@ tools: Read, Write, Grep, Glob, Bash
 disallowedTools: Edit, NotebookEdit
 permissionMode: bypassPermissions
 model: sonnet
+effort: medium
 memory: project
 skills:
   - phoenix-contexts

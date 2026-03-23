@@ -1,6 +1,7 @@
 ---
 name: phx:intro
 description: Interactive introduction to the Elixir/Phoenix plugin. Walks through commands, workflow, and features in 6 sections.
+effort: low
 argument-hint: [--section N]
 ---
 
@@ -15,7 +16,7 @@ Interactive walkthrough of the Elixir/Phoenix plugin in 6 sections (~5 min).
 
 ## Execution Flow
 
-1. Read `references/tutorial-content.md` for all section content
+1. Read `${CLAUDE_SKILL_DIR}/references/tutorial-content.md` for all section content
 2. Parse `$ARGUMENTS` for `--section N` flag (1-6)
 3. If `--section N` specified, jump directly to that section
 4. Otherwise start from Section 1

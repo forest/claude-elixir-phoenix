@@ -5,6 +5,7 @@ tools: Read, Grep, Glob, Bash, Agent
 disallowedTools: Write, Edit, NotebookEdit
 permissionMode: bypassPermissions
 model: sonnet
+effort: high
 maxTurns: 30
 skills:
   - call-tracing

@@ -1,6 +1,7 @@
 ---
 name: phx:investigate
 description: Investigate a bug or error in Elixir/Phoenix code. Use whenever the user reports a bug, error, crash, exception, or unexpected behavior. Also use when seeing stack traces, compile errors, or test failures that need root-cause analysis. Uses Ralph Wiggum approach — checks obvious things first, reads errors literally. Add --parallel for 4-track deep investigation.
+effort: high
 argument-hint: <bug description> [--parallel]
 disable-model-invocation: true
 ---
@@ -95,7 +96,7 @@ tail -200 log/dev.log | grep -A 5 -i "error\|exception"
 
 ### Step 3: Read Error LITERALLY
 
-Parse the error message — check `references/error-patterns.md`.
+Parse the error message — check `${CLAUDE_SKILL_DIR}/references/error-patterns.md`.
 
 ### Step 4: Check the Obvious (Ralph Wiggum Checklist)
 
@@ -120,6 +121,6 @@ clear completion criteria and `--max-iterations`.
 
 ## References
 
-- `references/error-patterns.md` — Common errors and checklist
-- `references/investigation-template.md` — Output format
-- `references/debug-commands.md` — Debug commands and common fixes
+- `${CLAUDE_SKILL_DIR}/references/error-patterns.md` — Common errors and checklist
+- `${CLAUDE_SKILL_DIR}/references/investigation-template.md` — Output format
+- `${CLAUDE_SKILL_DIR}/references/debug-commands.md` — Debug commands and common fixes

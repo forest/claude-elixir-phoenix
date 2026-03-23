@@ -1,6 +1,7 @@
 ---
 name: phx:triage
 description: Interactive triage of review findings. Present each finding for human decision — approve, skip, or customize priority. Use after /phx:review to filter findings before fixing.
+effort: low
 argument-hint: [path to review file]
 ---
 
@@ -104,4 +105,4 @@ Triage complete: {n} to fix, {n} skipped, {n} deferred.
 
 ## References
 
-- `references/triage-patterns.md` — Common triage decisions
+- `${CLAUDE_SKILL_DIR}/references/triage-patterns.md` — Common triage decisions

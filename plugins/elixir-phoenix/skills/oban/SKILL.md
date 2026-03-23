@@ -1,6 +1,7 @@
 ---
 name: oban
 description: "Oban job processing — workers, perform/1, queues, cron scheduling, retries, unique jobs, idempotency. Oban Pro workflows/batches/process/1. Oban.Worker, Oban.Testing, assert_enqueued, perform_job, queue config, backoff. Prevents atom-key args, struct serialization, non-idempotent jobs."
+effort: medium
 user-invocable: false
 ---
 
@@ -17,7 +18,7 @@ grep -E "oban_pro|oban_web" mix.exs
 grep -r "use Oban.Pro.Worker" lib/
 ```
 
-**If Oban Pro detected**, see `references/oban-pro-basics.md` for key differences:
+**If Oban Pro detected**, see `${CLAUDE_SKILL_DIR}/references/oban-pro-basics.md` for key differences:
 
 | Standard Oban | Oban Pro |
 |---------------|----------|
@@ -27,7 +28,7 @@ grep -r "use Oban.Pro.Worker" lib/
 | `Oban.Testing` | `Oban.Pro.Testing` |
 
 **Pro features covered**: Workflows, Batches, Structured/Recorded/Encrypted workers.
-See `references/oban-pro-basics.md` for patterns.
+See `${CLAUDE_SKILL_DIR}/references/oban-pro-basics.md` for patterns.
 For Pro plugins (Lifeline, Smart Engine, DynamicPrioritizer),
 consult [oban.pro/docs](https://oban.pro/docs).
 
@@ -107,6 +108,6 @@ assert :ok = perform_job(MyApp.Worker, %{id: 1})
 
 For detailed patterns, see:
 
-- `references/worker-patterns.md` - Worker options, backoff, timeout
-- `references/queue-config.md` - Queue design, pool sizing, cron
-- `references/testing-patterns.md` - Testing, assertions, drain
+- `${CLAUDE_SKILL_DIR}/references/worker-patterns.md` - Worker options, backoff, timeout
+- `${CLAUDE_SKILL_DIR}/references/queue-config.md` - Queue design, pool sizing, cron
+- `${CLAUDE_SKILL_DIR}/references/testing-patterns.md` - Testing, assertions, drain

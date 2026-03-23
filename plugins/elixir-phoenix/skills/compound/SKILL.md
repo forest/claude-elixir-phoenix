@@ -1,6 +1,7 @@
 ---
 name: phx:compound
 description: Use after fixing any non-trivial bug, resolving a tricky issue, or when the user says "that worked" or "it is fixed". Also suggest proactively after successful /phx:review or /phx:investigate. Captures solved problems as searchable Elixir/Phoenix solution documentation for faster future debugging.
+effort: low
 argument-hint: [description of what was fixed]
 ---
 
@@ -82,5 +83,5 @@ When user says "that worked", "it's fixed", "problem solved",
 
 ## References
 
-- `references/compound-workflow.md` — Detailed step-by-step
+- `${CLAUDE_SKILL_DIR}/references/compound-workflow.md` — Detailed step-by-step
 - See also: `compound-docs` skill for schema and templates

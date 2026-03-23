@@ -1,6 +1,7 @@
 ---
 name: ecto-patterns
 description: "Ecto patterns: schemas, changesets, queries, migrations, transactions (Multi/transact), associations/preloads, upserts, and full-text search. Load for Repo calls, Ecto.Query, schema fields, constraints, cast/put_change, preloading, N+1 fixes, SQL injection prevention, float-for-money. Skip for Ash.Resource/Ash.Domain modules."
+effort: medium
 user-invocable: false
 ---
 
@@ -78,7 +79,7 @@ end
 
 For detailed patterns, see:
 
-- `references/changesets.md` - cast vs put_change, custom validations, prepare_changes
-- `references/queries.md` - Composable queries, dynamic, subqueries, preloading
-- `references/migrations.md` - Safe migrations, concurrent indexes, NOT NULL
-- `references/transactions.md` - Repo.transact, Ecto.Multi, upserts
+- `${CLAUDE_SKILL_DIR}/references/changesets.md` - cast vs put_change, custom validations, prepare_changes
+- `${CLAUDE_SKILL_DIR}/references/queries.md` - Composable queries, dynamic, subqueries, preloading
+- `${CLAUDE_SKILL_DIR}/references/migrations.md` - Safe migrations, concurrent indexes, NOT NULL
+- `${CLAUDE_SKILL_DIR}/references/transactions.md` - Repo.transact, Ecto.Multi, upserts

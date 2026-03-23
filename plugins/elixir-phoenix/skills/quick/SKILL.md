@@ -1,6 +1,7 @@
 ---
 name: phx:quick
 description: Fast implementation mode for small changes — skip planning ceremony, go direct to working code. Use for single-file changes under 50 lines, typo fixes, config tweaks, CSS adjustments, copy changes, or when the user explicitly wants speed over process. For anything larger or touching security, suggest /phx:plan instead.
+effort: low
 ---
 
 # Quick Mode
