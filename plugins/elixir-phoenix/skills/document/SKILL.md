@@ -1,6 +1,6 @@
 ---
 name: phx:document
-description: Generate Elixir documentation for implemented Phoenix features — @moduledoc, @doc, README updates, ADRs. Covers context modules, liveview components, ecto schemas, and plug pipelines. Use after implementing new modules or completing a review to ensure proper documentation coverage.
+description: Write @moduledoc and @doc annotations into Elixir source files and update READMs. Use ONLY when the user explicitly asks to add, write, or generate @moduledoc/@doc for specific modules they implemented. Do NOT use when fetching library docs from hex.pm, scanning for missing documentation, reviewing code, or giving feedback about documentation quality.
 effort: low
 argument-hint: [plan-file OR feature-name]
 ---
