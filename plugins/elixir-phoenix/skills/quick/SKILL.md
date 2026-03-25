@@ -1,6 +1,6 @@
 ---
 name: phx:quick
-description: Implement small Elixir/Phoenix changes fast — skip planning, go direct to working code. Use when handling single-file ecto migration, liveview component tweak, changeset fix, router update, or controller adjustment under 50 lines. Enforces iron law and security checks. For anything larger, suggest /phx:plan instead.
+description: Small implementation tasks — load this whenever the user gives a direct instruction to add, update, fix, create, or change something in their Phoenix code. Covers single-file edits under 50 lines like adding a field validation, updating the router to add routes, fixing a component to handle a new prop, creating a migration to add a column, changing a controller response format to JSON, tweaking a template, or adjusting a changeset. Skip for bug investigation, code review, security audit, documentation, or large refactors.
 effort: low
 ---
 
