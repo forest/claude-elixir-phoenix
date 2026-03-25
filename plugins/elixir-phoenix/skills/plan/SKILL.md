@@ -1,6 +1,6 @@
 ---
 name: phx:plan
-description: Use for any multi-file feature, new context, or change that benefits from upfront design. Also accepts review output files to create follow-up plans from findings. Use --existing to enhance an existing plan with research. Spawns specialist agents for architecture, Ecto schema, and security analysis.
+description: Plan and design multi-step Phoenix features before implementation. Use when the user wants to build a billing system, add webhook handling, design role-based access control, create a real-time chat feature, architect a new domain, or create a plan from review findings. Produces a step-by-step implementation plan with checkboxes. Use --existing to enhance an existing plan. NOT for small single-file changes (quick), debugging (investigate), or code review (review).
 effort: high
 argument-hint: <feature description OR path to review/plan file>
 disable-model-invocation: true
