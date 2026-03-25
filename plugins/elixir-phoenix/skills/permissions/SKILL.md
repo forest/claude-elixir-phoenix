@@ -1,6 +1,6 @@
 ---
 name: phx:permissions
-description: Analyze recent Claude Code sessions and recommend safe Bash permissions for settings.json. Use when too many permission prompts slow the workflow, after 5+ permission prompts in a session, or when the user says "fix permissions", "reduce prompts", "allow commands", "permission fatigue", or "optimize permissions".
+description: Analyze recent Claude Code sessions and recommend safe Bash permissions for settings.json. Use when too many permission prompts slow the workflow, after 5+ permission prompts in a session, or when the user says "fix permissions", "reduce prompts", "allow commands", "permission fatigue", "optimize permissions", "mix command blocked", "bash permission denied", "allowedTools", "settings.json permissions", "stop asking for permission", "auto-allow mix", or "too many prompts for mix test/compile/format".
 argument-hint: "[--days=14] [--dry-run]"
 ---
 
