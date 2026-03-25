@@ -12,21 +12,42 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **`/phx:help` command** — Interactive command advisor that helps users pick the
   right command, skill, or agent for their situation. Accepts optional description
   (`/phx:help how do I debug this?`) or reads ambient context (git status, existing
-  plans). Asks clarifying questions when intent is ambiguous. Fills the gap between
-  `intent-detection` (automatic, non-interactive) and `/phx:intro` (static tutorial)
+  plans). Asks clarifying questions when intent is ambiguous
+- **`/phx:permissions` skill** — Analyzes recent sessions to identify frequently-approved
+  Bash commands, classifies by risk (GREEN/YELLOW/RED), recommends safe additions to
+  `settings.json`. Includes `--days` and `--dry-run` flags
+- **Autoresearch eval framework** (`lab/eval/`) — 8-dimension deterministic scoring
+  for plugin skills: completeness, accuracy, conciseness, triggering, safety,
+  clarity, specificity, behavioral. 24 Python matchers, per-skill eval definitions
+  for all 40 skills. Research-backed (SkillsBench, MePO, Anthropic official guide)
+- **Autoresearch loop** (`lab/autoresearch/`) — Self-improving skill that
+  autonomously proposes mutations, evaluates, and keeps/reverts via git. Includes
+  wrapper script (run-iteration.py), checks.sh, JSONL journal with ASI metadata,
+  ideas backlog. Inspired by Karpathy's autoresearch + pi-autoresearch
+- **Behavioral trigger eval** — Haiku-based trigger accuracy testing. 8 test prompts
+  per skill, measures precision/recall/accuracy of skill routing. Cost: ~$0.04 per
+  full sweep of all 40 skills
 
 ### Changed
 
+- **Skill descriptions improved** (36 of 40 skills) — Added "Use when..." clauses
+  per Anthropic's trigger optimization guidance, added domain keywords, removed
+  vague words. Trigger accuracy baseline: 84% average across 40 skills
+- **Iron Laws added** to 6 skills that were missing them (hexdocs-fetcher,
+  learn-from-fix, quick, init, boundaries, verify)
+- **Stale references fixed** — `/phx:learn` → `/phx:learn-from-fix` in full,
+  review, learn-from-fix; YAML frontmatter fixed in perf and permissions
+- **Review Step 2 compressed** from 49 to 37 lines (removed redundant TaskCreate
+  code block)
 - **Planning orchestrator Phase 1c** — Expanded research cache reuse from 3 lines
-  to actionable implementation steps: discover candidates via glob, relevance
-  check via keyword grep, freshness gate (48h), agent skip mapping, and
-  scratchpad logging. Prevents redundant web/hex agent spawns when prior
-  `/phx:research` output exists
+  to actionable implementation steps
 
 ### Fixed
 
 - **`setup-dirs.sh`** — Added `.claude/research/` to SessionStart directory
   creation so the research output directory exists before `/phx:research` runs
+- **`learn-from-fix` name mismatch** — Frontmatter `name: phx:learn` corrected to
+  `name: phx:learn-from-fix` to match directory name
 
 ## [2.5.0] - 2026-03-21
 
