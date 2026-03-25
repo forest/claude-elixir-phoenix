@@ -1,6 +1,6 @@
 ---
 name: phx:document
-description: Write @moduledoc and @doc annotations into Elixir source files and update READMs. Use ONLY when the user explicitly asks to add, write, or generate @moduledoc/@doc for specific modules they implemented. Do NOT use when fetching library docs from hex.pm, scanning for missing documentation, reviewing code, or giving feedback about documentation quality.
+description: Write @moduledoc and @doc annotations into Elixir/Phoenix source files and update READMs. Use ONLY when the user explicitly asks to add, write, or generate @moduledoc/@doc for specific modules, contexts, or schemas they implemented. Do NOT use when fetching library docs from hex.pm, scanning for missing documentation, reviewing code, or giving feedback about documentation quality.
 effort: low
 argument-hint: [plan-file OR feature-name]
 ---
