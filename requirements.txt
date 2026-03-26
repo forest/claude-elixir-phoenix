@@ -1,0 +1,2 @@
+# Python dependencies for lab/eval/ scoring framework
+PyYAML>=6.0,<7.0

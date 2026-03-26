@@ -8,7 +8,7 @@ on:
 
 jobs:
   lint:
-    name: Markdown + YAML + JSON Lint
+    name: Markdown + YAML + JSON
     runs-on: ubuntu-latest
 
     steps:
@@ -23,27 +23,86 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Lint Markdown files
+      - name: Lint Markdown
         run: npm run lint
 
-      - name: Lint YAML files
+      - name: Lint YAML
         uses: ibiqlik/action-yamllint@v3
         with:
           file_or_dir: .
           config_file: .yamllint.yml
           strict: false
 
-      - name: Validate JSON files
+      - name: Validate JSON
         run: |
           for file in $(find . -name "*.json" -not -path "./node_modules/*" -not -path "./.claude/*"); do
             echo "Validating $file"
             python3 -m json.tool "$file" > /dev/null
           done
 
-  eval:
-    name: Skill & Agent Quality Eval
+  python:
+    name: Python Lint + Security
     runs-on: ubuntu-latest
-    needs: lint
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install pyyaml ruff pip-audit
+
+      - name: Ruff lint (Python)
+        run: ruff check lab/ --select E,F,W --ignore E501
+
+      - name: Ruff format check
+        run: ruff format --check lab/ || true
+
+      - name: Pip audit (security)
+        run: pip-audit -r requirements.txt || true
+
+  shell:
+    name: Shell Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: ShellCheck
+        run: |
+          sudo apt-get install -y shellcheck
+          find plugins/elixir-phoenix/hooks/scripts -name "*.sh" -exec shellcheck {} + || true
+          find lab/autoresearch/scripts -name "*.sh" -exec shellcheck {} + || true
+          shellcheck lab/eval/run_eval.sh || true
+
+  security:
+    name: Dependency Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: npm audit
+        run: npm audit --omit=dev || true
+
+  eval:
+    name: Skill & Agent Eval
+    runs-on: ubuntu-latest
+    needs: [lint, python]
 
     steps:
       - name: Checkout
@@ -64,7 +123,6 @@ jobs:
           d = json.load(sys.stdin)
           perfect = sum(1 for v in d.values() if v['composite'] >= 0.999)
           avg = sum(v['composite'] for v in d.values()) / len(d)
-          # Behavioral edge cases (trigger-only failures) are expected
           fixable_failures = {}
           for name, data in d.items():
               if data['composite'] < 0.95:
