@@ -2,70 +2,78 @@
 
 How to correctly write permissions to Claude Code settings files.
 
+Source: [code.claude.com/docs/en/permissions](https://code.claude.com/docs/en/permissions)
+
 ## Settings File Hierarchy
 
-Claude Code reads settings from multiple locations (in priority order):
+Claude Code reads settings from multiple locations. More specific scopes
+take precedence; `deny` at any level blocks even if another level allows:
 
-| File | Scope | Use Case |
-|------|-------|----------|
-| `~/.claude/settings.json` | Global (all projects) | Commands safe everywhere |
-| `.claude/settings.json` | Project (checked in) | Team-shared project permissions |
-| `.claude/settings.local.json` | Project (gitignored) | Personal project permissions |
+| Scope | File | Shared? |
+|-------|------|---------|
+| User (global) | `~/.claude/settings.json` | No |
+| Project (team) | `.claude/settings.json` | Yes (git) |
+| Local (personal) | `.claude/settings.local.json` | No (gitignored) |
 
 ## Permission Format
-
-Permissions live under the `permissions` key with `allow` and `deny` arrays:
 
 ```json
 {
   "permissions": {
     "allow": [
-      "Bash(mix test*)",
-      "Bash(mix compile*)",
-      "Bash(git status)"
+      "Bash(npm run build)",
+      "Bash(npm run test *)",
+      "Bash(git *)"
     ],
     "deny": [
-      "Bash(rm -rf*)",
-      "Bash(sudo*)"
+      "Bash(rm -rf *)",
+      "Bash(sudo *)"
     ]
   }
 }
 ```
 
+Rules are evaluated: **deny → ask → allow**. First match wins.
+
 ## Pattern Syntax
 
-Each permission entry follows `Tool(pattern)` format. Two notations exist:
+Permission rules follow `Tool` or `Tool(specifier)` format.
 
-### Colon separator (standard — used by Claude Code UI)
+### Match all uses
 
-When a user clicks "Allow always" in Claude Code, the entry is saved
-with `:` separating the command prefix from the wildcard:
+| Rule | Effect |
+|------|--------|
+| `Bash` | Matches ALL Bash commands |
+| `Bash(*)` | Same — matches all |
 
-| Pattern | Matches |
-|---------|---------|
-| `Bash(git:*)` | `git diff`, `git add`, `git status`, etc. |
-| `Bash(mix test:*)` | `mix test`, `mix test test/foo_test.exs`, etc. |
-| `Bash(mix format)` | Exact match: only `mix format` (no args) |
-| `Bash(python3:*)` | `python3 -c "..."`, `python3 script.py`, etc. |
+### Wildcard patterns with `*`
 
-### Space separator (also works)
+`*` is a glob wildcard. The **space before `*` matters**:
 
-Patterns can also use a space instead of `:` — both are equivalent:
+| Pattern | Matches | Does NOT match |
+|---------|---------|----------------|
+| `Bash(ls *)` | `ls -la`, `ls /tmp` | `lsof` (word boundary) |
+| `Bash(ls*)` | `ls -la`, `lsof` | (no boundary) |
+| `Bash(git *)` | `git diff`, `git add` | `gitk` |
+| `Bash(mix test *)` | `mix test test/foo.exs` | `mix testing` |
+| `Bash(* --version)` | `node --version` | — |
+| `Bash(npm run build)` | exact match only | `npm run build:dev` |
 
-| Pattern | Matches |
-|---------|---------|
-| `Bash(mix test*)` | Same as `Bash(mix test:*)` |
-| `Bash(git diff*)` | Same as `Bash(git diff:*)` |
+### Deprecated `:*` syntax
 
-### Rules
+> "The legacy `:*` suffix syntax is equivalent to `*` but is deprecated."
+> — [Claude Code docs](https://code.claude.com/docs/en/permissions)
 
-- `*` is a glob wildcard (matches any characters)
-- `:` before `*` acts as a space separator for matching
-- Place `*` at the end to match commands with any arguments
-- Exact strings (no `*`) match only that exact command
-- Patterns are case-sensitive
-- `deny` takes priority over `allow`
-- When writing new entries, use `:` format for consistency with Claude Code UI
+**Do NOT use** `Bash(git:*)` — use `Bash(git *)` instead. The `:*` format
+may not match reliably and will be removed in a future version.
+
+### Compound commands
+
+Claude Code is aware of shell operators (`&&`, `|`, `;`). A prefix match
+rule like `Bash(safe-cmd *)` won't give permission to run `safe-cmd && other-cmd`.
+
+When "Yes, don't ask again" is clicked on a compound command, Claude Code
+saves a **separate rule for each subcommand** (up to 5 rules).
 
 ## Recommended Permission Sets
 
@@ -75,14 +83,14 @@ Patterns can also use a space instead of `:` — both are equivalent:
 {
   "permissions": {
     "allow": [
-      "Bash(ls*)",
-      "Bash(cat*)",
-      "Bash(grep*)",
-      "Bash(mix compile*)",
-      "Bash(mix test*)",
+      "Bash(ls *)",
+      "Bash(cat *)",
+      "Bash(grep *)",
+      "Bash(mix compile *)",
+      "Bash(mix test *)",
       "Bash(git status)",
-      "Bash(git log*)",
-      "Bash(git diff*)"
+      "Bash(git log *)",
+      "Bash(git diff *)"
     ]
   }
 }
@@ -94,33 +102,15 @@ Patterns can also use a space instead of `:` — both are equivalent:
 {
   "permissions": {
     "allow": [
-      "Bash(ls*)",
-      "Bash(cat*)",
-      "Bash(grep*)",
-      "Bash(head*)",
-      "Bash(tail*)",
-      "Bash(wc*)",
-      "Bash(find*)",
-      "Bash(mix compile*)",
-      "Bash(mix test*)",
-      "Bash(mix format*)",
-      "Bash(mix credo*)",
-      "Bash(mix deps.get*)",
-      "Bash(mix ecto.migrate*)",
-      "Bash(mix ecto.rollback*)",
-      "Bash(mix ecto.gen.migration*)",
-      "Bash(mix phx.routes*)",
-      "Bash(mix hex.audit*)",
-      "Bash(mix deps.audit*)",
-      "Bash(mix xref*)",
-      "Bash(git status*)",
-      "Bash(git log*)",
-      "Bash(git diff*)",
-      "Bash(git show*)",
-      "Bash(git add*)",
-      "Bash(git commit*)",
-      "Bash(git push)",
-      "Bash(git branch)"
+      "Bash(ls *)", "Bash(cat *)", "Bash(grep *)",
+      "Bash(head *)", "Bash(tail *)", "Bash(wc *)",
+      "Bash(find *)", "Bash(which *)", "Bash(mkdir *)",
+      "Bash(mix compile *)", "Bash(mix test *)",
+      "Bash(mix format *)", "Bash(mix credo *)",
+      "Bash(mix deps.get *)", "Bash(mix ecto.migrate *)",
+      "Bash(mix ecto.gen.migration *)", "Bash(mix phx.routes *)",
+      "Bash(mix xref *)", "Bash(mix hex.info *)",
+      "Bash(git *)"
     ]
   }
 }
@@ -128,30 +118,19 @@ Patterns can also use a space instead of `:` — both are equivalent:
 
 ### Full-Trust Developer
 
-Adds git write operations and generators:
-
 ```json
 {
   "permissions": {
     "allow": [
-      "Bash(mix *)",
-      "Bash(git *)",
-      "Bash(npm *)",
-      "Bash(ls*)",
-      "Bash(cat*)",
-      "Bash(grep*)",
-      "Bash(find*)",
-      "Bash(mkdir*)",
-      "Bash(cp*)"
+      "Bash(mix *)", "Bash(git *)", "Bash(npm *)",
+      "Bash(ls *)", "Bash(cat *)", "Bash(grep *)",
+      "Bash(find *)", "Bash(mkdir *)", "Bash(cp *)"
     ],
     "deny": [
-      "Bash(mix ecto.reset*)",
-      "Bash(mix ecto.drop*)",
-      "Bash(git push --force*)",
-      "Bash(git push -f*)",
-      "Bash(git reset --hard*)",
-      "Bash(rm -rf*)",
-      "Bash(sudo*)"
+      "Bash(mix ecto.reset *)", "Bash(mix ecto.drop *)",
+      "Bash(git push --force *)", "Bash(git push -f *)",
+      "Bash(git reset --hard *)",
+      "Bash(rm -rf *)", "Bash(sudo *)"
     ]
   }
 }
@@ -164,14 +143,8 @@ When the permission analyzer writes to settings:
 1. **Read** current contents of the target settings file
 2. **Parse** existing `permissions.allow` array
 3. **Append** new entries (skip duplicates)
-4. **Never remove** existing entries
+4. **Fix deprecated** `:*` patterns → `*`
 5. **Write** merged result back
-
-```
-existing:  ["Bash(mix test*)", "Bash(git status)"]
-new:       ["Bash(mix test*)", "Bash(mix compile*)", "Bash(mix format*)"]
-merged:    ["Bash(mix test*)", "Bash(git status)", "Bash(mix compile*)", "Bash(mix format*)"]
-```
 
 ## Project vs Global Placement
 
@@ -180,6 +153,3 @@ merged:    ["Bash(mix test*)", "Bash(git status)", "Bash(mix compile*)", "Bash(m
 | Universal tools (`ls`, `grep`, `cat`) | `~/.claude/settings.json` (global) |
 | Elixir-specific (`mix test`, `mix compile`) | `.claude/settings.json` (project) |
 | Personal preferences | `.claude/settings.local.json` (local) |
-
-The analyzer should default to `.claude/settings.json` (project-level)
-for Elixir commands and suggest global placement for universal tools.

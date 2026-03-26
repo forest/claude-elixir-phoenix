@@ -19,14 +19,24 @@ for path in [os.path.expanduser('~/.claude/settings.json'),
             allowed.extend(json.load(f).get('permissions',{}).get('allow',[]))
     except: pass
 
-# 2. Build matchers: Bash(git:*) matches 'git diff', Bash(mix format) exact
+# 2. Build matchers from permission patterns
+# Handles both formats:
+#   Bash(git *)   — current (space before wildcard)
+#   Bash(git:*)   — deprecated (colon before wildcard)
+#   Bash(git status) — exact match
+#   Bash          — matches ALL bash commands
 def make_glob(perm):
+    if perm == 'Bash' or perm == 'Bash(*)':
+        return '*'  # matches everything
     m = re.match(r'Bash\((.+)\)', perm)
     if not m: return None
     pat = m.group(1)
-    return pat.replace(':', ' ', 1) if ':' in pat else pat
+    # Normalize deprecated :* to space *
+    if pat.endswith(':*'):
+        pat = pat[:-2] + ' *'
+    return pat
 
-pats = [make_glob(p) for p in allowed if p.startswith('Bash(')]
+pats = [make_glob(p) for p in allowed if p.startswith('Bash')]
 pats = [p for p in pats if p]
 
 def is_covered(cmd):
@@ -39,6 +49,7 @@ recent = [f for f in all_files if os.path.getmtime(f) > cutoff]
 
 uncovered = Counter()
 examples = {}
+deprecated = []
 for fp in recent:
     try:
         with open(fp) as f:
@@ -57,14 +68,27 @@ for fp in recent:
                                 examples[base] = cmd[:120]
     except: pass
 
-# 4. Output results
+# 4. Check for deprecated :* patterns in current settings
+for p in allowed:
+    if p.startswith('Bash(') and ':*)' in p:
+        deprecated.append(p)
+
+# 5. Output results
 print(f'Sessions scanned: {len(recent)} (last {DAYS} days)')
 print(f'Uncovered command patterns: {len(uncovered)}')
 print(f'Total avoidable prompts: {sum(uncovered.values())}')
+if deprecated:
+    print(f'Deprecated :* patterns to fix: {len(deprecated)}')
 print()
 for cmd, count in uncovered.most_common(30):
     ex = examples.get(cmd,'')
     print(f'{count:4d}x  {cmd}')
     if ex != cmd: print(f'       e.g.: {ex[:100]}')
+if deprecated:
+    print(f'\n=== DEPRECATED :* patterns (replace : with space) ===')
+    for p in deprecated[:10]:
+        print(f'  {p}  ->  {p.replace(chr(58)+chr(42)+chr(41), chr(32)+chr(42)+chr(41))}')
+    if len(deprecated) > 10:
+        print(f'  ... and {len(deprecated)-10} more')
 "
 ```

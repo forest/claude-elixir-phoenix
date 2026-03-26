@@ -595,18 +595,19 @@ PRs welcome! See [CLAUDE.md](CLAUDE.md) for full conventions.
 
 ### Quality Gate
 
-Every PR must pass the CI quality gate (lint + eval). Run locally before pushing:
+Every PR must pass the CI quality gate (lint + test + eval). Run locally before pushing:
 
 ```bash
-npm run eval          # Quick: lint + score changed skills/agents only
-npm run eval:all      # Full structural: lint + all 41 skills + all 21 agents
-npm run eval:fix      # Auto-fix lint + show failures + suggest autoresearch command
-npm run eval:full     # Everything including behavioral trigger tests (~60 min)
-npm run eval:ci       # Same as CI runs (lint + all skills + all agents)
+make help             # Show all available commands
+make eval             # Quick: lint + score changed skills/agents only
+make eval-all         # Full structural: all 41 skills + all 21 agents
+make eval-fix         # Auto-fix lint + show failures + suggest autoresearch
+make test             # 52 pytest tests for eval framework
+make ci               # Full CI: lint + test + eval (same as GitHub Actions)
 ```
 
 The eval framework scores skills across **8 dimensions** and agents across **5 dimensions**.
-Skills must score >= 0.95 to pass. Run `npm run eval:all` for details.
+Skills must score >= 0.95 to pass. Run `make eval-all` for details.
 
 ### Development Rules
 

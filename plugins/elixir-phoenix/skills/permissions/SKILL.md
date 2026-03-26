@@ -50,13 +50,16 @@ against current `settings.json` patterns, and reports uncovered commands with co
 For each uncovered command from Step 1 output:
 
 1. **Classify** as GREEN / YELLOW / RED per table above
-2. **Generate permission pattern**: normalize to `Bash(base_command:*)` format
-   - `mkdir -p` (94x) → `Bash(mkdir:*)`
-   - `mise exec` (39x) → `Bash(mise:*)`
-   - `tail -5` (20x) → `Bash(tail:*)`
+2. **Generate permission pattern**: normalize to `Bash(base_command *)` format
+   (use SPACE before `*`, NOT colon — `:*` is deprecated)
+   - `mkdir -p` (94x) → `Bash(mkdir *)`
+   - `mise exec` (39x) → `Bash(mise *)`
+   - `tail -5` (20x) → `Bash(tail *)`
 3. **Check for redundancy**: skip if a broader existing pattern covers it
 4. **Also scan for garbage** in current settings: `Bash(done)`, `Bash(fi)`,
    `Bash(__NEW_LINE_*)`, partial heredocs, entries covered by broader patterns
+5. **Fix deprecated `:*` patterns** — replace any `Bash(name:*)` with `Bash(name *)`
+   (space before `*`). The `:*` suffix is deprecated and may not match reliably
 
 Present a combined table:
 
@@ -76,10 +79,39 @@ Present a combined table:
 |...
 ```
 
-### Step 3: Apply (unless `--dry-run`)
+### Step 3: Interactive Triage (unless `--dry-run`)
 
-After user confirms, merge into `~/.claude/settings.json` under `permissions.allow`.
-Remove any garbage entries the user approved for removal.
+Walk through findings interactively using `AskUserQuestion`. Present items
+in batches by risk level, starting with GREEN (safest):
+
+**Batch 1 — GREEN items** (read-only, tests, safe tools):
+Use `AskUserQuestion` with options:
+
+- "Add all GREEN" — approve entire batch
+- "Pick individually" — show each one for yes/no
+- "Skip GREEN" — move to YELLOW
+
+**Batch 2 — YELLOW items** (write ops, need caution):
+Always show individually — one `AskUserQuestion` per item with options:
+
+- "Add" — include in settings
+- "Skip" — keep requiring manual approval
+- "Customize" — let user edit the pattern before adding
+
+**Batch 3 — REMOVE candidates** (garbage/redundant):
+Use `AskUserQuestion` with options:
+
+- "Remove all" — clean up entire batch
+- "Pick individually" — show each for yes/no
+- "Keep all" — skip cleanup
+
+Track approved items in a list. After triage, show final summary of
+what will be added/removed and ask for confirmation.
+
+### Step 4: Apply
+
+Merge approved additions into `~/.claude/settings.json` under `permissions.allow`.
+Remove approved garbage entries. Report final counts.
 
 ## References
 
