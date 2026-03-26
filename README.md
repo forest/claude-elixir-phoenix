@@ -2,7 +2,7 @@
 
 **Claude Code is great. But it doesn't know that `assign_new` silently skips on reconnect, that `:float` will corrupt your money fields, or that your Oban job isn't idempotent.**
 
-This plugin does. It coordinates **20 specialist agents** that plan, implement,
+This plugin does. It coordinates **21 specialist agents** that plan, implement,
 review, and verify your Elixir/Phoenix code in parallel -- each with domain
 expertise, fresh context, and enforced [Iron Laws](#iron-laws-non-negotiable-rules)
 that catch the bugs your tests won't.
@@ -34,7 +34,7 @@ that prevent the mistakes Elixir developers actually make in production.
 │  ⚗  Elixir/Phoenix Plugin for Claude Code                           │
 │                                                                     │
 │  ┌──────────┬──────────┬──────────┬──────────┬──────────┐           │
-│  │    20    │    38    │    92    │    18    │    22    │           │
+│  │    21    │    41    │    96    │    18    │    22    │           │
 │  │  Agents  │  Skills  │   Refs   │  Hooks   │Iron Laws │           │
 │  └──────────┴──────────┴──────────┴──────────┴──────────┘           │
 │                                                                     │
@@ -76,7 +76,7 @@ that prevent the mistakes Elixir developers actually make in production.
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
-> **Early Stage** -- Under active development. Feedback and contributions welcome via [issues](https://github.com/oliver-kriska/claude-elixir-phoenix/issues).
+> **v2.6.0** -- 41 skills, 21 agents, 8-dimension quality eval, autoresearch self-improvement loop. Feedback welcome via [issues](https://github.com/oliver-kriska/claude-elixir-phoenix/issues).
 
 ## Installation
 
@@ -194,7 +194,7 @@ No more scattered files across `.claude/planning/`, `.claude/progress/`, `.claud
 
 ### Agent Hierarchy
 
-The plugin uses 20 agents organized into 3 tiers:
+The plugin uses 21 agents organized into 3 tiers:
 
 ```
                     ┌──────────────────────────────┐
@@ -494,10 +494,13 @@ The plugin enforces critical rules and **stops with an explanation** if code wou
 | ------------------------ | ---------------------------------------------------------- |
 | `/phx:intro`             | Interactive plugin tutorial (6 sections, ~5 min)           |
 | `/phx:init`              | Initialize plugin in a project (auto-activation rules)     |
+| `/phx:help`              | Interactive command advisor — recommends the right command |
 | `/phx:quick <task>`      | Fast implementation, skip ceremony                         |
 | `/phx:investigate <bug>` | Systematic bug debugging (4 parallel investigation tracks) |
 | `/phx:research <topic>`  | Research Elixir topics on the web                          |
 | `/phx:verify`            | Run full verification (compile, format, credo, test)       |
+| `/phx:permissions`       | Scan sessions, recommend safe Bash permissions             |
+| `/phx:autoresearch`      | Iterative code improvement against a measurable metric     |
 | `/phx:trace <function>`  | Build call trees to trace function flow                    |
 | `/phx:boundaries`        | Analyze Phoenix context boundaries with mix xref           |
 | `/phx:examples`          | Practical examples and pattern walkthroughs                |
@@ -513,7 +516,7 @@ The plugin enforces critical rules and **stops with an explanation** if code wou
 | `/phx:audit`         | Full project health audit with 5 parallel agents  |
 | `/phx:challenge`     | Rigorous review mode ("grill me")                 |
 
-## Agents (20)
+## Agents (21)
 
 | Agent                        | Model  | Memory  | Role                                         |
 | ---------------------------- | ------ | ------- | -------------------------------------------- |
@@ -537,6 +540,7 @@ The plugin enforces critical rules and **stops with an explanation** if code wou
 | **otp-advisor**              | sonnet | --      | GenServer, Supervisor, process design        |
 | **deployment-validator**     | sonnet | --      | Docker, Kubernetes, Fly.io config            |
 | **web-researcher**           | sonnet | --      | ElixirForum, HexDocs, GitHub research        |
+| **autoresearch-proposer**    | sonnet | --      | Read-only code improvement proposer          |
 
 Agents with `project` memory build up knowledge across sessions
 in `.claude/agent-memory/<agent-name>/`. Orchestrators remember
@@ -587,13 +591,44 @@ Available runtime tools: execute Elixir code, run SQL queries, get docs for your
 
 ## Contributing
 
-PRs welcome! See [CLAUDE.md](CLAUDE.md) for development conventions.
+PRs welcome! See [CLAUDE.md](CLAUDE.md) for full conventions.
 
-### Development rules
+### Quality Gate
 
-- Skills: ~100 lines SKILL.md + `references/` for details
-- Agents: under 300 lines, `disallowedTools` for reviewers
-- All markdown passes `npm run lint`
+Every PR must pass the CI quality gate (lint + eval). Run locally before pushing:
+
+```bash
+npm run eval          # Quick: lint + score changed skills/agents only
+npm run eval:all      # Full structural: lint + all 41 skills + all 21 agents
+npm run eval:fix      # Auto-fix lint + show failures + suggest autoresearch command
+npm run eval:full     # Everything including behavioral trigger tests (~60 min)
+npm run eval:ci       # Same as CI runs (lint + all skills + all agents)
+```
+
+The eval framework scores skills across **8 dimensions** and agents across **5 dimensions**.
+Skills must score >= 0.95 to pass. Run `npm run eval:all` for details.
+
+### Development Rules
+
+- **Skills**: ~100 lines SKILL.md + `references/` for details. Must include Iron Laws, "Use when..." in description.
+- **Agents**: under 300 lines, `disallowedTools: Write, Edit, NotebookEdit` for reviewers, `permissionMode: bypassPermissions` always.
+- **All markdown** passes `npm run lint`
+- **New skills/agents** must pass `npm run eval` before merging
+- **Autoresearch**: Run `npm run eval:fix` to auto-detect and fix quality issues
+
+### Autoresearch (Self-Improvement Loop)
+
+The plugin includes an internal eval framework (`lab/eval/`) that scores all skills and agents. When quality drops, the autoresearch loop can fix it:
+
+```bash
+# Score everything, show failures, get auto-fix command
+npm run eval:fix
+
+# Or run the autoresearch loop directly (targets weakest skill, fixes one issue per iteration)
+claude -p 'Run autoresearch...' --allowedTools 'Edit,Read,Write,Bash,Glob,Grep'
+```
+
+The eval framework uses 24 deterministic Python matchers + haiku-based behavioral trigger testing. See `lab/eval/` for details.
 
 ### Analyze your sessions to improve the plugin
 
@@ -640,6 +675,14 @@ Each analysis report includes a **Plugin Improvement Opportunities** section tha
 - Auto-loading gaps where skills should trigger but don't
 
 Share these findings in issues or PRs to help make the plugin better for everyone.
+
+## Roadmap
+
+- **elixir-inspector** (in progress) -- Separate plugin for 6-layer codebase analysis.
+  Generates Credo checks, skills, CI steps, and review prompts from your project patterns.
+  See the [open PR](https://github.com/oliver-kriska/claude-elixir-phoenix/pulls).
+- **Tier 2/3 behavioral eval** -- Instruction-following tests and full A/B skill comparison (with-skill vs without-skill outcome quality).
+- **Runtime eval integration** -- Connect session metrics to the eval framework for measuring real-world skill effectiveness.
 
 ## Sources and Inspiration
 
