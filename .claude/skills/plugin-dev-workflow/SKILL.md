@@ -21,6 +21,28 @@ make test          # 52 pytest tests for eval framework
 make ci            # Full CI pipeline
 ```
 
+## Scoring Individual Files (CLI)
+
+IMPORTANT: Always use `-m` module syntax, never run scorer.py directly.
+
+```bash
+# Score ONE skill (use -m, NOT direct file path)
+python3 -m lab.eval.scorer plugins/elixir-phoenix/skills/verify/SKILL.md
+
+# Score ONE skill with pretty output
+python3 -m lab.eval.scorer plugins/elixir-phoenix/skills/verify/SKILL.md --pretty
+
+# Score all skills
+python3 -m lab.eval.scorer --all
+
+# Score ONE agent
+python3 -m lab.eval.agent_scorer plugins/elixir-phoenix/agents/verification-runner.md
+
+# Score all agents
+python3 -m lab.eval.agent_scorer --all
+make ci            # Full CI pipeline
+```
+
 ## When Editing Skills (plugins/elixir-phoenix/skills/*/SKILL.md)
 
 1. **Read CLAUDE.md** conventions (size limits, frontmatter requirements)
