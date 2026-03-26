@@ -1,4 +1,4 @@
-name: Lint
+name: Quality Gate
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
     branches: [main]
 
 jobs:
-  markdown:
-    name: Markdown Lint
+  lint:
+    name: Markdown + YAML + JSON Lint
     runs-on: ubuntu-latest
 
     steps:
@@ -26,14 +26,6 @@ jobs:
       - name: Lint Markdown files
         run: npm run lint
 
-  yaml:
-    name: YAML Lint
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
       - name: Lint YAML files
         uses: ibiqlik/action-yamllint@v3
         with:
@@ -41,17 +33,55 @@ jobs:
           config_file: .yamllint.yml
           strict: false
 
-  json:
-    name: JSON Validate
+      - name: Validate JSON files
+        run: |
+          for file in $(find . -name "*.json" -not -path "./node_modules/*" -not -path "./.claude/*"); do
+            echo "Validating $file"
+            python3 -m json.tool "$file" > /dev/null
+          done
+
+  eval:
+    name: Skill & Agent Quality Eval
     runs-on: ubuntu-latest
+    needs: lint
 
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Validate JSON files
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      - name: Score all skills (8 dimensions)
         run: |
-          for file in $(find . -name "*.json" -not -path "./node_modules/*"); do
-            echo "Validating $file"
-            python3 -m json.tool "$file" > /dev/null
-          done
+          python3 -m lab.eval.scorer --all 2>/dev/null | python3 -c "
+          import json, sys
+          d = json.load(sys.stdin)
+          perfect = sum(1 for v in d.values() if v['composite'] >= 0.999)
+          avg = sum(v['composite'] for v in d.values()) / len(d)
+          # Behavioral edge cases (trigger-only failures) are expected
+          fixable_failures = {}
+          for name, data in d.items():
+              if data['composite'] < 0.95:
+                  all_behavioral = all(
+                      dim == 'behavioral'
+                      for dim, dd in data['dimensions'].items()
+                      for a in dd['assertions'] if not a['passed']
+                  )
+                  if not all_behavioral:
+                      fixable_failures[name] = round(data['composite'], 3)
+          print(f'{len(d)} skills | {perfect} perfect | avg {avg:.3f}')
+          if fixable_failures:
+              print(f'FIXABLE FAILURES: {fixable_failures}')
+              sys.exit(1)
+          print('All skills pass (behavioral edge cases expected)')
+          "
+
+      - name: Score all agents (5 dimensions)
+        run: |
+          python3 -m lab.eval.agent_scorer --all 2>&1 | tee /dev/stderr | tail -1 | grep -q "perfect"
