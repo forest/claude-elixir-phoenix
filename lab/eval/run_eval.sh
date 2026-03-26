@@ -177,8 +177,66 @@ case "$MODE" in
         echo "  This takes ~60 minutes..."
         python3 -m lab.eval.trigger_scorer --all --summary
         ;;
+    --ci)
+        echo "--- CI Gate: Lint + All Skills + All Agents ---"
+        echo ""
+        echo "--- Lint ---"
+        npm run lint 2>&1
+        LINT_EXIT=$?
+        if [ "$LINT_EXIT" -ne 0 ]; then
+            echo "  LINT FAILED"
+            FAILURES=$((FAILURES + 1))
+        fi
+        echo ""
+        echo "--- Skills ---"
+        run_skills "all" || FAILURES=$((FAILURES + 1))
+        echo ""
+        echo "--- Agents ---"
+        run_agents "all" || FAILURES=$((FAILURES + 1))
+        ;;
+    --fix)
+        echo "--- Auto-Fix: lint + find failures + suggest fixes ---"
+        echo ""
+        echo "--- Lint Fix ---"
+        npm run lint:fix 2>&1 | tail -3
+        echo ""
+        echo "--- Scoring All Skills ---"
+        FAILING=$(python3 -m lab.eval.scorer --all 2>/dev/null | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+failing = []
+for name, data in d.items():
+    if data['composite'] < 0.95:
+        issues = []
+        for dim, dim_data in data['dimensions'].items():
+            for a in dim_data['assertions']:
+                if not a['passed']:
+                    issues.append(f'{dim}:{a[\"desc\"]}')
+        failing.append(f'{name} ({data[\"composite\"]:.3f}): {\" | \".join(issues)}')
+if failing:
+    for f in failing:
+        print(f'  {f}')
+else:
+    print('  All skills pass!')
+")
+        echo "$FAILING"
+        echo ""
+        echo "--- Scoring All Agents ---"
+        python3 -m lab.eval.agent_scorer --all 2>&1 | grep "NEEDS WORK" || echo "  All agents pass!"
+        echo ""
+        FAIL_COUNT=$(echo "$FAILING" | grep -c '^\s\s\S' || true)
+        if [ "$FAIL_COUNT" -gt 0 ]; then
+            echo "--- To auto-fix, run autoresearch: ---"
+            echo "  claude -p 'Run autoresearch. Score all skills with python3 -m lab.eval.scorer --all, find lowest below 0.95, read it, fix ONE issue, re-score, git commit if better, git checkout if worse. Repeat until all pass.' --allowedTools 'Edit,Read,Write,Bash,Glob,Grep'"
+            echo ""
+            echo "Or fix manually based on failures above."
+            exit 1
+        else
+            echo "ALL PASS — nothing to fix!"
+        fi
+        ;;
     *)
-        echo "Usage: $0 [--all|--skills|--agents|--changed|--triggers]"
+        echo "Usage: $0 [--all|--skills|--agents|--changed|--triggers|--ci|--fix]"
         exit 1
         ;;
 esac

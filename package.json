@@ -12,6 +12,8 @@
     "eval:agents": "bash lab/eval/run_eval.sh --agents",
     "eval:triggers": "bash lab/eval/run_eval.sh --triggers",
     "eval:full": "bash lab/eval/run_eval.sh --all && bash lab/eval/run_eval.sh --triggers",
+    "eval:fix": "bash lab/eval/run_eval.sh --fix",
+    "eval:ci": "bash lab/eval/run_eval.sh --ci",
     "prepare": "husky || true"
   },
   "devDependencies": {
