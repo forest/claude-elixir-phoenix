@@ -313,12 +313,14 @@ The plugin has a deterministic 8-dimension scoring system for skills and
 5-dimension scoring for agents. **Run `make eval` after every skill/agent edit.**
 
 **When editing skills/agents, ALWAYS verify your changes pass eval:**
+
 1. Edit the skill or agent file
 2. Run `make eval` — checks only changed files
 3. If FAIL: run `make eval-fix` to see exact failures and get fix suggestions
 4. Fix the issues and re-run until PASS
 
 **What eval checks** (skills — 8 dimensions):
+
 - completeness (sections, Iron Laws, frontmatter)
 - accuracy (cross-references valid)
 - conciseness (line counts, section limits)
@@ -329,6 +331,7 @@ The plugin has a deterministic 8-dimension scoring system for skills and
 - behavioral (trigger accuracy via cached haiku tests)
 
 **What eval checks** (agents — 5 dimensions):
+
 - completeness (frontmatter: name, description, tools, model, effort)
 - accuracy (preloaded skills exist, tools valid)
 - conciseness (line limits per agent type)

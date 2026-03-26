@@ -31,17 +31,50 @@ Before EVERY edit, verify:
 
 If edit would touch out-of-scope file: SKIP that proposal, ask proposer for alternative.
 
+## Staged Evaluation (fast-then-full)
+
+Run cheap checks first — skip expensive checks if cheap ones fail.
+This prevents wasting 30s+ on `mix test` when `mix compile` already fails.
+(From Hyperagents paper: staged eval with threshold saves 60%+ time on bad variants.)
+
+**Stage 1 — Compile (5s)**:
+
+```bash
+mix compile --warnings-as-errors
+```
+
+If FAIL: revert immediately. Do NOT run further stages.
+
+**Stage 2 — Metric-specific check (5-15s)**:
+
+- `--goal credo`: `mix credo --strict` (is the count lower?)
+- `--goal warnings`: already checked in Stage 1
+- `--goal coverage`: skip (needs full test suite)
+
+If metric didn't improve: revert. Do NOT run Stage 3.
+
+**Stage 3 — Full guard (30s+)**:
+
+```bash
+mix test
+```
+
+Only runs if Stages 1-2 passed. This is the expensive step.
+
 ## Guard Execution
 
 Guard runs TWICE per iteration:
 
 1. **Pre-mutation guard** (first iteration only): Verify codebase is green before starting
-2. **Post-mutation guard**: After every edit, before measuring metric
+2. **Post-mutation guard**: Staged — compile first, metric second, full test last
 
-Guard failure = immediate revert. No exceptions. Log failure to scratchpad:
+Guard failure at ANY stage = immediate revert. Log which stage failed to scratchpad:
 
 ```
-Iteration 5: GUARD FAIL — test/accounts_test.exs:42 failed after editing accounts.ex
+Iteration 5: STAGE 1 FAIL — mix compile error after editing accounts.ex
+Reverted. Skipped credo + test (saved ~35s).
+
+Iteration 8: STAGE 3 FAIL — test/accounts_test.exs:42 failed after editing accounts.ex
 Reverted. Avoid: modifying validate_email/1 breaks existing test expectations.
 ```
 

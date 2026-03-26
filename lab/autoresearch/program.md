@@ -52,6 +52,20 @@ On exact tie: keep (prefer newer — likely simpler or more accurate).
 - After a discard: analyze WHY before next attempt on same skill (ReflexiCoder)
 - NEVER retry the exact same mutation type on the same section twice
 
+## Meta-Improvement Awareness (from Hyperagents paper)
+
+The eval framework + autoresearch loop IS a meta-improvement.
+It transfers across use cases (skill improvement → user code improvement).
+Do NOT accidentally simplify or remove infrastructure that enables self-improvement:
+
+- lab/eval/ scoring (24 matchers, 8 dimensions) — the evaluation IS the value
+- lab/autoresearch/scripts/ (run-iteration.py, checks.sh) — the loop IS the value
+- ASI metadata in JSONL — failure context IS the value
+- ideas.md backlog — deferred knowledge IS the value
+
+When improving the autoresearch system itself, treat it as a meta-improvement:
+changes to the loop/eval/scorer are higher-value than changes to individual skills.
+
 ## Simplicity Criterion
 
 A 0.01 improvement that adds 10 lines of content? Probably not worth it.
