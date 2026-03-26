@@ -28,12 +28,25 @@ run_skills() {
     local filter="$1"  # "all" or "changed"
     local skills_to_check=()
 
-    if [ "$filter" = "changed" ] && [ -f "$LAST_EVAL_FILE" ]; then
-        local last_commit
-        last_commit=$(cat "$LAST_EVAL_FILE")
-        # Find skills changed since last eval
-        local changed_files
-        changed_files=$(git diff --name-only "$last_commit" HEAD -- 'plugins/elixir-phoenix/skills/' 2>/dev/null || echo "")
+    if [ "$filter" = "changed" ]; then
+        local changed_files=""
+        # 1. Uncommitted changes (staged + unstaged)
+        changed_files=$(git diff --name-only HEAD -- 'plugins/elixir-phoenix/skills/' 2>/dev/null || echo "")
+        local staged
+        staged=$(git diff --cached --name-only -- 'plugins/elixir-phoenix/skills/' 2>/dev/null || echo "")
+        if [ -n "$staged" ]; then
+            changed_files=$(printf "%s\n%s" "$changed_files" "$staged")
+        fi
+        # 2. Changes since last eval commit
+        if [ -f "$LAST_EVAL_FILE" ]; then
+            local last_commit
+            last_commit=$(cat "$LAST_EVAL_FILE")
+            local since_last
+            since_last=$(git diff --name-only "$last_commit" HEAD -- 'plugins/elixir-phoenix/skills/' 2>/dev/null || echo "")
+            if [ -n "$since_last" ]; then
+                changed_files=$(printf "%s\n%s" "$changed_files" "$since_last")
+            fi
+        fi
         if [ -z "$changed_files" ]; then
             echo "  No skill changes since last eval"
             return 0
@@ -92,11 +105,23 @@ if below:
 run_agents() {
     local filter="$1"
 
-    if [ "$filter" = "changed" ] && [ -f "$LAST_EVAL_FILE" ]; then
-        local last_commit
-        last_commit=$(cat "$LAST_EVAL_FILE")
-        local changed
-        changed=$(git diff --name-only "$last_commit" HEAD -- 'plugins/elixir-phoenix/agents/' 2>/dev/null || echo "")
+    if [ "$filter" = "changed" ]; then
+        local changed=""
+        # Uncommitted + staged
+        changed=$(git diff --name-only HEAD -- 'plugins/elixir-phoenix/agents/' 2>/dev/null || echo "")
+        local staged
+        staged=$(git diff --cached --name-only -- 'plugins/elixir-phoenix/agents/' 2>/dev/null || echo "")
+        if [ -n "$staged" ]; then changed=$(printf "%s\n%s" "$changed" "$staged"); fi
+        # Since last eval
+        if [ -f "$LAST_EVAL_FILE" ]; then
+            local last_commit
+            last_commit=$(cat "$LAST_EVAL_FILE")
+            local since_last
+            since_last=$(git diff --name-only "$last_commit" HEAD -- 'plugins/elixir-phoenix/agents/' 2>/dev/null || echo "")
+            if [ -n "$since_last" ]; then changed=$(printf "%s\n%s" "$changed" "$since_last"); fi
+        fi
+        # Deduplicate and filter empty
+        changed=$(echo "$changed" | grep -v '^$' | sort -u)
         if [ -z "$changed" ]; then
             echo "  No agent changes since last eval"
             return 0
