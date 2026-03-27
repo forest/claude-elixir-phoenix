@@ -27,6 +27,7 @@ This research document covers 5 interconnected initiatives:
 | [05-autoresearch-expansion.md](05-autoresearch-expansion.md) | Extending autoresearch beyond code metrics |
 | [06-implementation-priorities.md](06-implementation-priorities.md) | Prioritized implementation roadmap with reasoning |
 | [07-interesting-findings.md](07-interesting-findings.md) | Surprising discoveries outside the main scope |
+| [08-analysis-and-suggestions.md](08-analysis-and-suggestions.md) | **Deep analysis, gap audit, 6 prioritized suggestions, anti-recommendations, dependency graph** |
 
 ## Core Thesis
 
