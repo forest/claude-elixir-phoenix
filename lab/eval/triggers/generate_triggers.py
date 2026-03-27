@@ -118,7 +118,7 @@ RULES:
             data = json.loads(text[start:end])
             return data
 
-        print(f"  ERROR: Could not parse JSON from output", file=sys.stderr)
+        print("  ERROR: Could not parse JSON from output", file=sys.stderr)
         return None
 
     except subprocess.TimeoutExpired:

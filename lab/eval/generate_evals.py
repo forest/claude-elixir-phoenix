@@ -13,9 +13,8 @@ import argparse
 import json
 import os
 import re
-import sys
 
-from lab.eval.matchers import parse_frontmatter, get_sections, get_body
+from lab.eval.matchers import parse_frontmatter, get_sections
 
 PLUGIN_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "plugins", "elixir-phoenix")
 EVALS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "evals")
@@ -64,8 +63,6 @@ def generate_eval(skill_name: str, skill_path: str) -> dict:
 
     fm = parse_frontmatter(content)
     sections = get_sections(content)
-    body = get_body(content)
-    line_count = len(content.split("\n"))
     skill_type = classify_skill(skill_name, fm, sections, content)
     refs = detect_references(skill_path)
     iron_law_count = count_iron_laws(sections)
@@ -143,7 +140,6 @@ def generate_eval(skill_name: str, skill_path: str) -> dict:
     ]
 
     # --- Build triggering checks ---
-    desc_len = len(str(fm.get("description", "")))
     triggering_checks = [
         {"type": "description_length", "min": 50, "max": 500, "desc": "Description in sweet spot"},
         {"type": "description_keywords", "min": 3, "desc": "Enough domain keywords"},

@@ -1,20 +1,19 @@
 """Tests for lab/eval/matchers.py — 24 deterministic matchers."""
 
-import pytest
 import sys
 import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 
 from lab.eval.matchers import (
-    parse_frontmatter, get_body, get_sections,
-    section_exists, section_order, max_section_lines,
-    content_present, content_absent, grep_count,
-    line_count, frontmatter_field,
+    parse_frontmatter, get_sections,
+    section_exists, max_section_lines,
+    content_present, grep_count,
+    frontmatter_field,
     description_length, description_keywords, description_no_vague,
     has_iron_laws, no_dangerous_patterns,
-    action_density, specificity_ratio, has_examples,
-    no_duplication, workflow_step_coverage, description_structure,
+    action_density, has_examples,
+    workflow_step_coverage, description_structure,
 )
 
 

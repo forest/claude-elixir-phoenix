@@ -14,11 +14,8 @@ import sys
 
 from lab.eval.schemas import SkillScore, DimensionResult, AssertionResult
 from lab.eval.matchers import (
-    parse_frontmatter, get_sections, get_body,
-    frontmatter_field, description_length, description_keywords,
-    description_no_vague, line_count, max_section_lines,
-    content_present, no_dangerous_patterns, has_iron_laws,
-    description_structure,
+    parse_frontmatter, frontmatter_field, description_length, line_count, max_section_lines,
+    no_dangerous_patterns,
 )
 from lab.eval.agent_matchers import (
     agent_tools_valid, agent_readonly_enforced, agent_bypass_permissions,

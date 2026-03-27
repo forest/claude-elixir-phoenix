@@ -5,8 +5,7 @@ tools validation, read-only enforcement, permission mode, model appropriateness.
 """
 
 import os
-import re
-from lab.eval.matchers import parse_frontmatter, get_sections, get_body
+from lab.eval.matchers import parse_frontmatter
 
 
 # Valid Claude Code tools that agents can declare

@@ -412,10 +412,10 @@ def action_density(content: str, min_ratio: float = 0.4, **_) -> tuple[bool, str
     From SkillsBench: detailed > comprehensive — actionable content wins.
     """
     body = get_body(content)
-    lines = [l.strip() for l in body.split("\n") if l.strip()]
+    lines = [line.strip() for line in body.split("\n") if line.strip()]
 
     # Skip headings, blank lines, code fence markers
-    content_lines = [l for l in lines if not l.startswith("#") and l not in ("```", "---")]
+    content_lines = [line for line in lines if not line.startswith("#") and line not in ("```", "---")]
     if not content_lines:
         return True, "No content lines to analyze"
 
@@ -446,7 +446,7 @@ def specificity_ratio(content: str, min_ratio: float = 0.3, **_) -> tuple[bool, 
     From SkillsBench: Specificity dimension is critical for skill effectiveness.
     """
     body = get_body(content)
-    lines = [l.strip() for l in body.split("\n") if l.strip() and not l.startswith("#")]
+    lines = [line.strip() for line in body.split("\n") if line.strip() and not line.startswith("#")]
     if not lines:
         return True, "No content lines to analyze"
 
