@@ -26,7 +26,7 @@ Task creation and planning happen in `/phx:plan` after the user decides.
 
 ```
 Review complete. No blockers found.
-Ready for: /phx:learn (capture lessons)
+Ready for: /phx:learn-from-fix (capture lessons)
 ```
 
 **If PASS WITH WARNINGS:**
@@ -34,7 +34,7 @@ Ready for: /phx:learn (capture lessons)
 ```
 Review complete. {n} warnings noted.
 Warnings logged but not blocking.
-Ready for: /phx:learn (capture lessons)
+Ready for: /phx:learn-from-fix (capture lessons)
 ```
 
 **If REQUIRES CHANGES:**

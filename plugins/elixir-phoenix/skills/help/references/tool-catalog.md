@@ -111,7 +111,6 @@ These commands form a connected pipeline — each reads the previous phase's out
 - **Output**: Scans session JSONL files for uncovered Bash commands, recommends `settings.json` changes
 - **Triage**: Interactive GREEN/YELLOW/RED triage with AskUserQuestion
 
-### `/phx:autoresearch` — Iterative code improvement
 
 - **When**: "Fix all credo issues", "improve coverage", "reduce warnings", measurable metric
 - **Input**: Target metric and optional strategy
@@ -245,5 +244,4 @@ Evaluate lib:    /phx:research --library [name]
 Resume work:     /phx:work --continue
 Post-fix lesson: /phx:compound
 Permissions:     /phx:permissions
-Auto-improve:    /phx:autoresearch
 ```

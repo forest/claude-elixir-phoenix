@@ -153,7 +153,7 @@ Offer `mix test` after significant changes.
 
 | After | Offer |
 |-------|-------|
-| Bug fix | "Capture as lesson with /phx:learn?" |
+| Bug fix | "Capture as lesson with /phx:learn-from-fix?" |
 | Feature complete | "Quality check with /phx:review?" |
 | Migration | "Check migration safety?" |
 

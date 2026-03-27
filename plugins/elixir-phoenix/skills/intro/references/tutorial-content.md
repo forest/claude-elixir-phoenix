@@ -313,7 +313,6 @@ The plugin works best when all layers are active: `/phx:init` for persistent rul
 | `/phx:research <topic>` | Research with parallel workers, Tidewave-first |
 | `/phx:pr-review <PR#>` | Address PR review comments |
 | `/phx:permissions` | Scan sessions, recommend safe Bash permissions |
-| `/phx:autoresearch` | Iterative code improvement against a metric |
 | `/phx:help [description]` | Interactive command advisor — helps pick the right command |
 
 **Analysis:**
@@ -334,7 +333,7 @@ The plugin works best when all layers are active: `/phx:init` for persistent rul
 | Command | Purpose |
 |---------|---------|
 | `/phx:examples` | Practical walkthroughs |
-| `/phx:learn` | Capture a lesson from a fix |
+| `/phx:learn-from-fix` | Capture a lesson from a fix |
 | `/phx:challenge` | Rigorous review mode |
 
 ### 3 Tips for Getting the Most Out of the Plugin

@@ -122,7 +122,7 @@ If the solution matches any of these, suggest promotion:
 
 ## Integration with Other Skills
 
-- `/phx:learn` captures quick patterns in `common-mistakes.md`
+- `/phx:learn-from-fix` captures quick patterns in `common-mistakes.md`
 - `/phx:compound` captures detailed solutions with full context
 - `/phx:investigate` searches `.claude/solutions/` before investigating
 - `/phx:plan` consults for known risks in planned areas

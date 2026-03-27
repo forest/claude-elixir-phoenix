@@ -134,7 +134,7 @@ Append metrics to progress file:
 Auto-suggest optional follow-ups:
 
 - `/phx:document` for documentation generation
-- `/phx:learn` to capture lessons learned
+- `/phx:learn-from-fix` to capture lessons learned
 
 Then output completion:
 

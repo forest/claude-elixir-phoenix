@@ -448,7 +448,7 @@ Execute each plan separately with `/phx:work`.
 After fixing a bug or receiving a correction:
 
 ```
-/phx:learn Fixed N+1 query -- always preload associations in context functions
+/phx:learn-from-fix Fixed N+1 query -- always preload associations in context functions
 ```
 
 This updates the plugin's `common-mistakes.md` knowledge base so the same mistake is prevented in future sessions.
@@ -483,7 +483,7 @@ The plugin enforces critical rules and **stops with an explanation** if code wou
 | `/phx:compound`         | Capture solved problem as reusable knowledge                 |
 | `/phx:triage`           | Interactive triage of review findings                        |
 | `/phx:document`         | Generate @moduledoc, @doc, README, ADRs                      |
-| `/phx:learn <lesson>`   | Capture lessons learned                                      |
+| `/phx:learn-from-fix <lesson>`   | Capture lessons learned                                      |
 | `/phx:brief <plan>`     | Interactive plan walkthrough                                 |
 | `/phx:perf`             | Performance analysis with specialist agents                  |
 | `/phx:pr-review`        | Address PR review comments                                   |
