@@ -7,6 +7,14 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [2.6.1] - 2026-04-01
 
+### Added
+
+- **Structured scratchpad** — `check-scratchpad.sh` auto-initializes template with
+  Dead Ends, Decisions, Open Questions, Handoff sections. Highlights dead-end count
+  on session resume. `precompact-rules.sh` injects Dead Ends into compaction context.
+- **Source quality tiers in web-researcher** — T1-T5 tier classification for research
+  output. Every source tagged with quality tier, synthesis notes source reliability.
+
 ### Changed
 
 - **Hook `if` conditions** — PostToolUse hooks now use declarative `if` filters
@@ -19,6 +27,11 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   Claude Code's internal 250-character listing budget (80% were previously truncated).
 - **Read-only agents get `omitClaudeMd: true`** — 16 of 20 agents that can't modify
   code now skip CLAUDE.md loading, reducing subagent context overhead.
+
+### Fixed
+
+- Stale command references: removed `/phx:autoresearch` from help/intro, fixed
+  `/phx:learn` → `/phx:learn-from-fix` across 9 files.
 
 ### Removed
 
