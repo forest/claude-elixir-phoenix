@@ -1,6 +1,6 @@
 ---
 name: verification-runner
-description: Run project-aware verification loop. Reads mix.exs to discover tools (credo, dialyzer, sobelow, ex_check), test commands (unit, E2E, coverage), and custom aliases before running checks. Offers additional test commands after core pass. Use proactively after code changes.
+description: Run project-aware verification loop. Reads mix.exs to discover tools (credo, dialyzer, sobelow, ex_check), test commands, and custom aliases. Use proactively after code changes.
 tools: Read, Grep, Glob, Bash
 disallowedTools: Write, Edit, NotebookEdit
 permissionMode: bypassPermissions

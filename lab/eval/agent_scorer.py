@@ -19,7 +19,7 @@ from lab.eval.matchers import (
 )
 from lab.eval.agent_matchers import (
     agent_tools_valid, agent_readonly_enforced, agent_bypass_permissions,
-    agent_model_appropriate, agent_has_skills, ORCHESTRATOR_NAMES,
+    agent_model_appropriate, agent_has_skills, agent_omit_claudemd, ORCHESTRATOR_NAMES,
 )
 
 PLUGIN_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "plugins", "elixir-phoenix")
@@ -90,6 +90,9 @@ def score_agent(agent_path: str) -> SkillScore:
     p, e = no_dangerous_patterns(content)
     safety_assertions.append(AssertionResult(id="safe-patterns", check_type="no_dangerous_patterns",
         description="No dangerous patterns", passed=p, evidence=e))
+    p, e = agent_omit_claudemd(content)
+    safety_assertions.append(AssertionResult(id="safe-omit-claudemd", check_type="agent_omit_claudemd",
+        description="Read-only agents have omitClaudeMd", passed=p, evidence=e))
     dimensions["safety"] = DimensionResult.from_assertions("safety", safety_assertions)
 
     # --- Consistency (0.15) ---
@@ -97,7 +100,7 @@ def score_agent(agent_path: str) -> SkillScore:
     p, e = agent_model_appropriate(content)
     consistency_assertions.append(AssertionResult(id="cons-model", check_type="agent_model_appropriate",
         description="Model matches effort", passed=p, evidence=e))
-    p, e = description_length(content, min=30, max=400)
+    p, e = description_length(content, min=30, max=250)
     consistency_assertions.append(AssertionResult(id="cons-desc-len", check_type="description_length",
         description="Description length OK", passed=p, evidence=e))
     dimensions["consistency"] = DimensionResult.from_assertions("consistency", consistency_assertions)

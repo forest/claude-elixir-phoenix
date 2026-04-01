@@ -156,6 +156,8 @@ skills:
 - Use `memory: project` for agents that benefit from cross-session learning (orchestrators, pattern analysts).
   Note: `memory` auto-enables Read, Write, Edit — only add to agents that already have Write access
 - Preload relevant skills via `skills:` field
+- Add `omitClaudeMd: true` for read-only agents (no Write tool) — they don't need commit/PR/lint
+  guidelines from CLAUDE.md. Iron Laws are injected via SubagentStart hook. Enforced by eval.
 - Keep under 300 lines
 
 ### Skills
@@ -179,6 +181,9 @@ skills/{name}/
 - Set `effort:` to match skill complexity: `low` for mechanical (verify, quick, compound), `medium` for reference skills, `high` for complex reasoning (plan, full, investigate, review)
 - Use `${CLAUDE_SKILL_DIR}/references/` for reference file paths (not bare `references/`)
 - No `triggers:` field (use `description` for auto-loading)
+- **Description must be under 250 characters** — Claude Code internally caps skill listing
+  entries at 250 chars (`MAX_LISTING_DESC_CHARS`). Longer descriptions are silently truncated
+  in the model's context, reducing routing accuracy. Target under 200 chars. Enforced by eval.
 
 ### Workflow Skills
 
@@ -376,7 +381,9 @@ Only trim when content is purely informational and not execution-critical.
 - [ ] `Write` allowed for agents that output reports (e.g., research agents, context-supervisor)
 - [ ] `permissionMode: bypassPermissions`
 - [ ] `effort:` set (low for haiku, medium for sonnet, high for opus/security)
+- [ ] `omitClaudeMd: true` for read-only agents (no Write tool)
 - [ ] Skills preloaded
+- [ ] Description under 250 characters
 - [ ] Under target (300 lines), hard limit only if justified by inline subagent prompts
 
 ### New skill
@@ -386,6 +393,7 @@ Only trim when content is purely informational and not execution-critical.
 - [ ] `references/` paths use `${CLAUDE_SKILL_DIR}/references/`
 - [ ] `effort:` set (low/medium/high)
 - [ ] No `triggers:` field
+- [ ] Description under 250 characters (CC internal budget cap)
 
 ### New workflow skill
 

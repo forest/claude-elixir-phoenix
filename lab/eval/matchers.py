@@ -165,8 +165,13 @@ def frontmatter_field(content: str, field: str, expected: str | None = None, **_
     return True, f"Frontmatter '{field}': '{fm[field]}'"
 
 
-def description_length(content: str, min: int = 50, max: int = 300, **_) -> tuple[bool, str]:
-    """Check frontmatter description length is in sweet spot."""
+def description_length(content: str, min: int = 50, max: int = 250, **_) -> tuple[bool, str]:
+    """Check frontmatter description length is in sweet spot.
+
+    Claude Code caps skill listing entries at 250 characters internally
+    (src/tools/SkillTool/prompt.ts MAX_LISTING_DESC_CHARS). Descriptions
+    exceeding this are silently truncated in the model's context window.
+    """
     fm = parse_frontmatter(content)
     desc = fm.get("description", "")
     if isinstance(desc, str):

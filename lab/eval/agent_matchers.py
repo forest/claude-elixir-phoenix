@@ -159,10 +159,45 @@ def agent_has_skills(content: str, plugin_root: str = "", **_) -> tuple[bool, st
     return True, f"All {len(skills)} preloaded skills exist"
 
 
+def agent_omit_claudemd(content: str, **_) -> tuple[bool, str]:
+    """Check that read-only agents have omitClaudeMd: true.
+
+    Claude Code source reveals read-only agents don't need the CLAUDE.md
+    hierarchy (commit/PR/lint guidelines). Adding omitClaudeMd: true reduces
+    subagent context overhead. Agents with Write access need CLAUDE.md.
+    """
+    fm = parse_frontmatter(content)
+    name = str(fm.get("name", "")).lower()
+
+    # Agents with Write access need CLAUDE.md
+    if name in WRITE_EXEMPT_NAMES:
+        if fm.get("omitClaudeMd"):
+            return False, f"Agent '{name}' has Write access — should NOT have omitClaudeMd"
+        return True, f"Agent '{name}' has Write access — correctly omits omitClaudeMd"
+
+    # Check tools for Write access
+    tools_raw = fm.get("tools", "")
+    if isinstance(tools_raw, list):
+        tools = [t.strip() for t in tools_raw]
+    else:
+        tools = [t.strip() for t in str(tools_raw).split(",")]
+
+    if "Write" in tools:
+        if fm.get("omitClaudeMd"):
+            return False, f"Agent has Write tool — should NOT have omitClaudeMd"
+        return True, "Agent has Write tool — correctly omits omitClaudeMd"
+
+    # Read-only agent: should have omitClaudeMd: true
+    if fm.get("omitClaudeMd") is True:
+        return True, "Read-only agent correctly has omitClaudeMd: true"
+    return False, f"Read-only agent '{fm.get('name')}' missing omitClaudeMd: true"
+
+
 AGENT_MATCHERS = {
     "agent_tools_valid": agent_tools_valid,
     "agent_readonly_enforced": agent_readonly_enforced,
     "agent_bypass_permissions": agent_bypass_permissions,
     "agent_model_appropriate": agent_model_appropriate,
     "agent_has_skills": agent_has_skills,
+    "agent_omit_claudemd": agent_omit_claudemd,
 }

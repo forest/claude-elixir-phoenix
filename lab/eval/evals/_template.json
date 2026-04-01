@@ -30,7 +30,7 @@
     "triggering": {
       "weight": 0.15,
       "checks": [
-        {"type": "description_length", "min": 50, "max": 300, "desc": "Description in sweet spot"},
+        {"type": "description_length", "min": 50, "max": 250, "desc": "Description under CC 250-char budget"},
         {"type": "description_keywords", "min": 3, "desc": "Enough trigger keywords"}
       ]
     },
