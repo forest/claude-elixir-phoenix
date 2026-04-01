@@ -1,6 +1,6 @@
 ---
 name: intent-detection
-description: "Route ambiguous Elixir/Phoenix work requests to the correct /phx: workflow. Use when the user's intent is unclear and needs routing: \"not sure where to start\", \"how to approach this\", \"what's the right workflow\", vague multi-step requests without a /phx: command, or mixed intents (bug + refactor, feature + review). Suggests plan vs investigate vs review vs quick based on complexity signals."
+description: "Route ambiguous work requests to the correct /phx: workflow. Use when intent is unclear, mixed (bug + refactor), or user asks \"how to approach this\"."
 effort: medium
 user-invocable: false
 ---

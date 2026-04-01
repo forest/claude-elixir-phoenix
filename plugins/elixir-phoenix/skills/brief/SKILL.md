@@ -1,6 +1,6 @@
 ---
 name: phx:brief
-description: Interactive briefing of an Elixir/Phoenix plan file. Explains reasoning, ecto schema decisions, liveview component choices, and solution shape in progressive sections so developers understand before approving or after completion. Use when team members need to understand a plan without reading the full document.
+description: Interactive briefing of a plan file — explains reasoning, schema decisions, component choices. Use when developers need to understand a plan before approving.
 effort: low
 argument-hint: [path to plan file]
 ---

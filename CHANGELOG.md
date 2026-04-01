@@ -5,6 +5,26 @@ All notable changes to the Elixir/Phoenix Claude Code plugin.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.1] - 2026-04-01
+
+### Changed
+
+- **Hook `if` conditions** — PostToolUse hooks now use declarative `if` filters
+  (e.g., `"if": "Edit(*.ex)"`) to skip non-Elixir files without spawning a shell.
+  Split single `Edit|Write` matcher into three targeted groups (Edit, Write, Edit|Write).
+  PostToolUseFailure hooks use `"if": "Bash(*mix*)"` to only fire on mix failures.
+- **Async SessionStart hooks** — `detect-tidewave.sh` and `check-branch-freshness.sh`
+  now run with `async: true`, reducing session start time by up to 32 seconds.
+- **Skill descriptions optimized** — Rewrote 32 skill descriptions to fit within
+  Claude Code's internal 250-character listing budget (80% were previously truncated).
+- **Read-only agents get `omitClaudeMd: true`** — 16 of 20 agents that can't modify
+  code now skip CLAUDE.md loading, reducing subagent context overhead.
+
+### Removed
+
+- **`verify-elixir.sh`** — Dead hook (was `exit 0` no-op). Compilation verification
+  runs in `/phx:work` phase checkpoints.
+
 ## [2.6.0] - 2026-03-27
 
 ### Added

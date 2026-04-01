@@ -1,6 +1,6 @@
 ---
 name: phx:help
-description: "Navigate Elixir/Phoenix plugin commands — recommend the right /phx: command, skill, or agent for planning, review, debug, deploy, ecto, liveview, or test tasks. Use when the user asks 'which command', 'what should I use', 'how do I', or needs help choosing between plugin workflows. DO NOT trigger for /help (built-in CLI command)."
+description: "Recommend the right /phx: command for planning, review, debug, deploy, or test tasks. Use when \"which command\", \"what should I use\", or \"how do I\". NOT for /help."
 argument-hint: "[description of what you want to do]"
 ---
 

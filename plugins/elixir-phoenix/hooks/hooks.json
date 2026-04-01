@@ -2,26 +2,94 @@
   "hooks": {
     "PostToolUse": [
       {
-        "matcher": "Edit|Write",
+        "matcher": "Edit",
         "hooks": [
           {
             "type": "command",
+            "if": "Edit(*.ex)",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/format-elixir.sh",
             "timeout": 30,
             "statusMessage": "Formatting Elixir..."
           },
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/verify-elixir.sh",
-            "timeout": 60,
-            "statusMessage": "Compiling..."
+            "if": "Edit(*.exs)",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/format-elixir.sh",
+            "timeout": 30,
+            "statusMessage": "Formatting Elixir..."
           },
           {
             "type": "command",
+            "if": "Edit(*.ex)",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/iron-law-verifier.sh",
             "timeout": 15,
             "statusMessage": "Verifying Iron Laws..."
           },
+          {
+            "type": "command",
+            "if": "Edit(*.exs)",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/iron-law-verifier.sh",
+            "timeout": 15,
+            "statusMessage": "Verifying Iron Laws..."
+          },
+          {
+            "type": "command",
+            "if": "Edit(*.ex)",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/debug-statement-warning.sh",
+            "timeout": 15,
+            "statusMessage": "Checking for debug statements..."
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Write(*.ex)",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/format-elixir.sh",
+            "timeout": 30,
+            "statusMessage": "Formatting Elixir..."
+          },
+          {
+            "type": "command",
+            "if": "Write(*.exs)",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/format-elixir.sh",
+            "timeout": 30,
+            "statusMessage": "Formatting Elixir..."
+          },
+          {
+            "type": "command",
+            "if": "Write(*.ex)",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/iron-law-verifier.sh",
+            "timeout": 15,
+            "statusMessage": "Verifying Iron Laws..."
+          },
+          {
+            "type": "command",
+            "if": "Write(*.exs)",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/iron-law-verifier.sh",
+            "timeout": 15,
+            "statusMessage": "Verifying Iron Laws..."
+          },
+          {
+            "type": "command",
+            "if": "Write(*.ex)",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/debug-statement-warning.sh",
+            "timeout": 15,
+            "statusMessage": "Checking for debug statements..."
+          },
+          {
+            "type": "command",
+            "if": "Write(*plan.md)",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/plan-stop-reminder.sh",
+            "timeout": 15
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/security-reminder.sh",
@@ -32,17 +100,6 @@
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/log-progress.sh",
             "timeout": 15,
             "async": true
-          },
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/plan-stop-reminder.sh",
-            "timeout": 15
-          },
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/debug-statement-warning.sh",
-            "timeout": 15,
-            "statusMessage": "Checking for debug statements..."
           }
         ]
       }
@@ -65,11 +122,13 @@
         "hooks": [
           {
             "type": "command",
+            "if": "Bash(*mix*)",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/elixir-failure-hints.sh",
             "timeout": 15
           },
           {
             "type": "command",
+            "if": "Bash(*mix*)",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/error-critic.sh",
             "timeout": 15
           }
@@ -100,7 +159,8 @@
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/detect-tidewave.sh",
             "timeout": 30,
-            "statusMessage": "Detecting Tidewave..."
+            "statusMessage": "Detecting Tidewave...",
+            "async": true
           }
         ]
       },
@@ -121,7 +181,8 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/check-branch-freshness.sh",
-            "timeout": 30
+            "timeout": 30,
+            "async": true
           },
           {
             "type": "command",

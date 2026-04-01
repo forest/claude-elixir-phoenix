@@ -1,6 +1,6 @@
 ---
 name: phx:investigate
-description: Investigate a bug or error in Elixir/Phoenix code. Use whenever the user reports a bug, error, crash, exception, or unexpected behavior. Also use when seeing stack traces, compile errors, or test failures that need root-cause analysis. Uses Ralph Wiggum approach — checks obvious things first, reads errors literally. Add --parallel for 4-track deep investigation.
+description: Investigate bugs and errors in Elixir/Phoenix — root-cause analysis for crashes, exceptions, stack traces, test failures. Use --parallel for deep 4-track investigation.
 effort: high
 argument-hint: <bug description> [--parallel]
 disable-model-invocation: true

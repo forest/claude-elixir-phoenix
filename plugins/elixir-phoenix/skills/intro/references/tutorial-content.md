@@ -193,7 +193,7 @@ Format check **warns only** — it doesn't auto-fix (that would cause race condi
 The PreCompact hook detects active workflow phases (`/phx:plan`, `/phx:work`, `/phx:full`) and re-injects their critical rules
 before context compaction. This prevents "rule amnesia" where Claude loses behavioral constraints after context is compressed.
 
-Note: `verify-elixir.sh` exists in hooks.json but is a **no-op** (`exit 0`). Compilation was moved to `/phx:work` phase checkpoints for speed. The hook remains as a placeholder.
+Note: Compilation verification was moved to `/phx:work` phase checkpoints for speed. The `verify-elixir.sh` hook has been removed.
 
 ### Layer 2: Iron Laws in Skills (Behavioral)
 
@@ -266,7 +266,7 @@ Being honest about the gaps:
 
 | Check | Status | Why |
 |-------|--------|-----|
-| `mix compile --warnings-as-errors` | `/phx:work` checkpoints + `/phx:full` VERIFYING phase | `verify-elixir.sh` hook is a no-op — compilation runs in workflow steps |
+| `mix compile --warnings-as-errors` | `/phx:work` checkpoints + `/phx:full` VERIFYING phase | Compilation runs in workflow steps, not per-edit hooks |
 | `mix credo` | `/phx:full` VERIFYING phase + on-demand (`/phx:verify`) | Not run per-task edit, only between phases |
 | `mix test` | `/phx:full` VERIFYING phase + on-demand (`/phx:verify`) | Not run per-task, only between phases |
 | `mix dialyzer` | On-demand (`/phx:verify`) | Takes minutes, not seconds |

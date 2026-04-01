@@ -1,6 +1,6 @@
 ---
 name: phx:init
-description: Initialize Elixir/Phoenix plugin in a project. Installs auto-activation rules into CLAUDE.md for complexity detection, interview mode, Iron Laws enforcement, and reference auto-loading. Use when setting up the plugin in a new project or updating an existing installation.
+description: Initialize plugin in a project — install Iron Laws, auto-activation rules, and reference auto-loading into CLAUDE.md. Use when setting up or updating the plugin.
 effort: low
 argument-hint: [--update]
 ---

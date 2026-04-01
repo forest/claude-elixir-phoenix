@@ -6,6 +6,7 @@ disallowedTools: Write, Edit, NotebookEdit
 permissionMode: bypassPermissions
 model: sonnet
 effort: medium
+omitClaudeMd: true
 skills:
   - elixir-idioms
   - phoenix-contexts

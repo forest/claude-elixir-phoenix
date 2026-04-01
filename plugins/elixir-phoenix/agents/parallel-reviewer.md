@@ -6,6 +6,7 @@ disallowedTools: Write, Edit, NotebookEdit
 permissionMode: bypassPermissions
 model: opus
 effort: high
+omitClaudeMd: true
 maxTurns: 25
 skills:
   - elixir-idioms

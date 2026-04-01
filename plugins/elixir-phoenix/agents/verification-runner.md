@@ -6,6 +6,7 @@ disallowedTools: Write, Edit, NotebookEdit
 permissionMode: bypassPermissions
 model: haiku
 effort: low
+omitClaudeMd: true
 skills:
   - verify
 ---

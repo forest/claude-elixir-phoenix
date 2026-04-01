@@ -1,6 +1,6 @@
 ---
 name: phx:trace
-description: Build recursive call trees to trace how Elixir functions are reached from entry points. Use when debugging "where does this value come from?", planning function signature changes, tracing data flow through the app, or understanding how a bug reaches a specific code path.
+description: Trace Elixir call trees from entry points via mix xref. Use when debugging data flow, planning signature changes, or understanding how a bug reaches code.
 effort: medium
 ---
 

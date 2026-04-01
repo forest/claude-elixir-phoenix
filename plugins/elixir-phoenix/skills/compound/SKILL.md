@@ -1,6 +1,6 @@
 ---
 name: phx:compound
-description: Use after fixing any non-trivial bug, resolving a tricky issue, or when the user says "that worked" or "it is fixed". Also suggest proactively after successful /phx:review or /phx:investigate. Captures solved problems as searchable Elixir/Phoenix solution documentation for faster future debugging.
+description: Capture solved problems as searchable solution docs. Use after fixing bugs, when "that worked", or after successful /phx:review or /phx:investigate.
 effort: low
 argument-hint: [description of what was fixed]
 ---

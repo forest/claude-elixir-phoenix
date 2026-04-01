@@ -1,6 +1,6 @@
 ---
 name: phx:techdebt
-description: Analyze Elixir/Phoenix project for technical debt, duplicate code, and refactoring opportunities. Use when the user mentions code quality concerns, cleanup, refactor, credo issues, or asks about what to improve. Also use before major feature work to identify areas that need attention first.
+description: Analyze Elixir/Phoenix technical debt — duplicates, refactoring opportunities, credo issues. Use when asked about code quality, cleanup, or what to improve.
 effort: medium
 ---
 

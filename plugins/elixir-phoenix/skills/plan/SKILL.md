@@ -1,6 +1,6 @@
 ---
 name: phx:plan
-description: Plan and design multi-step Phoenix features before implementation. Use when the user wants to build a billing system, add webhook handling, design role-based access control, create a real-time chat feature, architect a new domain, or create a plan from review findings. Produces a step-by-step implementation plan with checkboxes. Use --existing to enhance an existing plan. NOT for small single-file changes (quick), debugging (investigate), or code review (review).
+description: Plan multi-step Phoenix features with specialist agents. Use when building new domains, multi-file features, or creating plans from review findings. Use --existing to enhance a plan.
 effort: high
 argument-hint: <feature description OR path to review/plan file>
 disable-model-invocation: true

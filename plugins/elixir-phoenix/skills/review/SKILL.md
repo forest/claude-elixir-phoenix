@@ -1,6 +1,6 @@
 ---
 name: phx:review
-description: Review code with parallel specialist agents covering tests, security, Ecto, LiveView, and Oban patterns. Use after any implementation to catch bugs, security vulnerabilities, and anti-patterns before committing. Even quick changes benefit from at least a targeted review track.
+description: Review code with parallel agents — tests, security, Ecto, LiveView, Oban. Use after implementation to catch bugs and anti-patterns before committing.
 effort: high
 argument-hint: [test|security|oban|deploy|iron-laws|all]
 disable-model-invocation: true

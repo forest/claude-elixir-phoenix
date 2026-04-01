@@ -1,6 +1,6 @@
 ---
 name: phx:boundaries
-description: Analyze Phoenix context boundaries, cross-context calls, and module coupling using mix xref. Use when checking what's calling across context boundaries, whether contexts are too tightly coupled, validating module dependencies for architecture review, reviewing PRs for boundary violations, or planning context splits. Also use before major refactors or when evaluating architecture health.
+description: Analyze Phoenix context boundaries and module coupling via mix xref. Use when checking cross-context calls, validating dependencies, planning context splits, or reviewing architecture.
 effort: medium
 argument-hint: [--assess|--fix]
 allowed-tools: Read, Grep, Glob, Bash

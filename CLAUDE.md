@@ -220,16 +220,18 @@ Defined in `hooks/hooks.json`:
 **Current hooks:**
 
 - `PreToolUse` (Bash): Block destructive operations (`mix ecto.reset/drop`, `git push --force`, `MIX_ENV=prod`) before execution
-- `PostToolUse` (Edit|Write): Auto `mix format --check-formatted`, **programmatic Iron Law verification**
-  (scans code content for violations), security Iron Laws for auth files,
-  async progress logging, plan STOP reminder on plan.md write, **debug statement detection**
-  (`IO.inspect`/`dbg()`/`IO.puts` in production .ex files) (all use exit 2 + stderr)
-- `PostToolUseFailure` (Bash): Elixir-specific debugging hints when mix compile/test/credo/ecto fails,
-  **error critic** that detects repeated failures and escalates to structured analysis (both via `additionalContext`)
+- `PostToolUse` (Edit): Auto `mix format --check-formatted`, **programmatic Iron Law verification**,
+  **debug statement detection** — all use `if` conditions to only fire on `.ex`/`.exs` files
+  (e.g., `"if": "Edit(*.ex)"`) to avoid unnecessary shell spawns on non-Elixir files
+- `PostToolUse` (Write): Same Elixir checks as Edit + plan STOP reminder with `"if": "Write(*plan.md)"`
+- `PostToolUse` (Edit|Write): Security Iron Laws for auth files, async progress logging
+  (these fire on all file types — no `if` filtering)
+- `PostToolUseFailure` (Bash): Elixir-specific debugging hints and **error critic** —
+  both use `"if": "Bash(*mix*)"` to only fire on mix command failures (via `additionalContext`)
 - `SubagentStart`: Inject all Iron Laws into every spawned subagent via `additionalContext` (addresses zero skill auto-loading gap)
 - `PreCompact`: Re-inject workflow rules (plan/work/full) before compaction via JSON `systemMessage`
-- `SessionStart` (all): Setup `.claude/` directories + Tidewave detection
-- `SessionStart` (startup|resume only): Scratchpad check + resume workflow detection + branch freshness + workflow hints
+- `SessionStart` (all): Setup `.claude/` directories + Tidewave detection (`async: true`)
+- `SessionStart` (startup|resume only): Scratchpad check + resume workflow detection + branch freshness (`async: true`) + workflow hints
 - `PostCompact`: Verify active plan state survived compaction, warn Claude to re-read plan and scratchpad
 - `StopFailure`: Log API failure to plan scratchpad for resume detection in next session
 - `Stop`: Warn if plans have unchecked tasks
