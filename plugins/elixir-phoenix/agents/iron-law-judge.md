@@ -110,6 +110,14 @@ You scan Elixir/Phoenix code for Iron Law violations using pattern-based detecti
 - Confidence: LIKELY — struct in args map is almost always wrong
 - Detection approach: Use Grep tool with patterns `Oban\.Worker\.new.*%[A-Z]` and `Oban\.insert.*%[A-Z]` on relevant files.
 
+**#9b Smart Engine: snooze + attempt guard = infinite loop**
+
+- Severity: CRITICAL
+- Files: `*_worker.ex`, `*_job.ex`
+- Detection: `attempt` used in guard or condition near `{:snooze, _}`
+- Confidence: DEFINITE if project uses Smart Engine — snooze rolls back attempt counter
+- Detection approach: Use Grep tool for `{:snooze` in worker files, then check surrounding code for `attempt` in guards or conditions. Real production incident: 72k+ orphaned jobs from this pattern.
+
 ### Security Iron Laws
 
 **#10 No String.to_atom with user input**

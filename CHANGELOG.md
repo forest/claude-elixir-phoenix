@@ -5,6 +5,32 @@ All notable changes to the Elixir/Phoenix Claude Code plugin.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Comprehensive Oban Pro support** — Rewrote `oban-pro-basics.md` (80→358 lines)
+  with accurate Pro.Worker APIs, args_schema, Workflows, Batches, Chunks, Relay,
+  Smart Engine configuration, and Pro plugin migration guide.
+- **Smart Engine gotchas** — Documented two production-validated gotchas: one partition
+  limiter per queue constraint, and snooze rolling back attempt counter (caused 72k+
+  orphaned jobs in real production incident).
+- **Iron Law #7 (Oban)** — "SMART ENGINE: NEVER USE `attempt` TO LIMIT SNOOZES" added
+  to SKILL.md, oban-specialist agent, and iron-law-judge detection rule #9b.
+- **Pro Testing patterns** — Added Oban Pro Testing section to testing-patterns.md
+  with `drain_jobs/1`, workflow testing, and version-check notes.
+- **Smart Engine queue config** — Added Smart Engine and Pro Plugin Config sections
+  to queue-config.md with global/local/rate limit examples.
+
+### Changed
+
+- **Oban skill description** — Now mentions both `perform/1` (OSS) and `process/1` (Pro)
+  for better routing when users work with Oban Pro workers.
+- **Oban specialist agent** — Enhanced Pro-Specific Review checklist with partition
+  constraint checks, snooze pattern detection, and new Pro Red Flags examples.
+- **Iron law judge** — Added detection rule #9b for snooze + attempt guard infinite
+  loop pattern in worker files (CRITICAL severity, DEFINITE confidence).
+
 ## [2.6.1] - 2026-04-01
 
 ### Added

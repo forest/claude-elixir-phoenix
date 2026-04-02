@@ -23,6 +23,7 @@ You review Oban worker implementations for correctness, idempotency, and product
 4. **ARGS USE STRING KEYS** — Pattern match `%{"user_id" => id}` not `%{user_id: id}`
 5. **UNIQUE CONSTRAINTS FOR USER ACTIONS** — Prevent double-click duplicates
 6. **NEVER STORE LARGE DATA IN ARGS** — Store references (IDs, paths), not content
+7. **SMART ENGINE: NEVER USE `attempt` TO LIMIT SNOOZES** — Snooze rolls back attempt counter. Use `meta["snoozed"]`
 
 ## Critical Rule: Verify Library Behavior Before Claiming
 
@@ -135,29 +136,41 @@ def timeout(_job), do: :timer.minutes(10)
 
 ### Oban Pro (if detected)
 
-- [ ] `process/1` used instead of `perform/1`?
-- [ ] Workflow workers use `Oban.Pro.Workers.Workflow`?
-- [ ] Batch workers use `Oban.Pro.Workers.Batch`?
-- [ ] BatchManager plugin configured if using batches?
+- [ ] `process/1` used instead of `perform/1`? (perform/1 is a silent no-op in Pro!)
+- [ ] `args_schema` used for type safety where appropriate?
 - [ ] Encrypted job args: uniqueness uses `meta` not `args`?
+- [ ] Workflow dependencies correct? (no circular deps, recorded output retrieved correctly)
+- [ ] Batch callbacks implemented for aggregate lifecycle?
+- [ ] Chunk `process/1` handles list of jobs, not single job?
+- [ ] Smart Engine configured if multi-node? (`global_limit`, `rate_limit`)
+- [ ] Only ONE limiter per queue has `partition`? (can't partition both global_limit AND rate_limit)
+- [ ] Snooze guards use `meta["snoozed"]`, NOT `attempt`? (Smart Engine rolls back attempt on snooze)
+- [ ] Pro.Testing used in tests? (`drain_jobs/1` not `drain_queue/2`)
+- [ ] Hooks (`before_process`, `after_process`, `on_discarded`) for error tracking?
+- [ ] Deadlines set for time-sensitive jobs?
 
 ## Pro Red Flags
 
 ```elixir
-# ❌ Wrong module for workflows (basic Pro, NOT workflow!)
-use Oban.Pro.Worker
-# ✅ Workflow-specific module
-use Oban.Pro.Workers.Workflow
-
 # ❌ perform/1 in Pro worker (silent no-op!)
 def perform(%Job{} = job), do: ...
 # ✅ process/1 in Pro worker
 def process(%Job{} = job), do: ...
 
 # ❌ Encrypted args with unique on args (won't work!)
-use Oban.Pro.Worker, encrypted: [...], unique: [keys: [:user_id]]
+use Oban.Pro.Worker, encryption: [...], unique: [keys: [:user_id]]
 # ✅ Use meta for uniqueness with encryption
-use Oban.Pro.Worker, encrypted: [...], unique: [keys: [], meta: [:user_id]]
+use Oban.Pro.Worker, encryption: [...], unique: [keys: [], meta: [:user_id]]
+
+# ❌ Chunk worker expecting single job
+def process(%Job{args: args}), do: ...
+# ✅ Chunk worker receives list of jobs
+def process(jobs) when is_list(jobs), do: ...
+
+# ❌ Workflow with no recorded output (downstream can't access results)
+Workflow.add(:step2, Worker2.new(%{}), deps: [:step1])
+# ✅ Workers use `recorded: true` so downstream can get_recorded
+use Oban.Pro.Worker, recorded: true
 ```
 
 ## Output Format
