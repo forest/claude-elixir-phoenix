@@ -184,7 +184,7 @@ def agent_omit_claudemd(content: str, **_) -> tuple[bool, str]:
 
     if "Write" in tools:
         if fm.get("omitClaudeMd"):
-            return False, f"Agent has Write tool — should NOT have omitClaudeMd"
+            return False, "Agent has Write tool — should NOT have omitClaudeMd"
         return True, "Agent has Write tool — correctly omits omitClaudeMd"
 
     # Read-only agent: should have omitClaudeMd: true
