@@ -20,6 +20,8 @@ node_modules/
 !.claude/commands/
 !.claude/skills/
 !.claude/research/
+!.claude/cc-changelog/
+.claude/cc-changelog/changelog-cache.md  # Fetched CC changelog (193KB, re-downloadable)
 .claude/skills/analyze-sessions/references/session-index.json
 .claude/docs-check/  # Runtime artifacts (docs-cache, reports, summaries)
 scratchpad/
