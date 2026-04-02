@@ -2,6 +2,11 @@
 name: deploy
 description: "Elixir/Phoenix deployment patterns — Dockerfile, fly.toml, runtime.exs, mix release, rel/ overlays. Use when configuring Fly.io, Docker, CI/CD, health checks, or production migrations."
 effort: medium
+paths:
+  - "config/runtime.exs"
+  - "Dockerfile"
+  - "fly.toml"
+  - "rel/**/*"
 ---
 
 # Elixir/Phoenix Deployment Reference

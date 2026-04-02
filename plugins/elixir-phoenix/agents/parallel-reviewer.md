@@ -270,9 +270,9 @@ Output format:
 
 ### Phase 3: Synthesis
 
-Wait for ALL agents to FULLY complete using TaskOutput. If
-TaskOutput shows the agent is still running, wait and check
-again. NEVER proceed while any agent is still running.
+Wait for ALL agents to FULLY complete — you'll be notified as each
+finishes. Read each agent's output file to collect results. NEVER
+proceed while any agent is still running.
 
 **Context Supervision** (when `summaries_dir` provided):
 

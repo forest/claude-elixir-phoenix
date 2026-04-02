@@ -6,6 +6,7 @@ disallowedTools: Write, Edit, NotebookEdit
 permissionMode: bypassPermissions
 model: opus
 effort: high
+maxTurns: 15
 omitClaudeMd: true
 skills:
   - security

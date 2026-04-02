@@ -5,7 +5,7 @@ All notable changes to the Elixir/Phoenix Claude Code plugin.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.7.0] - 2026-04-02
 
 ### Added
 
@@ -24,6 +24,19 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- **Replace deprecated `TaskOutput` with `Read`** — 5 orchestrator agents and 1 skill
+  reference updated to use background agent notification + `Read` on output files instead
+  of the deprecated `TaskOutput` tool (removed in CC v2.1.89).
+- **`maxTurns` for all 20 agents** — Added turn limits to prevent runaway agents:
+  `maxTurns: 10` for haiku agents, `maxTurns: 15` for sonnet/opus specialists.
+  Previously only 5 orchestrators had limits.
+- **Conditional skill auto-loading via `paths:`** — 6 reference skills now declare
+  file patterns for automatic loading (CC v2.1.84): liveview-patterns (`*_live.ex`),
+  ecto-patterns (`migrations/*.exs`), oban (`*_worker.ex`), security (`*auth*.ex`),
+  testing (`*_test.exs`), deploy (`Dockerfile`, `fly.toml`). Addresses #1 gap from
+  session analysis (zero skill auto-loading in 137 sessions).
+- **`claude plugin validate` in CI** — Added `make validate` target that runs
+  `claude plugin validate` for frontmatter + hooks.json schema checking.
 - **Oban skill description** — Now mentions both `perform/1` (OSS) and `process/1` (Pro)
   for better routing when users work with Oban Pro workers.
 - **Oban specialist agent** — Enhanced Pro-Specific Review checklist with partition

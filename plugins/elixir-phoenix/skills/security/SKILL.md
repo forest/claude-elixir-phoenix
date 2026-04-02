@@ -3,6 +3,10 @@ name: security
 description: "Enforce Elixir/Phoenix security — auth, OAuth, sessions, CSRF, XSS, SQL injection, input validation, secrets. Use when editing auth files, login flows, RBAC, or API keys."
 effort: medium
 user-invocable: false
+paths:
+  - "**/*auth*.ex"
+  - "**/*session*.ex"
+  - "**/*password*.ex"
 ---
 
 # Elixir/Phoenix Security Reference

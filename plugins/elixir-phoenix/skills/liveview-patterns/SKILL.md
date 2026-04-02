@@ -3,6 +3,11 @@ name: liveview-patterns
 description: "LiveView patterns — PubSub, uploads, components, forms, assign_async, streams. Use when building LiveView features or debugging handle_event lifecycle."
 effort: medium
 user-invocable: false
+paths:
+  - "**/*_live.ex"
+  - "**/*_component.ex"
+  - "**/*.sface"
+  - "**/*_channel.ex"
 ---
 
 # LiveView Patterns Reference

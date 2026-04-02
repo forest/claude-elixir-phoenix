@@ -3,6 +3,10 @@ name: testing
 description: "Elixir testing patterns — ExUnit, Mox, factories, LiveView test helpers. Use when working on *_test.exs, test/support/, factory files, or fixing test failures."
 effort: medium
 user-invocable: false
+paths:
+  - "test/**/*_test.exs"
+  - "test/support/**/*.ex"
+  - "**/*factory*.ex"
 ---
 
 # Elixir Testing Reference

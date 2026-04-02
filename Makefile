@@ -1,4 +1,4 @@
-.PHONY: help lint lint-fix eval eval-all eval-fix eval-full eval-ci eval-triggers eval-skills eval-agents test ci clean
+.PHONY: help lint lint-fix eval eval-all eval-fix eval-full eval-ci eval-triggers eval-skills eval-agents test validate ci clean
 
 # Default target
 help: ## Show available commands
@@ -48,9 +48,14 @@ test: ## Run pytest (52 tests for eval framework)
 test-quick: ## Run pytest (no verbose, fast)
 	@python3 -m pytest lab/eval/tests/ -q
 
+# --- Validate ---
+
+validate: ## Run claude plugin validate on plugin structure
+	@claude plugin validate plugins/elixir-phoenix
+
 # --- CI (full pipeline) ---
 
-ci: lint test eval-all ## Full CI: lint + test + eval (same as GitHub Actions)
+ci: lint test validate eval-all ## Full CI: lint + test + validate + eval (same as GitHub Actions)
 
 # --- Clean ---
 

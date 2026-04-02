@@ -123,9 +123,9 @@ For internal callers found (not entry points):
 
 ### Phase 4: Synthesis
 
-Wait for ALL subagents to FULLY complete using TaskOutput. If
-TaskOutput shows a subagent is still running, wait and check
-again. NEVER proceed while any subagent is still running.
+Wait for ALL subagents to FULLY complete — you'll be notified as each
+finishes. Read each subagent's output file to collect results. NEVER
+proceed while any subagent is still running.
 
 Merge all subagent outputs into unified call tree:
 

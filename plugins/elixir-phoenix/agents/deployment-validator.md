@@ -6,6 +6,7 @@ disallowedTools: Write, Edit, NotebookEdit
 permissionMode: bypassPermissions
 model: sonnet
 effort: medium
+maxTurns: 15
 omitClaudeMd: true
 skills:
   - deploy
