@@ -5,16 +5,7 @@ All notable changes to the Elixir/Phoenix Claude Code plugin.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-### Fixed
-
-- **xref cycle detection uses `--label compile`** — All 6 locations now use
-  `mix xref graph --format cycles --label compile` instead of bare `--format cycles`.
-  Prevents false positive HIGH-severity findings from benign runtime cycles caused by
-  `verified_routes()` macro in standard Phoenix projects. Affected: `xref-analyzer` agent,
-  `boundaries` skill, `audit` scoring, `architecture-checks`, `call-tracing` reference.
-  Closes #30 — thanks @bigardone for the excellent bug report.
+## [2.8.0] - 2026-04-03
 
 ### Added
 
@@ -29,6 +20,24 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   thanks @bigardone for the feature request.
 - **`/phx:plan` interview detection** — Plan skill now checks for brainstorm
   `interview.md` artifacts and skips clarification when found with `Status: COMPLETE`.
+- **`/cc-changelog` contributor skill** — Automates Claude Code changelog auditing:
+  fetches CC changelog from GitHub, extracts new entries since last check using semver
+  comparison, and guides impact analysis against plugin components. Includes
+  `fetch-cc-changelog.sh` script with caching and diff support.
+
+### Fixed
+
+- **xref cycle detection uses `--label compile`** — All 6 locations now use
+  `mix xref graph --format cycles --label compile` instead of bare `--format cycles`.
+  Prevents false positive HIGH-severity findings from benign runtime cycles caused by
+  `verified_routes()` macro in standard Phoenix projects. Affected: `xref-analyzer` agent,
+  `boundaries` skill, `audit` scoring, `architecture-checks`, `call-tracing` reference.
+  Closes #30 — thanks @bigardone for the excellent bug report.
+- **5 brainstorm issues from real-world session** — From first test session (gettext
+  performance brainstorm): enforce formal Decision Points with mandatory AskUserQuestion,
+  ask Scope within first 3-4 questions, improve plan handoff UX with exact copy-paste
+  command, cap first research cycle at 2 agents (Iron Law #7), and track research
+  iterations with soft limit after 3 cycles.
 
 ### Changed
 
@@ -38,6 +47,10 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `` ```bash `` blocks that CC may block when `disableSkillShellExecution` is enabled
   (CC v2.1.91). Tool-replaceable commands (`grep`, `cat`, `find`, `ls`) converted to
   Claude tool references (Grep, Read, Glob). Documentation/example blocks unchanged.
+- **Removed `disableModelInvocation` from plan, review, investigate** — The flag
+  blocked programmatic `Skill()` calls during workflow transitions (brainstorm→plan,
+  work→review). Confirmed in 3+ sessions. Kept on brainstorm, research, pr-review,
+  perf where unwanted auto-loading is a real risk.
 
 ## [2.7.0] - 2026-04-02
 

@@ -76,7 +76,7 @@ that prevent the mistakes Elixir developers actually make in production.
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
-> **v2.5.1** -- 40 skills, 20 agents, 8-dimension quality eval, autoresearch self-improvement loop. Feedback welcome via [issues](https://github.com/oliver-kriska/claude-elixir-phoenix/issues).
+> **v2.8.0** -- 41 skills, 20 agents, 8-dimension quality eval, autoresearch self-improvement loop. Feedback welcome via [issues](https://github.com/oliver-kriska/claude-elixir-phoenix/issues).
 
 ## Installation
 
@@ -148,13 +148,13 @@ and enforces [Iron Laws](#iron-laws-non-negotiable-rules) that prevent common El
 
 ### The Lifecycle
 
-The plugin implements a **Plan, Work, Verify, Review, Compound** lifecycle. Each phase produces artifacts in a namespaced directory:
+The plugin implements a **Brainstorm, Plan, Work, Verify, Review, Compound** lifecycle. Each phase produces artifacts in a namespaced directory:
 
 ```
-/phx:plan → /phx:work → /phx:verify → /phx:review → /phx:compound
-     │           │            │              │              │
-     ↓           ↓            ↓              ↓              ↓
-plans/{slug}/  (in namespace) (in namespace) (in namespace) solutions/
+/phx:brainstorm → /phx:plan → /phx:work → /phx:verify → /phx:review → /phx:compound
+       │               │           │            │              │              │
+       ↓               ↓           ↓            ↓              ↓              ↓
+  interview.md    plans/{slug}/  (in namespace) (in namespace) (in namespace) solutions/
 ```
 
 - **Plan** -- Research agents analyze your codebase in parallel, then synthesize a structured implementation plan
@@ -476,6 +476,7 @@ The plugin enforces critical rules and **stops with an explanation** if code wou
 | Command                 | Description                                                  |
 | ----------------------- | ------------------------------------------------------------ |
 | `/phx:full <feature>`   | Full autonomous cycle (plan, work, verify, review, compound) |
+| `/phx:brainstorm <topic>` | Adaptive requirements gathering before planning            |
 | `/phx:plan <input>`     | Create implementation plan with specialist agents            |
 | `/phx:plan --existing`  | Enhance existing plan with deeper research                   |
 | `/phx:work <plan-file>` | Execute plan tasks with verification                         |
@@ -598,7 +599,7 @@ Every PR must pass the CI quality gate (lint + test + eval). Run locally before 
 ```bash
 make help             # Show all available commands
 make eval             # Quick: lint + score changed skills/agents only
-make eval-all         # Full structural: all 40 skills + all 20 agents
+make eval-all         # Full structural: all 41 skills + all 20 agents
 make eval-fix         # Auto-fix lint + show failures + suggest autoresearch
 make test             # 52 pytest tests for eval framework
 make ci               # Full CI: lint + test + eval (same as GitHub Actions)
