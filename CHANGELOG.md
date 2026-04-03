@@ -7,6 +7,20 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- **`/phx:brainstorm` — Adaptive requirements gathering** — New command skill
+  implementing an interview-research-synthesis loop for ideation before planning.
+  Asks context-aware questions one at a time across 6 dimensions (What, Why, Where,
+  How, Edge cases, Scope), runs lightweight codebase scans between questions, and
+  offers parallel research via diverge-evaluate-converge pattern. Produces
+  `.claude/plans/{slug}/interview.md` that `/phx:plan` detects and consumes, skipping
+  its own clarification phase. Inspired by Virgil EI, ALFA framework (2502.14860),
+  MediQ (2406.00922), and LLM Discussion Framework (2405.06373). Closes #28 —
+  thanks @bigardone for the feature request.
+- **`/phx:plan` interview detection** — Plan skill now checks for brainstorm
+  `interview.md` artifacts and skips clarification when found with `Status: COMPLETE`.
+
 ### Changed
 
 - **`disableSkillShellExecution` resilience** — Converted executable bash fenced blocks

@@ -42,6 +42,7 @@ Map the user's situation to one of these categories:
 | Category | Signals | Primary Commands |
 |----------|---------|-----------------|
 | **Starting out** | No plans, new to plugin | `/phx:intro` |
+| **Ideation** | "explore", "brainstorm", "not sure", "how to approach", "vague idea" | `/phx:brainstorm` |
 | **New feature** | "add", "build", "implement", multi-file | `/phx:plan` → `/phx:work` |
 | **Quick change** | Single file, <50 lines, "fix typo" | `/phx:quick` |
 | **Bug** | Error, stack trace, "broken", "failing" | `/phx:investigate` |

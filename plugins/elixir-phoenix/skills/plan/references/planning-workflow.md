@@ -3,11 +3,31 @@
 Full step-by-step details for `/phx:plan`. The SKILL.md has a
 summary; this reference has the complete workflow.
 
+## Interview Detection (from /phx:brainstorm)
+
+Before asking clarification questions, check for a pre-existing
+brainstorm interview:
+
+1. Check `$ARGUMENTS` for a path containing `interview.md`
+2. Check `.claude/plans/*/interview.md` for recent files (<24h)
+
+If found with `Status: COMPLETE`:
+
+- Read the interview.md Summary and Coverage Details
+- Skip clarification questions entirely — the interview IS the clarification
+- Use interview content as input for agent spawning (depth detection still applies)
+- Note in scratchpad: "Requirements from /phx:brainstorm interview"
+
+If found with `Status: IN_PROGRESS`:
+
+- Read what exists, note gaps in coverage
+- Ask ONLY about uncovered dimensions (don't re-ask covered ones)
+
 ## Clarification Questions (when requirements are fuzzy)
 
 When the description is vague, unclear, or missing key details,
-ask clarifying questions **one at a time** before planning. This
-replaces the need for a separate brainstorm command.
+and no brainstorm interview.md exists, ask clarifying questions
+**one at a time** before planning.
 
 **Signals that clarification is needed:**
 

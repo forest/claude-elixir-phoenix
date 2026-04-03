@@ -664,6 +664,7 @@ When working on code, automatically consult relevant reference documentation bef
 | Bug fix, debug | `/phx:investigate` |
 | Small UI fix, CSS tweak, config change | `/phx:quick` |
 | Small change (<50 lines) | `/phx:quick` |
+| Brainstorm, explore ideas, unclear scope | `/phx:brainstorm` |
 | New feature (clear scope) | `/phx:plan` then `/phx:work` |
 | Understand a plan | `/phx:brief` |
 | Enhance existing plan | `/phx:plan --existing` |
@@ -687,11 +688,11 @@ When working on code, automatically consult relevant reference documentation bef
 | Monitor skill effectiveness | `/skill-monitor` |
 | Validate plugin against docs | `/docs-check` |
 
-**Workflow Commands**: `/phx:plan` -> `/phx:brief` (optional) -> `/phx:plan --existing` (optional) -> `/phx:work` -> `/phx:brief` (optional) -> `/phx:review` -> `/phx:triage` (optional) -> `/phx:compound`
+**Workflow Commands**: `/phx:brainstorm` (optional) -> `/phx:plan` -> `/phx:brief` (optional) -> `/phx:plan --existing` (optional) -> `/phx:work` -> `/phx:review` -> `/phx:triage` (optional) -> `/phx:compound`
 
 **Review → Follow-up Plan**: After `/phx:review`, if findings reveal scope gaps or missing coverage, use `/phx:plan .claude/plans/{slug}/reviews/{review}.md` to create a follow-up plan from review output.
 
-**Standalone**: `/phx:quick`, `/phx:full`, `/phx:investigate`, `/phx:verify`, `/phx:research`, `/phx:help`, `/phx:permissions`
+**Standalone**: `/phx:quick`, `/phx:full`, `/phx:investigate`, `/phx:verify`, `/phx:research`, `/phx:brainstorm`, `/phx:help`, `/phx:permissions`
 
 **Analysis**: `/ecto:n1-check`, `/lv:assigns`, `/phx:boundaries`, `/phx:trace`, `/phx:techdebt`
 

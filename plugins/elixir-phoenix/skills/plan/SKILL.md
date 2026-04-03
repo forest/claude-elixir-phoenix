@@ -36,9 +36,10 @@ structured plan with checkboxes.
 
 ## Workflow
 
-1. **Gather context** — File path (skip to agents), clear
-   description, or vague/fuzzy (needs clarification)
-2. **Clarify if vague** — Ask questions ONE at a time
+1. **Gather context** — File path (skip to agents), brainstorm
+   interview.md (skip clarification), clear description, or vague
+2. **Clarify if vague** — Ask questions ONE at a time (skip if
+   brainstorm interview.md exists with Status: COMPLETE)
 3. **Detect depth** — Auto-detect quick/standard/deep
 4. **Runtime context** (Tidewave) — Gather live schemas, routes,
    and warnings before spawning agents (see planning-orchestrator)

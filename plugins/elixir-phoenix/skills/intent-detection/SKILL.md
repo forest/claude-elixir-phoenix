@@ -14,6 +14,7 @@ When user describes work WITHOUT specifying a `/phx:` command, analyze their int
 | Signal | Detected Intent | Suggest |
 |--------|----------------|---------|
 | "bug", "error", "crash", "failing", "broken", stack trace | Bug investigation | `/phx:investigate` |
+| "brainstorm", "explore idea", "not sure what I need", "vague idea", "let's discuss", "how to approach" | Ideation/requirements | `/phx:brainstorm` |
 | "add", "implement", "build", "create" + multi-step | New feature | `/phx:plan` |
 | "review", "check", "audit" code | Code review | `/phx:review` |
 | "fix" + small/specific scope | Quick fix | handle directly or `/phx:quick` |

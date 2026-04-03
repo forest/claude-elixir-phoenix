@@ -54,6 +54,9 @@ Each phase reads from the previous phase's output. Plans become checkboxes. Chec
 For features that need planning and review:
 
 ```bash
+# 0. Brainstorm (optional) — explore requirements interactively
+/phx:brainstorm Add some kind of notification system
+
 # 1. Plan — spawns research agents, outputs checkbox plan
 /phx:plan Add user avatars with S3 upload
 
@@ -85,11 +88,13 @@ Not everything needs the full cycle:
 ```text
 Is it a bug?
   Yes --> /phx:investigate
-  No  --> Is it < 100 lines?
-            Yes --> /phx:quick
-            No  --> Do you want full autonomy?
-                      Yes --> /phx:full
-                      No  --> /phx:plan then /phx:work
+  No  --> Do you know what you want?
+            No  --> /phx:brainstorm
+            Yes --> Is it < 100 lines?
+                      Yes --> /phx:quick
+                      No  --> Do you want full autonomy?
+                                Yes --> /phx:full
+                                No  --> /phx:plan then /phx:work
 ```
 
 ### Deepening an Existing Plan
@@ -294,6 +299,7 @@ The plugin works best when all layers are active: `/phx:init` for persistent rul
 
 | Command | Phase |
 |---------|-------|
+| `/phx:brainstorm <topic>` | Adaptive requirements gathering |
 | `/phx:plan <feature>` | Plan with research agents |
 | `/phx:plan --existing <file>` | Enhance existing plan |
 | `/phx:brief [plan file]` | Interactive plan walkthrough |
