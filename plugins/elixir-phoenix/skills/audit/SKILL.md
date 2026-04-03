@@ -1,6 +1,6 @@
 ---
 name: phx:audit
-description: Project health audit — architecture, performance, security, tests, dependencies. Use quarterly, before releases, after refactors, or when asked about project health.
+description: Project health audit and health check — architecture, performance, security, tests, dependencies. Use quarterly, before releases, after refactors, or when asked about project health.
 effort: high
 argument-hint: [--quick|--full|--focus=area|--since=commit]
 ---

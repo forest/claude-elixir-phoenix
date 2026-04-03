@@ -7,6 +7,15 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- **xref cycle detection uses `--label compile`** — All 6 locations now use
+  `mix xref graph --format cycles --label compile` instead of bare `--format cycles`.
+  Prevents false positive HIGH-severity findings from benign runtime cycles caused by
+  `verified_routes()` macro in standard Phoenix projects. Affected: `xref-analyzer` agent,
+  `boundaries` skill, `audit` scoring, `architecture-checks`, `call-tracing` reference.
+  Closes #30 — thanks @bigardone for the excellent bug report.
+
 ### Added
 
 - **`/phx:brainstorm` — Adaptive requirements gathering** — New command skill

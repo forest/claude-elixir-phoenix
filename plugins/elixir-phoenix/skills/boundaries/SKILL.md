@@ -1,6 +1,6 @@
 ---
 name: phx:boundaries
-description: Analyze Phoenix context boundaries and module coupling via mix xref. Use when checking cross-context calls, validating dependencies, planning context splits, or reviewing architecture.
+description: Analyze Phoenix context boundaries and module coupling via mix xref. Use when checking cross-context calls, validating dependencies, before splitting modules, or reviewing architecture.
 effort: medium
 argument-hint: [--assess|--fix]
 allowed-tools: Read, Grep, Glob, Bash
@@ -38,7 +38,7 @@ Evaluate overall boundary health with a quantified score.
 Use Glob to count `.ex` files per context directory under `lib/my_app/*/`.
 Use Grep to count public function definitions per context file under `lib/my_app/*.ex`.
 Run `mix xref graph --format stats` for dependency analysis.
-Run `mix xref graph --format cycles` for circular dependencies.
+Run `mix xref graph --format cycles --label compile` for compile-time circular dependencies.
 
 ### Output Format
 
@@ -100,7 +100,7 @@ Run `mix xref callers MyApp.Accounts.get_user!/1`.
 
 ### Check for Circular Dependencies
 
-Run `mix xref graph --format cycles`.
+Run `mix xref graph --format cycles --label compile`.
 
 ## Red Flags to Detect
 
