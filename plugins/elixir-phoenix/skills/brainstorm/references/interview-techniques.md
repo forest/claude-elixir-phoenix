@@ -20,6 +20,16 @@ Each of the 6 dimensions scores 0-2:
 - Don't re-ask dimensions already at 2 — advance to uncovered ones
 - If user gives a comprehensive answer covering 3+ dimensions, score all at once
 - After each answer, mentally update scores and pick the lowest-scoring dimension next
+- **Ask Scope within the first 3-4 questions** — especially for "optimize X" or
+  "improve X" topics where scope (upstream OK? local-only? CI vs dev?) determines
+  which research approaches are viable. Don't let scope emerge during research
+
+### Recommended Question Order
+
+1. **What** — almost always first (unless initial description is already concrete)
+2. **Why** — understand motivation before narrowing
+3. **Scope** — set boundaries EARLY so research doesn't explore out-of-scope approaches
+4. **Where/How/Edge** — informed by codebase scans, order by lowest coverage
 
 ## Question Templates by Dimension
 
@@ -35,6 +45,13 @@ Each of the 6 dimensions scores 0-2:
 - "What problem does this solve? What's happening today that's painful?"
 - "Who benefits from this — end users, admins, or internal team?"
 - "What triggered this? A bug report, user feedback, or a new business requirement?"
+
+### Scope (ask early — within first 3-4 questions)
+
+- "What's explicitly NOT part of this? Any features to defer to v2?"
+- "Are upstream library changes acceptable, or local-only solutions?"
+- "Is this for dev workflow, CI, production, or all three?"
+- "Do we need to migrate existing data, or is this for new records only?"
 
 ### Where (codebase location)
 
@@ -57,12 +74,6 @@ After scanning the codebase:
 - "What happens when {operation} fails? Should we retry, notify, or silently log?"
 - "How many {items} are we talking about? 10s, 1000s, or millions?"
 - "Who has permission to do this? Any authorization checks needed?"
-
-### Scope
-
-- "What's explicitly NOT part of this? Any features to defer to v2?"
-- "Should this work on mobile/responsive, or desktop-only for now?"
-- "Do we need to migrate existing data, or is this for new records only?"
 
 ## Codebase Scan Patterns
 

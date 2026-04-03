@@ -125,14 +125,25 @@ BEFORE presenting the Decision Point.
 
 ## Iterative Research
 
-If user selects "More research" a second time:
+**Cycle 1** (from Decision Point): MAX 2 agents — phoenix-patterns-analyst +
+web-researcher. Keep it fast (~2-3 min). This covers most brainstorms.
+
+**Cycle 2+** (user picks "More research"): Focused deep dives.
 
 1. Ask what specific aspect needs deeper investigation
-2. Narrow the search queries based on their answer
-3. Spawn only the relevant agent (codebase OR web, not both)
-4. Present focused findings
+2. Spawn 1-2 targeted agents (e.g., specialist reviewer, focused web search)
+3. Present focused findings
+4. Return to Decision Point
 
-**Soft limit**: After 2 research cycles, suggest: "We have substantial
+**Track iterations** in interview.md:
+
+```markdown
+## Research Log
+- Cycle 1: phoenix-patterns-analyst + web-researcher (3 approaches found)
+- Cycle 2: deep-dive on beam scanning approach (prior art search)
+```
+
+**Soft limit**: After 3 research cycles, suggest: "We have substantial
 research now. Ready to move to a plan, or is there a specific gap remaining?"
 
 ## Research Output Files
