@@ -3,7 +3,6 @@ name: phx:investigate
 description: Investigate bugs and errors in Elixir/Phoenix — root-cause analysis for crashes, exceptions, stack traces, test failures. Use --parallel for deep 4-track investigation.
 effort: high
 argument-hint: <bug description> [--parallel]
-disable-model-invocation: true
 ---
 
 # Investigate Bug

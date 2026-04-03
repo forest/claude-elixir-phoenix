@@ -3,7 +3,6 @@ name: phx:plan
 description: Plan multi-step Phoenix features with specialist agents. Use when building new domains, multi-file features, or creating plans from review findings. Use --existing to enhance a plan.
 effort: high
 argument-hint: <feature description OR path to review/plan file>
-disable-model-invocation: true
 ---
 
 # Plan Elixir/Phoenix Feature
