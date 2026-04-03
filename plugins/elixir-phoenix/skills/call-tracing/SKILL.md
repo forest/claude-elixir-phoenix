@@ -28,14 +28,7 @@ Build call trees showing how functions are reached from entry points.
 
 ## Quick Trace
 
-```bash
-# Find all callers
-mix xref callers MyApp.Accounts.update_user/2
-
-# Output: lib/web/controllers/user_controller.ex:45: MyApp.Accounts.update_user/2
-
-# Read that location to see arguments
-```
+Run `mix xref callers MyApp.Accounts.update_user/2` to find all callers. Then read the reported locations to see argument patterns.
 
 ## Entry Points (Stop Here)
 

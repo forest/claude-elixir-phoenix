@@ -51,9 +51,7 @@ confirm what's already obvious (confirmed waste: session c135330a).
 
 ### Step 0: Consult Compound Docs
 
-```bash
-grep -rl "KEYWORD" .claude/solutions/ 2>/dev/null
-```
+Search `.claude/solutions/` for relevant keywords using Grep.
 
 If matching solution exists, present it and ask: "Apply this
 fix, or investigate fresh?"
@@ -84,17 +82,11 @@ This eliminates copy-pasting errors between app and agent.
 
 ### Step 1: Sanity Checks
 
-```bash
-mix compile --warnings-as-errors 2>&1 | head -50
-mix ecto.migrate
-```
+Run `mix compile --warnings-as-errors 2>&1 | head -50`, then `mix ecto.migrate`.
 
 ### Step 2: Reproduce
 
-```bash
-mix test test/path_test.exs --trace
-tail -200 log/dev.log | grep -A 5 -i "error\|exception"
-```
+Run `mix test test/path_test.exs --trace`. Then read the last 200 lines of `log/dev.log` and search for "error" or "exception" patterns.
 
 ### Step 3: Read Error LITERALLY
 

@@ -36,10 +36,8 @@ institutional documentation.
 
 ### Step 2: Search Existing Solutions
 
-```bash
-mkdir -p .claude/solutions
-grep -rl "KEYWORD" .claude/solutions/ 2>/dev/null
-```
+Create `.claude/solutions/` directory if it doesn't exist (run `mkdir -p .claude/solutions`).
+Then search `.claude/solutions/` for relevant keywords using Grep.
 
 If found: **Create new** (different root cause), **Update
 existing** (same root cause, new symptom), or **Skip**.

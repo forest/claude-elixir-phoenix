@@ -38,10 +38,7 @@ Generate documentation for newly implemented features.
 
 ### Step 0: Pre-check (avoid no-op runs)
 
-```bash
-# Check if any NEW .ex files exist in recent commits
-git diff --name-only HEAD~5 | grep '\.ex$' | head -20
-```
+Run `git diff --name-only HEAD~5 | grep '\.ex$' | head -20` to check for new `.ex` files.
 
 If NO new `.ex` files were added (only modifications), skip the full
 audit and report: "No new modules — documentation coverage unchanged."

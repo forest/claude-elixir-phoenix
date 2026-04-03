@@ -115,16 +115,8 @@ Run /phx:plan [task] for full analysis.
 
 After quick implementation:
 
-```bash
-# Compile check
-mix compile --warnings-as-errors
-
-# If touched Ecto
-mix ecto.migrate
-
-# Quick test
-mix test test/path_test.exs
-```
+Run `mix compile --warnings-as-errors`. If you touched Ecto schemas or migrations,
+run `mix ecto.migrate`. Then run `mix test test/path_test.exs` for affected tests.
 
 ## Example Session
 

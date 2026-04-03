@@ -5,6 +5,17 @@ All notable changes to the Elixir/Phoenix Claude Code plugin.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- **`disableSkillShellExecution` resilience** — Converted executable bash fenced blocks
+  to inline prose instructions across 18 skills (14 BROKEN, 4 DEGRADED). Skills now
+  instruct Claude via prose ("Run `mix compile`", "Use Grep to search...") instead of
+  `` ```bash `` blocks that CC may block when `disableSkillShellExecution` is enabled
+  (CC v2.1.91). Tool-replaceable commands (`grep`, `cat`, `find`, `ls`) converted to
+  Claude tool references (Grep, Read, Glob). Documentation/example blocks unchanged.
+
 ## [2.7.0] - 2026-04-02
 
 ### Added

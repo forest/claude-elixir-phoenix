@@ -42,9 +42,7 @@ Read the plan file and determine mode from phase statuses:
 1. If `$ARGUMENTS` has a path, use it
 2. Otherwise, find latest plan:
 
-   ```bash
-   ls -t .claude/plans/*/plan.md 2>/dev/null | head -1
-   ```
+   Use Glob to find `.claude/plans/*/plan.md` and pick the most recent.
 
 3. If no plan found, tell user and suggest `/phx:plan`
 4. Read the plan file

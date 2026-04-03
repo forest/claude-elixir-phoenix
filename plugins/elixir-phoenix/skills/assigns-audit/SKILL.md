@@ -22,19 +22,11 @@ Analyze LiveView socket assigns for memory efficiency, clarity, and best practic
 
 ### Extract All Assigns
 
-```bash
-grep -E "assign\(|assign_new\(" path/to/live_view.ex
-```
+Use Grep to find all `assign(` and `assign_new(` calls in the target LiveView file.
 
 ### Find Large Data Patterns
 
-```bash
-# Lists stored in assigns
-grep -E "assign.*\[\]|assign.*Repo\.all" path/to/live_view.ex
-
-# Full schema storage
-grep -E "assign.*Repo\.get|assign.*%.*\{\}" path/to/live_view.ex
-```
+Use Grep to find large data patterns: lists stored in assigns (`assign.*\[\]`, `assign.*Repo\.all`) and full schema storage (`assign.*Repo\.get`) in the target file.
 
 ## Audit Checklist
 
@@ -66,13 +58,7 @@ end
 
 Search for assigns defined but never used in templates:
 
-```bash
-# Find assigns
-grep -oE "assign\(:(\w+)" live_view.ex | sort -u
-
-# Compare with template usage
-grep -oE "@\w+" template.html.heex | sort -u
-```
+Use Grep to extract all assign names (`assign\(:(\w+)`) from the LiveView file, then use Grep to find all `@\w+` references in the corresponding `.heex` template. Compare to find unused assigns.
 
 ### 4. Missing Initialization
 

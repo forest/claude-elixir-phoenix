@@ -57,24 +57,15 @@ Repo.preload(user, posts: :comments)
 
 ## Quick Detection Commands
 
-```bash
-# Find Enum.map with Repo calls nearby
-grep -B5 -A5 "Enum.map" lib/ -r --include="*.ex" | grep -A5 -B5 "Repo\."
-
-# Find association access patterns
-grep -r "\.posts\|\.comments\|\.orders" lib/ --include="*.ex"
-
-# Find Repo calls in loops
-grep -B3 "Repo.get\|Repo.one" lib/ -r --include="*.ex" | grep -B3 "for\|Enum"
-```
+Use Grep with context lines (`-B 5 -A 5`) to find `Enum.map` near `Repo.` calls in `lib/**/*.ex`.
+Use Grep to find association access patterns (`.posts`, `.comments`, `.orders`) in `lib/**/*.ex`.
+Use Grep with context (`-B 3`) to find `Repo.get` or `Repo.one` near loop patterns (`for`, `Enum`) in `lib/**/*.ex`.
 
 ## Analysis Command
 
 For a context module, run:
 
-```bash
-grep -n "Repo\." lib/my_app/[context].ex
-```
+Use Grep to find all `Repo.` calls in the context module, then verify each has appropriate preloads.
 
 Then verify each query has appropriate preloads.
 

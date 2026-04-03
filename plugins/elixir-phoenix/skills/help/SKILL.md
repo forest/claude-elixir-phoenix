@@ -29,9 +29,9 @@ If `$ARGUMENTS` is non-empty, use it as primary signal.
 
 Always gather ambient context (run in parallel):
 
-1. Check for existing plans: `ls .claude/plans/` — active work in progress?
+1. Check for existing plans: use Glob on `.claude/plans/*/plan.md` — active work in progress?
 2. Check git status: uncommitted changes? which files?
-3. Check for solution docs: `ls .claude/solutions/` — prior knowledge?
+3. Check for solution docs: use Glob on `.claude/solutions/**/*.md` — prior knowledge?
 
 ### Step 2: Classify Intent
 
