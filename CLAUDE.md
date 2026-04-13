@@ -272,6 +272,10 @@ claude --plugin-dir ./plugins/elixir-phoenix
 /plugin install elixir-phoenix
 ```
 
+When editing skills, agents, or hooks mid-session, run `/reload-plugins` to
+pick up changes without restarting Claude Code (v2.1.98+). Skills now hot-reload
+through this command even when provided by installed plugins.
+
 ### Testing workflow
 
 ```bash
@@ -377,11 +381,11 @@ Only trim when content is purely informational and not execution-critical.
 ### New agent
 
 - [ ] Frontmatter complete
-- [ ] `disallowedTools: Write, Edit, NotebookEdit` for review agents
-- [ ] `Write` allowed for agents that output reports (e.g., research agents, context-supervisor)
+- [ ] `disallowedTools: Edit, NotebookEdit` for review agents (Write IS allowed so they can save their own findings file — `Edit` blocks source code modification, upholding Review Iron Law #1)
+- [ ] `Write` allowed for agents that output reports (research agents, reviewers, context-supervisor). Only agents that neither review nor research should have Write disallowed.
 - [ ] `permissionMode: bypassPermissions`
 - [ ] `effort:` set (low for haiku, medium for sonnet, high for opus/security)
-- [ ] `omitClaudeMd: true` for read-only agents (no Write tool)
+- [ ] `omitClaudeMd: true` for report-only agents (Write allowed for own report, Edit disallowed). They don't need commit/lint guidelines. Iron Laws injected via SubagentStart hook.
 - [ ] Skills preloaded
 - [ ] Description under 250 characters
 - [ ] Under target (300 lines), hard limit only if justified by inline subagent prompts

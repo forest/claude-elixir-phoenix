@@ -5,6 +5,51 @@ All notable changes to the Elixir/Phoenix Claude Code plugin.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.1] - 2026-04-11
+
+### Fixed
+
+- **`/phx:review` now actually writes findings files** — Review agents
+  (`elixir-reviewer`, `testing-reviewer`, `iron-law-judge`, `security-analyzer`,
+  `oban-specialist`, `deployment-validator`, `verification-runner`,
+  `parallel-reviewer`) previously declared `disallowedTools: Write, Edit,
+  NotebookEdit` and could not write to disk. The skill told them to write
+  findings to `.claude/plans/{slug}/reviews/{agent}.md`; the main context fell
+  back to extracting from each agent's return message, producing the visible
+  log line *"Agent didn't write the file. Let me read its output to extract
+  findings."* Fixed by allowing `Write` (keeping `Edit` and `NotebookEdit`
+  disallowed so source code stays protected), bumping `maxTurns` from 15 → 25
+  for the six non-mechanical reviewers (burned on Read/Grep before writing on
+  large diffs), and adding an explicit "write partial findings by turn ~12,
+  refine later" instruction to each agent. Closes #33 — thanks @bigardone
+  for the report.
+- **`/phx:review` skill passes explicit `output_file` path to every agent** —
+  Step 2 now includes a per-agent file mapping (`elixir.md`, `testing.md`,
+  `iron-laws.md`, `security.md`, `oban.md`, `deploy.md`, `verification.md`) so
+  the orchestrator can read findings deterministically instead of reparsing
+  agent messages.
+- **`/phx:review` skill Step 3 logs a scratchpad warning on missing output
+  file** — When an agent completes but its expected findings file is missing
+  (turn exhaustion, error, etc.), the skill now writes a timestamped warning
+  to `.claude/plans/{slug}/scratchpad.md` and marks the extracted section as
+  `⚠️ EXTRACTED FROM AGENT MESSAGE`, making the failure auditable instead of
+  silent.
+- **`parallel-reviewer` spawns real specialist agents instead of
+  `general-purpose` impersonation** — Previously used
+  `subagent_type: "general-purpose"` with "You are acting as the X agent"
+  prompts as a workaround for specialists lacking `Write`. Now that real
+  reviewers can write, `parallel-reviewer` uses `elixir-phoenix:elixir-reviewer`,
+  `elixir-phoenix:security-analyzer`, `elixir-phoenix:testing-reviewer`, and
+  `elixir-phoenix:verification-runner` directly — carrying their domain
+  checklists, skills, and Iron Laws automatically.
+
+### Changed
+
+- **Agent checklist in `CLAUDE.md`** updated to reflect the new convention:
+  review agents declare `disallowedTools: Edit, NotebookEdit` (not
+  `Write, Edit, NotebookEdit`). Write is allowed for own findings file only;
+  Edit blocks source code modification, upholding Review Iron Law #1.
+
 ## [2.8.0] - 2026-04-03
 
 ### Added
