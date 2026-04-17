@@ -7,9 +7,16 @@
     "My phx-change events aren't calling handle_event, how do I debug?",
     "Build a reusable modal component with proper lifecycle management"
   ],
+  "should_trigger_test": [
+    "How do I use streams instead of assigns for a long list of items?",
+    "Set up Phoenix.PubSub to broadcast changes across LiveView processes",
+    "Create a multi-step form wizard with temporary assigns between steps",
+    "My LiveView mount is slow because it queries the database — how to fix?",
+    "Add JS hooks for a drag-and-drop sortable list in my LiveView"
+  ],
   "should_not_trigger": [
-    "Write ExUnit tests for my live view's handle_event \u2014 testing",
-    "How do I preload database associations for my dropdown? \u2014 ecto-patterns",
-    "Set up an Oban worker to process background tasks \u2014 oban"
+    "Write ExUnit tests for my live view's handle_event — testing",
+    "How do I preload database associations for my dropdown? — ecto-patterns",
+    "Set up an Oban worker to process background tasks — oban"
   ]
 }

@@ -7,6 +7,13 @@
     "I have mixed intents here: fix the bug and then refactor the context",
     "route me to the right command for this ambiguous task"
   ],
+  "should_trigger_test": [
+    "I need to fix this auth issue but also redesign the token flow — what order?",
+    "this could be a quick fix or a bigger refactor, not sure which",
+    "where do I even begin with this module — plan first or just dive in?",
+    "should I investigate this error first or jump straight to fixing it",
+    "I'm confused about which workflow to use for updating the payment system"
+  ],
   "should_not_trigger": [
     "/phx:plan add user auth",
     "/phx:review security",
