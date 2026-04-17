@@ -358,7 +358,6 @@ def cmd_target(args):
 def cmd_tournament(args):
     """Run description tournament for a skill."""
     from lab.tournament.description_tournament import (
-        find_weak_skills,
         load_all_descriptions,
         load_trigger_prompts,
         run_tournament,

@@ -330,7 +330,7 @@ def run_tournament(
         structural_passed, structural_failures = validate_description(state.incumbent)
         if not structural_passed:
             print(f"\n  STRUCTURAL GATE FAILED: {structural_failures}")
-            print(f"  Reverting to original description")
+            print("  Reverting to original description")
             state.incumbent = original
 
     result = {

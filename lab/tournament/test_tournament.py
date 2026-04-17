@@ -1,6 +1,5 @@
 """Tests for tournament core: Borda scoring, parsing, convergence."""
 
-import pytest
 from lab.tournament.tournament import (
     TournamentState,
     aggregate_borda,
