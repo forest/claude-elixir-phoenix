@@ -35,7 +35,7 @@ When analyzing CC changelog entries, map them to specific plugin components:
 | CC Change Pattern | Plugin Files to Check |
 |-------------------|-----------------------|
 | Skill format changes | All 38 skills in `plugins/elixir-phoenix/skills/` |
-| `description` length limits | All SKILL.md frontmatter (250 char cap) |
+| `description` length limits | All SKILL.md frontmatter (CC cap 1,536 since v2.1.105; plugin targets 250) |
 | `paths:` field behavior | Skills with `paths:` for auto-loading |
 | Skill listing/truncation | Skill descriptions and ordering |
 | Lazy loading behavior | Skills with large references |

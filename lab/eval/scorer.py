@@ -52,7 +52,7 @@ def default_eval(skill_path: str) -> EvalDefinition:
                 EvalCheck(check_type="max_section_lines", description="No section exceeds 40 lines", params={"max": 40}),
             ]),
             "triggering": EvalDimension(name="triggering", weight=0.15, checks=[
-                EvalCheck(check_type="description_length", description="Description under CC 250-char budget", params={"min": 50, "max": 250}),
+                EvalCheck(check_type="description_length", description="Description under 250-char plugin listing budget", params={"min": 50, "max": 250}),
                 EvalCheck(check_type="description_keywords", description="Enough trigger keywords", params={"min": 3}),
             ]),
             "safety": EvalDimension(name="safety", weight=0.10, checks=[

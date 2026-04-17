@@ -5,6 +5,25 @@ All notable changes to the Elixir/Phoenix Claude Code plugin.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.2] - 2026-04-17
+
+### Changed
+
+- **Reframed skill description 250-char target as plugin listing-budget discipline**
+  — CC raised `MAX_LISTING_DESC_CHARS` from 250 to 1,536 in v2.1.105, but our
+  target stays at 250. Rationale is no longer "CC hard cap"; it's "~8K skill-
+  listing budget divided across ~40 skills ≈ 200 chars per description". Longer
+  descriptions would crowd out other skills in the listing and hurt routing
+  accuracy across the whole plugin. Updated `CLAUDE.md`, `lab/eval/matchers.py`,
+  `lab/eval/scorer.py`, `lab/eval/generate_evals.py`, `lab/eval/evals/_template.json`,
+  `lab/tournament/config.yaml`, `lab/tournament/prompts.py`, and
+  `.claude/skills/cc-changelog/references/analysis-rules.md`. Eval threshold
+  unchanged (still 250), so no skill scores should move.
+- **`/phx:intro` tutorial** gains a "Playing Nicely With Claude Code Built-Ins"
+  subsection covering auto mode + xhigh effort (Opus 4.7), `/focus`, recap
+  feature, and `/less-permission-prompts` (all new in CC v2.1.108–2.1.111). The
+  plugin's workflow commands pair with these, not replace them.
+
 ## [2.8.1] - 2026-04-11
 
 ### Fixed

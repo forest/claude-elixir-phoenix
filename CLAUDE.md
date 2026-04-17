@@ -181,9 +181,12 @@ skills/{name}/
 - Set `effort:` to match skill complexity: `low` for mechanical (verify, quick, compound), `medium` for reference skills, `high` for complex reasoning (plan, full, investigate, review)
 - Use `${CLAUDE_SKILL_DIR}/references/` for reference file paths (not bare `references/`)
 - No `triggers:` field (use `description` for auto-loading)
-- **Description must be under 250 characters** — Claude Code internally caps skill listing
-  entries at 250 chars (`MAX_LISTING_DESC_CHARS`). Longer descriptions are silently truncated
-  in the model's context, reducing routing accuracy. Target under 200 chars. Enforced by eval.
+- **Description must be under 250 characters** — this is a plugin-side budget discipline,
+  not a hard CC cap. CC raised `MAX_LISTING_DESC_CHARS` from 250 to 1,536 in v2.1.105, but
+  the skill-listing budget is still ~1% of the context window (~8K chars default). With
+  ~40 skills in this plugin, every description has ~200 chars of listing budget on average.
+  Longer descriptions crowd out other skills in the listing, hurting routing accuracy across
+  the whole plugin. Target under 200 chars. Enforced by eval.
 
 ### Workflow Skills
 

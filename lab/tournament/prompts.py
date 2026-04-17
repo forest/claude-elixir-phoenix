@@ -4,8 +4,10 @@ Adapted from autoreason's role isolation principle. Each role gets a fresh
 context with only what it needs — no shared conversation history.
 
 Domain adaptation: autoreason targets long-form proposals (4000+ words).
-We target skill descriptions (10-25 words, 250-char cap). Prompts are
-redesigned for routing effectiveness rather than content quality.
+We target skill descriptions (10-25 words, 250-char plugin budget target —
+CC hard cap is 1,536 as of v2.1.105, but the listing budget is shared across
+~40 skills). Prompts are redesigned for routing effectiveness rather than
+content quality.
 """
 
 

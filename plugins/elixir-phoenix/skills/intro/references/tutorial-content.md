@@ -342,6 +342,17 @@ The plugin works best when all layers are active: `/phx:init` for persistent rul
 | `/phx:learn-from-fix` | Capture a lesson from a fix |
 | `/phx:challenge` | Rigorous review mode |
 
+### Playing Nicely With Claude Code Built-Ins
+
+The plugin complements — it doesn't replace — CC's built-in features. A few that pair well with the Elixir workflow:
+
+- **Auto mode + xhigh effort (Opus 4.7, v2.1.111)**: run `/phx:full` hands-off. Auto mode routes permission prompts through a safety classifier instead of blocking on you.
+- **`/focus` (v2.1.110)**: hides intermediate tool output. Useful during long `/phx:work` or `/phx:full` runs when you only care about the final state.
+- **Recap (v2.1.108)**: CC summarizes what happened when you return to a session.
+  Our scratchpad (`.claude/plans/{slug}/scratchpad.md`) still captures what recap
+  can't — checkbox progress, subagent findings, deliberate handoffs.
+- **`/less-permission-prompts` (built-in, v2.1.111)**: generic Bash/MCP allowlist scanner. Use `/phx:permissions` for Elixir-specific recommendations (credo, mix, psql, Tidewave) on top of it.
+
 ### 3 Tips for Getting the Most Out of the Plugin
 
 1. **Start with `/phx:plan` for any feature that touches multiple files.** The research agents catch architectural issues early, before you've written code that needs rewriting.

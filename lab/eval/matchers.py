@@ -168,9 +168,12 @@ def frontmatter_field(content: str, field: str, expected: str | None = None, **_
 def description_length(content: str, min: int = 50, max: int = 250, **_) -> tuple[bool, str]:
     """Check frontmatter description length is in sweet spot.
 
-    Claude Code caps skill listing entries at 250 characters internally
-    (src/tools/SkillTool/prompt.ts MAX_LISTING_DESC_CHARS). Descriptions
-    exceeding this are silently truncated in the model's context window.
+    The 250-char target is a plugin-side listing-budget discipline, not a CC
+    hard cap. CC raised MAX_LISTING_DESC_CHARS from 250 to 1,536 in v2.1.105
+    (src/tools/SkillTool/prompt.ts). The skill-listing budget is still ~1% of
+    the context window (~8K chars); with ~40 skills, each description has
+    ~200 chars of listing budget on average. Longer descriptions crowd out
+    other skills in the listing, hurting routing across the whole plugin.
     """
     fm = parse_frontmatter(content)
     desc = fm.get("description", "")
