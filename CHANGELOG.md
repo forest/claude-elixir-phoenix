@@ -9,6 +9,11 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- **Tournament-refined skill descriptions** for `plan`, `liveview-patterns`, and
+  `intent-detection`. Rewritten using concrete use-case phrases (billing, RBAC,
+  Presence, `assign_async`, streams) instead of technical vocabulary. Matches the
+  "users describe features, not mechanics" routing pattern observed in session
+  analysis. Output from the first tournament run on skills with <75% trigger accuracy.
 - **Reframed skill description 250-char target as plugin listing-budget discipline**
   — CC raised `MAX_LISTING_DESC_CHARS` from 250 to 1,536 in v2.1.105, but our
   target stays at 250. Rationale is no longer "CC hard cap"; it's "~8K skill-
@@ -23,6 +28,24 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   subsection covering auto mode + xhigh effort (Opus 4.7), `/focus`, recap
   feature, and `/less-permission-prompts` (all new in CC v2.1.108–2.1.111). The
   plugin's workflow commands pair with these, not replace them.
+
+### Internal (contributor tooling — not distributed)
+
+- **New `lab/tournament/` module** — pairwise LLM-judge tournaments on skill
+  description variants, using held-out trigger prompts to pick winners once
+  structural eval is saturated (composite = 1.000) but trigger accuracy lags
+  (<75%). Includes config, prompts, LLM adapter, tournament core, pytest suite.
+- **`make eval-tournament` target** + cached trigger-accuracy gate in
+  `lab/eval/run_eval.sh` (reads `triggers/results/` JSON, fails if any skill
+  <75%, points at `make eval-tournament`).
+- **Autoresearch tournament mode** — `find_weakest` tournament mode + new
+  `tournament` subcommand that gates on structural 1.000 and journals the result.
+- **Held-out trigger test split** — trigger JSON files gain a `should_trigger_test`
+  field so tournament rounds judge on prompts the training set hasn't seen.
+- **Gitignore cleanup** — ignore `output/`, `raw/`, `scripts/imessage-state.json`,
+  `lab/tournament/results/`, `.claude/research/`. Fixed `.claude/cc-changelog/changelog-cache.md`
+  pattern (inline `# comment` on the same line made it part of the pattern, so
+  the file was never actually ignored).
 
 ## [2.8.1] - 2026-04-11
 
