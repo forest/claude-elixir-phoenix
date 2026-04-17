@@ -21,7 +21,18 @@ node_modules/
 !.claude/skills/
 !.claude/research/
 !.claude/cc-changelog/
-.claude/cc-changelog/changelog-cache.md  # Fetched CC changelog (193KB, re-downloadable)
+# Fetched CC changelog (193KB, re-downloadable)
+.claude/cc-changelog/changelog-cache.md
 .claude/skills/analyze-sessions/references/session-index.json
-.claude/docs-check/  # Runtime artifacts (docs-cache, reports, summaries)
+# Runtime artifacts (docs-cache, reports, summaries)
+.claude/docs-check/
 scratchpad/
+
+# Tournament runtime artifacts (caches, python bytecode)
+/lab/tournament/__pycache__/
+/lab/tournament/results/
+
+# Scribe / iMessage ingestion scratch (regenerated on cron)
+/output/
+/raw/
+/scripts/imessage-state.json
