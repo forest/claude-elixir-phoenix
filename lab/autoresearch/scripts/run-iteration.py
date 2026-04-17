@@ -139,10 +139,16 @@ def git_revert(skill_name: str) -> bool:
 
 
 def find_weakest(strategy: str = "targeted") -> dict | None:
-    """Find weakest skill+dimension. Returns {skill, dimension, score, composite}."""
+    """Find weakest skill+dimension. Returns {skill, dimension, score, composite, mode}.
+
+    Mode is "structural" for dimension scores < 1.0, or "tournament" when all
+    structural dimensions are 1.0 but trigger accuracy is below threshold.
+    Returns None when everything is perfect.
+    """
     all_scores = score_all()
 
     if strategy == "targeted":
+        # First check for structural weaknesses
         weakest = None
         for name, data in all_scores.items():
             for dim_name, dim_data in data["dimensions"].items():
@@ -153,11 +159,32 @@ def find_weakest(strategy: str = "targeted") -> dict | None:
                             "dimension": dim_name,
                             "dim_score": dim_data["score"],
                             "composite": data["composite"],
+                            "mode": "structural",
                             "failing_checks": [
                                 a["desc"] for a in dim_data["assertions"] if not a["passed"]
                             ],
                         }
-        return weakest
+        if weakest:
+            return weakest
+
+        # All structural perfect — check trigger accuracy
+        try:
+            from lab.tournament.description_tournament import find_weak_skills
+            weak = find_weak_skills(threshold=0.75)
+            if weak:
+                skill_name, accuracy = weak[0]  # Worst first
+                return {
+                    "skill": skill_name,
+                    "dimension": "trigger_accuracy",
+                    "dim_score": accuracy,
+                    "composite": 1.0,
+                    "mode": "tournament",
+                    "failing_checks": [f"trigger accuracy {accuracy:.0%} < 75%"],
+                }
+        except ImportError:
+            pass
+
+        return None  # All perfect
 
     elif strategy == "sweep":
         for name in sorted(all_scores.keys()):
@@ -173,6 +200,7 @@ def find_weakest(strategy: str = "targeted") -> dict | None:
                     "dimension": worst_dim[0],
                     "dim_score": worst_dim[1]["score"],
                     "composite": data["composite"],
+                    "mode": "structural",
                     "failing_checks": [
                         a["desc"] for a in worst_dim[1]["assertions"] if not a["passed"]
                     ],
@@ -194,6 +222,7 @@ def find_weakest(strategy: str = "targeted") -> dict | None:
             "dimension": dim_name,
             "dim_score": dim_data["score"],
             "composite": data["composite"],
+            "mode": "structural",
             "failing_checks": [a["desc"] for a in dim_data["assertions"] if not a["passed"]],
         }
 
@@ -326,6 +355,66 @@ def cmd_target(args):
         print(json.dumps(target))
 
 
+def cmd_tournament(args):
+    """Run description tournament for a skill."""
+    from lab.tournament.description_tournament import (
+        find_weak_skills,
+        load_all_descriptions,
+        load_trigger_prompts,
+        run_tournament,
+    )
+    from lab.tournament.config import load_config
+
+    skill_name = args.skill
+    config = load_config()
+
+    # Gate: structural score must be 1.000
+    result = score_one(skill_name)
+    if result["composite"] < 0.999:
+        print(json.dumps({
+            "error": "structural_gate_failed",
+            "skill": skill_name,
+            "composite": result["composite"],
+            "message": "Skill must pass structural eval (1.000) before tournament",
+        }))
+        sys.exit(1)
+
+    # Load tournament inputs
+    all_descriptions = load_all_descriptions()
+    trigger_prompts = load_trigger_prompts(skill_name, split="train")
+    if not trigger_prompts:
+        print(json.dumps({"error": "no_trigger_file", "skill": skill_name}))
+        sys.exit(1)
+
+    # Run tournament
+    tournament_result = run_tournament(skill_name, all_descriptions, trigger_prompts, config)
+
+    # Journal the result
+    iteration = get_iteration_count() + 1
+    entry = {
+        "iteration": iteration,
+        "skill": skill_name,
+        "dimension": "trigger_accuracy",
+        "old_composite": result["composite"],
+        "new_composite": result["composite"],  # structural unchanged
+        "kept": tournament_result["changed"],
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "description": f"tournament: {tournament_result['passes']} passes, "
+                       f"converged={tournament_result['converged']}",
+        "asi": {
+            "type": "tournament",
+            "passes": tournament_result["passes"],
+            "converged": tournament_result["converged"],
+            "description_before": tournament_result["description_before"],
+            "description_after": tournament_result["description_after"],
+            "history": tournament_result["history_summary"],
+        },
+    }
+    append_journal(entry)
+
+    print(json.dumps(tournament_result, indent=2))
+
+
 def cmd_status(args):
     """Show current state summary."""
     all_scores = score_all()
@@ -384,6 +473,11 @@ def main():
     p_revert.add_argument("--desc", required=True)
     p_revert.add_argument("--asi", default="{}")
     p_revert.set_defaults(func=cmd_revert)
+
+    # tournament
+    p_tournament = sub.add_parser("tournament", help="Run description tournament for a skill")
+    p_tournament.add_argument("skill")
+    p_tournament.set_defaults(func=cmd_tournament)
 
     # target
     p_target = sub.add_parser("target", help="Find weakest skill+dimension")

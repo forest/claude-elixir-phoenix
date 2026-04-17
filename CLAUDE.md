@@ -312,9 +312,10 @@ make help          # Show all commands
 make lint          # Lint markdown
 make lint-fix      # Auto-fix lint
 make test          # 52 pytest tests for eval framework
-make eval          # Quick: lint + score changed skills/agents only
-make eval-all      # Score all 40 skills + 20 agents
+make eval          # Quick: lint + score changed skills/agents + trigger accuracy (cached)
+make eval-all      # Score all 40 skills + 20 agents + trigger accuracy
 make eval-fix      # Auto-fix lint + show failures + suggest autoresearch
+make eval-tournament # Run tournament on weak skills (<75% trigger accuracy)
 make ci            # Full CI pipeline: lint + test + eval
 ```
 

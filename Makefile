@@ -1,4 +1,4 @@
-.PHONY: help lint lint-fix eval eval-all eval-fix eval-full eval-ci eval-triggers eval-skills eval-agents test validate ci clean
+.PHONY: help lint lint-fix eval eval-all eval-fix eval-full eval-ci eval-triggers eval-tournament eval-skills eval-agents test validate ci clean
 
 # Default target
 help: ## Show available commands
@@ -33,6 +33,9 @@ eval-ci: ## CI gate: lint + all skills + all agents
 
 eval-triggers: ## Re-run behavioral trigger tests (~60 min, uses haiku)
 	@bash lab/eval/run_eval.sh --triggers
+
+eval-tournament: ## Run tournament on weak skills (<75% trigger accuracy)
+	@python3 -m lab.tournament.description_tournament --weak
 
 eval-skills: ## Score all skills only
 	@bash lab/eval/run_eval.sh --skills

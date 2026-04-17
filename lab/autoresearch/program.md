@@ -39,10 +39,19 @@ On exact tie: keep (prefer newer — likely simpler or more accurate).
 
 ## Stop Conditions
 
+### Structural mode (default)
+
 - All target skills at composite >= 0.95
 - 10 consecutive discards on same skill -> skip that skill
 - 50 total consecutive discards -> stop entirely
 - Human interrupts (Ctrl+C)
+
+### Tournament mode (post-saturation)
+
+- Activated when all structural composites >= 1.000 but trigger accuracy < 0.75
+- Per-skill: incumbent A wins k=2 consecutive rounds -> converged, stop
+- Per-skill: max 20 passes hard ceiling
+- Global: 5 consecutive "all_perfect" target checks -> stop entirely
 
 ## Anti-Thrashing Rules
 
