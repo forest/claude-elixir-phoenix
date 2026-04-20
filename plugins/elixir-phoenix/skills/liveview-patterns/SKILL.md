@@ -12,6 +12,8 @@ paths:
 
 # LiveView Patterns Reference
 
+> **Ash projects**: For `AshPhoenix.Form` or Ash-driven LiveViews, use the `ash-framework` skill — `mix usage_rules.search_docs "form" -p ash_phoenix`.
+
 Reference for building with Phoenix LiveView 1.0/1.1.
 
 ## Iron Laws — Never Violate These

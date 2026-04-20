@@ -603,11 +603,13 @@ Should I apply this fix?
 
 ### Ash Framework Detection
 
-If the project uses Ash Framework (detected by `use Ash.Resource` or `use Ash.Domain`):
+If the project uses Ash Framework (detected by `:ash` in mix.exs, `use Ash.Resource`, or `use Ash.Domain`):
 
-1. **Warn**: "This project uses Ash Framework. My Ecto-specific patterns may not apply."
-2. **Suggest**: "For Ash-specific guidance, consult Ash Framework documentation."
-3. **Skip**: Don't apply Ecto Iron Laws to Ash.Resource modules
+1. **Load** the `ash-framework` skill — it owns Ash-specific patterns for data access, resources, and actions
+2. **Research first**: `mix usage_rules.search_docs "<topic>" -p ash -p ash_phoenix -p ash_postgres -p ash_authentication -p ash_oban`
+3. **Module lookup**: `mix usage_rules.docs Ash.Resource`
+4. **Generators first**: `mix ash.gen.resource`, `mix ash.codegen`, `mix ash.gen.domain`
+5. **Data access**: prefer Ash actions via domain code interfaces over direct `Repo` calls — Ash is a complement to Phoenix/Ecto, not a replacement. LiveView, security, and OTP Iron Laws still apply.
 
 ### Phoenix Version Detection
 
