@@ -5,6 +5,61 @@ All notable changes to the Elixir/Phoenix Claude Code plugin.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.3] - 2026-04-23
+
+### Added
+
+- **`/phx:review` cross-checks implementation against requirements**
+  (requested by Thiago Ferrari Pimentel on Slack, 2026-04-23). The review
+  now emits a `## Requirements Coverage` table with columns
+  `# | Requirement | Status | Evidence`, classifying each stated
+  requirement as MET / PARTIAL / UNMET / UNCLEAR. This formalizes the
+  cross-check pattern already done manually in session `ba3f7890`
+  (2026-04-17, enaia-main) where the table was titled
+  "Cross-check against Linear ENA-8931 acceptance criteria".
+- **Auto-detection of the requirements source** (no argument required).
+  `/phx:review` now tries, in priority order:
+  1. Explicit `$ARGUMENTS` (path to `.md`, `ENA-8931`, or `#42`)
+  2. Conversation context (recent `mcp__linear__get_issue` / `gh issue view`
+     results are reused — no re-fetch)
+  3. Git branch regex (`[A-Za-z][A-Za-z0-9_]+-\d+`, matching branches like
+     `ena-8278-extraction-scaffolding`)
+  4. Commit subjects since main (`[A-Z]+-\d+` or `#\d+`)
+  5. Most recently modified `.claude/plans/*/plan.md` (extracts only
+     `- [x]` completed items)
+  6. None → emits `NOT AVAILABLE` with sources tried (never silent).
+- **New `requirements-verifier` agent** (sonnet, read-only, `omitClaudeMd`).
+  Extracts requirements from the source, Greps the diff for evidence,
+  classifies each item. Spawned in parallel with other review agents
+  when a source is detected.
+- **New Usage**: `/phx:review ENA-8931`, `/phx:review #42`,
+  `/phx:review --no-requirements`.
+- **New reference**: `skills/review/references/requirements-detection.md`
+  documents sources, regexes, fetch commands, and failure handling.
+
+### Changed
+
+- `/phx:review` verdict now considers Requirements Coverage: any `UNMET`
+  escalates to `REQUIRES CHANGES`; `PARTIAL` downgrades `PASS` →
+  `PASS WITH WARNINGS`. `BLOCKED` (Iron Law violations) still takes
+  precedence.
+- Review template places the coverage block before per-severity findings
+  — "did we deliver what we promised" is the user's first question.
+
+### Fixed
+
+- **`log-progress.sh` wrote entries to the wrong plan** (issue #38, bigardone).
+  The hook picked the most recently modified `progress.md` across ALL plans via
+  `ls -t | head -1`, so with more than one plan in `.claude/plans/` the
+  `[HH:MM] Modified: <file>` lines landed in whichever plan had been touched
+  last — often a completed plan, not the plan `/phx:work` was actually running.
+  Bug has existed since the init commit (2026-02-13); surfaced once users
+  accumulated parallel plans. The progress-file branch is removed entirely —
+  the `/phx:work` skill already logs structured progress entries itself, so the
+  hook-driven append was both redundant and structurally unsound (no reliable
+  way to identify the active plan from inside a `PostToolUse` hook). The
+  cross-project JSONL metrics branch is unchanged.
+
 ## [2.8.2] - 2026-04-17
 
 ### Changed
