@@ -26,6 +26,7 @@ Only data access patterns shift toward Ash actions and domain code interfaces.
 4. **CODEGEN AFTER RESOURCE CHANGES** — Always run `mix ash.codegen` after modifying resources; this generates migrations from resource snapshots — never write AshPostgres migrations by hand
 5. **ACTIONS OVER FUNCTIONS** — Put business logic in named actions, not domain functions; expose via code interfaces defined on the domain
 6. **NEVER EDIT RESOURCE SNAPSHOTS** — `priv/resource_snapshots/` is owned exclusively by `mix ash.codegen`; manual edits corrupt migration tracking
+7. **NO DIRECT `Repo.*` IN ASH PROJECTS** — `Repo.all/get/insert` bypass Ash policies and notifications; use domain code interfaces. Any `Repo` call in an Ash project is an escape hatch and must be documented
 
 ## Quick Reference
 
