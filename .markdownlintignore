@@ -1,0 +1,3 @@
+# Third-party files fetched by scripts/fetch-ash-rules.sh
+# These are upstream Ash maintainer files — not ours to format
+plugins/elixir-phoenix/skills/ash-framework/references/

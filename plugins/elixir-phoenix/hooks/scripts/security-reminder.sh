@@ -7,7 +7,7 @@ fi
 
 # Check if file path matches security-sensitive patterns
 BASENAME=$(basename "$FILE_PATH")
-if echo "$FILE_PATH" | grep -qiE '(auth|session|password|token|permission|admin|payment|login|credential|secret)'; then
+if echo "$BASENAME" | grep -qiE '(auth|session|password|token|permission|admin|payment|login|credential|secret)'; then
   # PostToolUse: exit 2 + stderr feeds message to Claude (stdout is verbose-mode only)
   cat >&2 <<MSG
 SECURITY FILE DETECTED: $BASENAME

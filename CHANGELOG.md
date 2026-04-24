@@ -5,6 +5,34 @@ All notable changes to the Elixir/Phoenix Claude Code plugin.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **`ash-framework` skill** — new reference skill for Ash Framework projects with 6 Iron Laws
+  (domain code interfaces, actor-on-query placement, generators first, codegen after resource
+  changes, actions over functions, never edit resource snapshots). Scores 1.0.
+- **35 Ash usage-rules reference files** fetched from upstream Ash maintainer repos and
+  distributed with the plugin: `ash` (14), `ash_phoenix` (6), `ash_postgres` (9),
+  `ash_authentication` (1), `ash_json_api` (1), `ash_graphql` (4). Stored in
+  `skills/ash-framework/references/`.
+- **`scripts/fetch-ash-rules.sh`** — fetch script to pull latest Ash usage-rules from GitHub
+  before plugin releases. Supports `--force` and `--dry-run`.
+- **Auto-load patterns for Ash files** — `*/changes/*.ex`, `*/checks/*.ex`, `*/actions/*.ex`,
+  `*/types/*.ex`, `*/validations/*.ex`, and `priv/resource_snapshots/**` added to CLAUDE.md
+  auto-load table targeting the `ash-framework` skill.
+
+### Changed
+
+- **`detect-ash.sh` hook** simplified — announces "ash-framework skill loaded" with a concise
+  reminder instead of duplicating guidance inline; full guidance lives in the skill.
+
+### Fixed
+
+- **`security-reminder.sh`** — grep now runs against `$BASENAME` (filename only) rather than
+  the full `$FILE_PATH`, preventing false positives from directory names that contain security
+  keywords (e.g., files in `session-analysis/`).
+
 ## [2.8.2] - 2026-04-17
 
 ### Changed
