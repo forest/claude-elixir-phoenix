@@ -14,6 +14,7 @@ Referenced by `/phx:review` Step 2.
 | Testing Reviewer | `elixir-phoenix:testing-reviewer` | Test files changed OR new public functions |
 | Oban Specialist | `elixir-phoenix:oban-specialist` | Worker files changed (*_worker.ex) |
 | Deploy Validator | `elixir-phoenix:deployment-validator` | Dockerfile/fly.toml/runtime.exs changed |
+| Requirements Verifier | `elixir-phoenix:requirements-verifier` | Task ID detected OR plan/spec path passed (Step 1c succeeded). **Skip** on `--no-requirements` |
 
 Min 1, max 5 agents. For <200 lines changed: spawn only elixir-reviewer +
 security-analyzer (if auth files).
@@ -31,6 +32,7 @@ Every agent prompt MUST include an explicit `output_file` path.
 | oban-specialist | `.claude/plans/{slug}/reviews/oban.md` |
 | deployment-validator | `.claude/plans/{slug}/reviews/deploy.md` |
 | verification-runner | `.claude/plans/{slug}/reviews/verification.md` |
+| requirements-verifier | `.claude/plans/{slug}/reviews/requirements.md` |
 
 ## Standard Prompt Block
 

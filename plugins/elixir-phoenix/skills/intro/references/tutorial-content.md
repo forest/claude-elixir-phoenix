@@ -66,7 +66,9 @@ For features that need planning and review:
 # 2. Work — executes plan, checks off tasks, runs mix compile
 /phx:work .claude/plans/user-avatars/plan.md
 
-# 3. Review — parallel agents check Elixir idioms, security, tests
+# 3. Review — parallel agents check idioms, security, tests, and
+#    cross-check implementation vs. requirements (auto-detected from
+#    branch/commits, or pass `ENA-123` / `#42` / a plan/spec path)
 /phx:review
 
 # 4. Compound — capture what you learned for future reference
