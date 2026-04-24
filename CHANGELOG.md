@@ -22,10 +22,22 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `*/types/*.ex`, `*/validations/*.ex`, and `priv/resource_snapshots/**` added to CLAUDE.md
   auto-load table targeting the `ash-framework` skill.
 
+### Added (continued)
+
+- **`ash-resource-designer` agent** (sonnet) — designs Ash resources with actions, policies,
+  relationships, and domain code interfaces. Outputs a design doc with generator commands and
+  code interface stubs.
+- **`ash-policy-reviewer` agent** (sonnet) — audits Ash policy coverage, `authorize?: false`
+  bypass patterns, actor placement at call sites, and check module correctness.
+- **`ash-query-optimizer` agent** (sonnet) — detects N+1 load patterns, suggests aggregates
+  over load+Enum, and identifies calculation vs load tradeoffs in Ash queries.
+
 ### Changed
 
 - **`detect-ash.sh` hook** simplified — announces "ash-framework skill loaded" with a concise
   reminder instead of duplicating guidance inline; full guidance lives in the skill.
+- **`detect-ash.sh` migration warning** fixed — was incorrectly showing `mix ecto.migrate`;
+  now shows `mix ash.codegen <name> && mix ash.migrate  (NOT mix ecto.migrate)`.
 
 ### Fixed
 
