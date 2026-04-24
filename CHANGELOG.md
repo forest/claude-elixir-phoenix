@@ -5,6 +5,34 @@ All notable changes to the Elixir/Phoenix Claude Code plugin.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.0] - 2026-04-24
+
+### Added
+
+- **`/narrow-bare-rescue` skill** — new user-invocable skill for auditing and
+  narrowing bare `rescue _ ->` / `rescue e ->` clauses in Elixir to explicit
+  exception-type lists so programmer bugs (`UndefinedFunctionError`,
+  `KeyError`, typos) propagate instead of being silently swallowed. Motivated
+  by the Erlang Secure Coding Guide rule **LNG-002** ("Do Not Use `catch`").
+  Ships with:
+  - `SKILL.md` — Iron Laws (5 rules) + 4-step workflow
+    (find → taxonomy lookup → apply → verify)
+  - `references/taxonomy.md` — verified exception sets for 16 work categories
+    (JSON, Ecto + Postgres, Money/Decimal, File I/O, Req, ExAws, ExCmd, Regex,
+    atoms-from-strings, Phoenix forms, Plug, Phoenix LiveView HEEx/MDEx,
+    NimbleCSV, DOCX/PDF extraction, explicit `raise`, plus a
+    "programmer-bug exceptions to EXCLUDE" table). Validated against
+    Elixir 1.19 / OTP 28.
+  - `references/patterns.md` — special patterns: `is_exception/1` replacement,
+    Oban "log and reraise" (with `__STACKTRACE__`), ExCmd's
+    `ExCmd.Stream.AbnormalExit`, module-attribute hoisting for ≥3 rescues
+    sharing a taxonomy, partitioning ≥50-site cleanups into per-directory PR
+    clusters, and the regression-prevention Credo check pattern.
+  - `lab/eval/triggers/narrow-bare-rescue.json` — 10-prompt trigger test set.
+  - Invocation: `/narrow-bare-rescue [file_path | directory | --all]`.
+  - Eval: composite score 0.968 (structural), 80% trigger accuracy, 100%
+    trigger precision.
+
 ## [2.8.3] - 2026-04-23
 
 ### Added
