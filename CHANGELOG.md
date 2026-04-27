@@ -5,6 +5,23 @@ All notable changes to the Elixir/Phoenix Claude Code plugin.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.5] - 2026-04-27
+
+### Changed
+
+- **CC changelog audit** — bumped tracked Claude Code version to **v2.1.119**
+  (`.claude/cc-changelog/last-checked-version.txt`) and refreshed the audit
+  notes in `memory/reference_cc_source_internals.md`. Highlights for plugin
+  authors: `PostToolUse` / `PostToolUseFailure` hook inputs now include
+  `duration_ms`; async `PostToolUse` hooks emitting no response no longer
+  write empty session-transcript entries (our `log-progress.sh` benefits
+  silently — no code change needed); skills invoked before auto-compaction
+  no longer re-execute against the next user message; `--print` mode and
+  `--agent <name>` now honor agent `tools:` / `disallowedTools:` and
+  `permissionMode:` for built-in agents (relevant for future headless
+  agent runs in `lab/eval/`). No BREAKING or DEPRECATION items affecting
+  plugin code.
+
 ## [2.8.4] - 2026-04-24
 
 ### Added
