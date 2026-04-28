@@ -5,6 +5,34 @@ All notable changes to the Elixir/Phoenix Claude Code plugin.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.6] - 2026-04-28
+
+### Changed
+
+- **CC changelog audit** — bumped tracked Claude Code version to **v2.1.121**
+  (`.claude/cc-changelog/last-checked-version.txt`) and refreshed the audit
+  notes in `memory/reference_cc_source_internals.md`. No BREAKING or
+  DEPRECATION items affecting the plugin. Highlights for plugin authors:
+  `PostToolUse` `hookSpecificOutput.updatedToolOutput` now works for all
+  tools (previously MCP-only) — opens the door for `format-elixir.sh` /
+  `error-critic.sh` to rewrite mix output instead of only appending hints;
+  `--dangerously-skip-permissions` no longer prompts on writes to
+  `.claude/skills/ | agents/ | commands/`, which directly unblocks
+  autoresearch and skill-creator loops; `CLAUDE_CODE_FORK_SUBAGENT=1` now
+  works in non-interactive `claude -p` sessions, enabling forked subagents
+  in `lab/eval/` and `lab/autoresearch/` scripts; `${CLAUDE_EFFORT}` is
+  now substituted inside skill content, opening up effort-driven skill
+  branches that align with the plugin's existing `effort:` frontmatter
+  convention; `claude ultrareview [target]` now exists as a non-interactive
+  subcommand with `--json` output. Reliability fixes worth noting: MCP
+  servers now auto-retry 3× on transient startup errors, the
+  Esc-during-stdio-MCP regression from 2.1.105 is fixed, several memory
+  leaks are closed, and `--resume` now skips corrupted transcript lines
+  instead of crashing (relevant to session-scan / session-deep-dive).
+  Adding `$schema` to `plugin.json` / `marketplace.json` is now supported
+  by `claude plugin validate` but is deferred until the canonical schema
+  URL is published.
+
 ## [2.8.5] - 2026-04-27
 
 ### Changed
