@@ -9,21 +9,10 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
-- **`ash-framework` skill** — new reference skill for Ash Framework projects with 6 Iron Laws
-  (domain code interfaces, actor-on-query placement, generators first, codegen after resource
-  changes, actions over functions, never edit resource snapshots). Scores 1.0.
-- **35 Ash usage-rules reference files** fetched from upstream Ash maintainer repos and
-  distributed with the plugin: `ash` (14), `ash_phoenix` (6), `ash_postgres` (9),
-  `ash_authentication` (1), `ash_json_api` (1), `ash_graphql` (4). Stored in
-  `skills/ash-framework/references/`.
-- **`scripts/fetch-ash-rules.sh`** — fetch script to pull latest Ash usage-rules from GitHub
-  before plugin releases. Supports `--force` and `--dry-run`.
-- **Auto-load patterns for Ash files** — `*/changes/*.ex`, `*/checks/*.ex`, `*/actions/*.ex`,
-  `*/types/*.ex`, `*/validations/*.ex`, and `priv/resource_snapshots/**` added to CLAUDE.md
-  auto-load table targeting the `ash-framework` skill.
-
-### Added (continued)
-
+- **`ash-framework` skill** — Iron Laws, generator workflow, and tiered research protocol
+  (Tidewave → `usage_rules` → WebFetch hexdocs.pm) for Ash Framework projects. Iron Laws:
+  domain code interfaces, actor-on-query placement, generators first, codegen after resource
+  changes, actions over functions, never edit resource snapshots, no direct `Repo.*`.
 - **`ash-resource-designer` agent** (sonnet) — designs Ash resources with actions, policies,
   relationships, and domain code interfaces. Outputs a design doc with generator commands and
   code interface stubs.
@@ -31,13 +20,7 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   bypass patterns, actor placement at call sites, and check module correctness.
 - **`ash-query-optimizer` agent** (sonnet) — detects N+1 load patterns, suggests aggregates
   over load+Enum, and identifies calculation vs load tradeoffs in Ash queries.
-
-### Changed
-
-- **`detect-ash.sh` hook** simplified — announces "ash-framework skill loaded" with a concise
-  reminder instead of duplicating guidance inline; full guidance lives in the skill.
-- **`detect-ash.sh` migration warning** fixed — was incorrectly showing `mix ecto.migrate`;
-  now shows `mix ash.codegen <name> && mix ash.migrate  (NOT mix ecto.migrate)`.
+- **`priv/resource_snapshots/**`auto-load** — added to CLAUDE.md auto-load table; triggers`ash-framework`skill with Iron Law reminder that snapshots are owned by`mix ash.codegen`.
 
 ### Fixed
 

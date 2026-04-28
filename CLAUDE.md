@@ -457,9 +457,7 @@ When working on Elixir/Phoenix code, ALWAYS load relevant skills based on file c
 | `*/contexts/*`, `lib/*/[a-z]*.ex` | `phoenix-contexts` | `references/context-patterns.md` |
 | `lib/mix/tasks/*` | `elixir-idioms` | `references/mix-tasks.md` |
 | `*.sface` | `liveview-patterns` | `references/components.md` |
-| `*/changes/*.ex`, `*/checks/*.ex` | `ash-framework` | `references/ash/authorization.md`, `references/ash/actions.md` |
-| `*/actions/*.ex`, `*/types/*.ex`, `*/validations/*.ex` | `ash-framework` | `references/ash/actions.md`, `references/ash/code_interfaces.md` |
-| `priv/resource_snapshots/**` | `ash-framework` | `references/ash-postgres/migrations.md` — NEVER edit snapshots manually |
+| `priv/resource_snapshots/**` | `ash-framework` | NEVER edit snapshots manually — owned by `mix ash.codegen` |
 | Any `.ex` or `.exs` file | `elixir-idioms` | Always check Iron Laws |
 
 ### Skill Loading Behavior

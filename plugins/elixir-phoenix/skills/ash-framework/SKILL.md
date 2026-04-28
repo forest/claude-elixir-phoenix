@@ -3,13 +3,6 @@ name: ash-framework
 description: "Ash Framework patterns — resources, actions, domains, policies, AshPhoenix forms, LiveView, AshPostgres migrations. Use when editing Ash resources, changes, checks, types, validations, or domain code interfaces."
 effort: medium
 user-invocable: false
-paths:
-  - "**/changes/*.ex"
-  - "**/checks/*.ex"
-  - "**/actions/*.ex"
-  - "**/types/*.ex"
-  - "**/validations/*.ex"
-  - "**/resource_snapshots/**/*.json"
 ---
 
 # Ash Framework Reference
@@ -21,7 +14,10 @@ Only data access patterns shift toward Ash actions and domain code interfaces.
 ## Iron Laws
 
 1. **USE DOMAIN CODE INTERFACES** — Never call `Ash.create/Ash.read` directly in LiveViews or Controllers; use domain code interfaces: `MyApp.Accounts.register_user()` not `Ash.create(User, attrs)`
-2. **SET ACTOR ON QUERY, NOT ON CALL** — `Ash.Query.for_read(:read, %{}, actor: actor)` is correct; passing `actor:` to `Ash.read!()` is wrong and may bypass row-level policies
+2. **SET ACTOR/SCOPE AT QUERY PREP, NOT EXECUTION** — Pass `actor:` or `scope:` to
+   `for_read/for_create/for_action` (prep), NOT to `Ash.read!/Ash.create!` (execution);
+   execution-level actor bypasses row-level policy evaluation. If project uses `Ash.Scope`,
+   pass `scope:` consistently instead of bare `actor:` — do not mix styles
 3. **GENERATORS FIRST** — Before writing Ash code manually, run `mix ash.gen.resource` or `mix ash.gen.domain` with `--yes`; check `mix help ash.gen.<task>` for options
 4. **CODEGEN AFTER RESOURCE CHANGES** — Always run `mix ash.codegen` after modifying resources; this generates migrations from resource snapshots — never write AshPostgres migrations by hand
 5. **ACTIONS OVER FUNCTIONS** — Put business logic in named actions, not domain functions; expose via code interfaces defined on the domain
@@ -50,29 +46,53 @@ end
 user = MyApp.Accounts.get_user_by_email!(email, actor: current_user)
 ```
 
-### Authorization — Actor Must Be on Query
+### Authorization — Actor/Scope at Query Prep
 
 ```elixir
-# CORRECT — actor on query, policies evaluated per-row
+# CORRECT — actor at query prep, policies evaluated per-row
 MyApp.Post
 |> Ash.Query.for_read(:list_published, %{}, actor: current_user)
 |> Ash.read!()
 
-# WRONG — actor on Ash call, bypasses row-level policy evaluation
+# CORRECT with Ash.Scope (carries actor + tenant + context; use if project adopts it)
+MyApp.Post
+|> Ash.Query.for_read(:list_published, %{}, scope: scope)
+|> Ash.read!()
+
+# WRONG — actor at execution bypasses row-level policy evaluation
 MyApp.Post
 |> Ash.Query.for_read(:list_published)
 |> Ash.read!(actor: current_user)
 ```
 
+### Ash.Scope — When the Project Uses It
+
+`Ash.Scope` bundles `actor + tenant + context` into a single struct passed through actions.
+Implement `Ash.Scope.ToOpts` on a project-defined scope struct:
+
+```elixir
+defimpl Ash.Scope.ToOpts, for: MyApp.Scope do
+  def get_actor(%{current_user: u}), do: {:ok, u}
+  def get_tenant(%{current_tenant: t}), do: {:ok, t}
+  def get_context(%{locale: l}), do: {:ok, %{shared: %{locale: l}}}
+  def get_tracer(_), do: :error
+  def get_authorize?(_), do: :error
+end
+```
+
+**Detection**: if the project has a `Scope` module implementing `Ash.Scope.ToOpts`, use
+`scope:` everywhere instead of bare `actor:`. Do NOT mix the two styles in the same codebase.
+See `mix usage_rules.docs Ash.Scope` for full protocol spec.
+
 ### File Conventions (from `mix ash.gen.*`)
 
-| File | Location | Behaviour |
-|------|----------|-----------|
-| Changes | `lib/app/ctx/changes/name.ex` | `use Ash.Resource.Change` |
-| Policy Checks | `lib/app/ctx/checks/name.ex` | `use Ash.Policy.Check` |
-| Custom Actions | `lib/app/ctx/actions/name.ex` | generic action logic |
-| Custom Types | `lib/app/ctx/types/name.ex` | `use Ash.Type` |
-| Validations | `lib/app/ctx/validations/name.ex` | `use Ash.Resource.Validation` |
+| File           | Location                          | Behaviour                     |
+| -------------- | --------------------------------- | ----------------------------- |
+| Changes        | `lib/app/ctx/changes/name.ex`     | `use Ash.Resource.Change`     |
+| Policy Checks  | `lib/app/ctx/checks/name.ex`      | `use Ash.Policy.Check`        |
+| Custom Actions | `lib/app/ctx/actions/name.ex`     | generic action logic          |
+| Custom Types   | `lib/app/ctx/types/name.ex`       | `use Ash.Type`                |
+| Validations    | `lib/app/ctx/validations/name.ex` | `use Ash.Resource.Validation` |
 
 ### Generator Workflow
 
@@ -80,29 +100,31 @@ MyApp.Post
 mix ash.gen.resource MyApp.Accounts.User --yes
 mix ash.gen.domain MyApp.Accounts --yes
 mix ash.codegen        # reads resource snapshots → generates migration
-mix ecto.migrate
+mix ash.migrate
 ```
 
-## References
+## Research
 
-Read the relevant reference before implementing unfamiliar patterns — especially authorization and AshPostgres migrations.
+Prefer the highest-fidelity source available:
 
-- `${CLAUDE_SKILL_DIR}/references/ash/actions.md` — Actions, changes, validations, error classes
-- `${CLAUDE_SKILL_DIR}/references/ash/authorization.md` — Policies, actor placement, policy checks
-- `${CLAUDE_SKILL_DIR}/references/ash/code_interfaces.md` — Domain code interfaces, define syntax
-- `${CLAUDE_SKILL_DIR}/references/ash/relationships.md` — Relationships, loading, belongs_to vs has_many
-- `${CLAUDE_SKILL_DIR}/references/ash/testing.md` — Ash testing patterns
-- `${CLAUDE_SKILL_DIR}/references/ash/generating_code.md` — Generator workflow and flags
-- `${CLAUDE_SKILL_DIR}/references/ash/querying_data.md` — Query building, filters, calculations
-- `${CLAUDE_SKILL_DIR}/references/ash-phoenix/form_integration.md` — AshPhoenix.Form with LiveView
-- `${CLAUDE_SKILL_DIR}/references/ash-phoenix/nested_forms.md` — Nested AshPhoenix forms
-- `${CLAUDE_SKILL_DIR}/references/ash-phoenix/debugging_form_submissions.md` — Form debug patterns
-- `${CLAUDE_SKILL_DIR}/references/ash-postgres/migrations.md` — AshPostgres migration workflow
-- `${CLAUDE_SKILL_DIR}/references/ash-postgres/best_practices.md` — AshPostgres patterns
-- `${CLAUDE_SKILL_DIR}/references/ash-postgres/multitenancy.md` — Multitenancy patterns
-- `${CLAUDE_SKILL_DIR}/references/ash-authentication/usage-rules.md` — AshAuthentication setup, strategies, tokens
-- `${CLAUDE_SKILL_DIR}/references/ash-json-api/usage-rules.md` — AshJsonApi domain setup, routes, resource config
-- `${CLAUDE_SKILL_DIR}/references/ash-graphql/overview.md` — AshGraphql overview and setup
-- `${CLAUDE_SKILL_DIR}/references/ash-graphql/domain_configuration.md` — Domain-level GraphQL config
-- `${CLAUDE_SKILL_DIR}/references/ash-graphql/resource_configuration.md` — Resource-level GraphQL config
-- `${CLAUDE_SKILL_DIR}/references/ash-graphql/custom_types.md` — Custom GraphQL types
+1. **Tidewave** (exact version from `mix.lock`):
+
+   ```
+   mcp__tidewave__get_docs(module: "Ash.Resource")
+   mcp__tidewave__get_docs(module: "AshPhoenix.Form")
+   ```
+
+2. **usage_rules** (project-synced to your installed ash_* dep versions):
+
+   ```bash
+   mix usage_rules.search_docs "<topic>" -p ash -p ash_phoenix -p ash_postgres -p ash_authentication -p ash_oban
+   mix usage_rules.docs Ash.Resource
+   ```
+
+3. **WebFetch hexdocs.pm** (fallback when neither is available):
+
+   ```
+   WebFetch(url: "https://hexdocs.pm/ash/Ash.Resource.html", prompt: "Extract module docs.")
+   ```
+
+If `usage_rules` is not configured, the SessionStart hook suggests how to install it.
