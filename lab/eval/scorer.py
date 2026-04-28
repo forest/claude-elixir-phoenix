@@ -13,7 +13,7 @@ import os
 import sys
 
 from lab.eval.schemas import (
-    EvalDefinition, EvalDimension, EvalCheck, SkillScore, DimensionResult,
+    EvalDefinition, EvalDimension, EvalCheck, DimensionResult,
     ScoreRequest, ScoreResult,
 )
 from lab.eval.dimensions import completeness, accuracy, conciseness, triggering, safety, clarity, specificity, behavioral

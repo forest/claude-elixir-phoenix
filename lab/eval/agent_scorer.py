@@ -12,7 +12,7 @@ import json
 import os
 import sys
 
-from lab.eval.schemas import SkillScore, DimensionResult, AssertionResult, ScoreRequest, ScoreResult
+from lab.eval.schemas import DimensionResult, AssertionResult, ScoreRequest, ScoreResult
 from lab.eval.matchers import (
     parse_frontmatter, frontmatter_field, description_length, line_count, max_section_lines,
     no_dangerous_patterns,

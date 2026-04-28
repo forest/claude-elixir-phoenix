@@ -38,7 +38,7 @@ sys.path.insert(0, PROJECT_ROOT)
 from lab.eval.scorer import score_skill, find_eval, find_all_skills, PLUGIN_ROOT
 from lab.eval.schemas import EvalDefinition
 from lab.eval.triggers.deviation_classifier import RESULTS_DIR as TRIGGER_RESULTS_DIR
-from lab.eval.triggers.deviation_types import DeviationType, FIX_HINTS, TriggerDeviation
+from lab.eval.triggers.deviation_types import DeviationType, TriggerDeviation
 
 RESULTS_FILE = os.path.join(PROJECT_ROOT, "lab", "autoresearch", "results.jsonl")
 STATE_FILE = os.path.join(PROJECT_ROOT, "lab", "autoresearch", "autoresearch.md")
@@ -60,7 +60,6 @@ def pick_dominant_deviation(deviations: list[TriggerDeviation]) -> TriggerDeviat
     Priority: high severity > medium > low, then most common type."""
     if not deviations:
         return None
-    severity_rank = {"high": 0, "medium": 1, "low": 2}
     high = [d for d in deviations if d.severity.value == "high"]
     pool = high or deviations
     # Group by type, pick most common
