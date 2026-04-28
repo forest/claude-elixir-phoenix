@@ -24,6 +24,8 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(EVAL_DIR))
 sys.path.insert(0, PROJECT_ROOT)
 
 from lab.eval.matchers import parse_frontmatter
+from lab.eval.schemas import ScoreRequest, ScoreResult
+from lab.eval.triggers.deviation_classifier import classify_failures
 
 PLUGIN_ROOT = os.path.join(PROJECT_ROOT, "plugins", "elixir-phoenix")
 TRIGGERS_DIR = os.path.join(EVAL_DIR, "triggers")
@@ -107,76 +109,122 @@ List at most 3 skills, ordered by relevance."""
         return []
 
 
+def score_triggers(request: ScoreRequest) -> ScoreResult:
+    """Score trigger accuracy for one skill. Pure function — no I/O side effects.
+    Caller handles cache reads (via request.use_cache + request.cache_dir) and writes.
+    """
+    skill_name = request.target_name
+    triggers = request.triggers or {}
+    all_descriptions = request.all_descriptions or {}
+
+    # Cache read — request-prep step, not a side effect
+    if request.use_cache and request.cache_dir:
+        cache_path = os.path.join(request.cache_dir, f"{skill_name}.json")
+        if os.path.isfile(cache_path):
+            with open(cache_path) as f:
+                cached = json.load(f)
+            # Backfill deviations on pre-Phase-1 cache files (no API cost)
+            if "deviations" not in cached:
+                deviations = classify_failures(skill_name, cached, all_descriptions)
+                cached["deviations"] = [d.to_dict() for d in deviations]
+            return _result_from_dict(cached, request)
+
+    should_trigger = triggers.get("should_trigger", [])
+    should_not = triggers.get("should_not_trigger", [])
+
+    results = []
+    for prompt in should_trigger:
+        chosen = ask_haiku(all_descriptions, prompt)
+        results.append({
+            "prompt": prompt, "expected": True, "chosen": chosen,
+            "correct": skill_name in chosen,
+        })
+    for prompt in should_not:
+        chosen = ask_haiku(all_descriptions, prompt)
+        results.append({
+            "prompt": prompt, "expected": False, "chosen": chosen,
+            "correct": skill_name not in chosen,
+        })
+
+    total = len(results)
+    correct_count = sum(1 for r in results if r["correct"])
+    tp = sum(1 for r in results if r["expected"] and r["correct"])
+    fp = sum(1 for r in results if not r["expected"] and not r["correct"])
+    fn = sum(1 for r in results if r["expected"] and not r["correct"])
+    tn = sum(1 for r in results if not r["expected"] and r["correct"])
+
+    precision = tp / (tp + fp) if (tp + fp) > 0 else 1.0
+    recall = tp / (tp + fn) if (tp + fn) > 0 else 1.0
+    accuracy = correct_count / total if total > 0 else 0.0
+
+    # Classify routing failures by deviation type
+    metadata_payload = {
+        "skill": skill_name,
+        "results": results,
+        "tp": tp, "fp": fp, "fn": fn, "tn": tn,
+    }
+    deviations = classify_failures(skill_name, metadata_payload, all_descriptions)
+
+    return ScoreResult(
+        target_name=skill_name,
+        target_path=request.target_path,
+        target_kind="trigger",
+        composite=accuracy,
+        dimensions={},
+        metadata={
+            "accuracy": accuracy,
+            "precision": precision,
+            "recall": recall,
+            "total": total,
+            "correct": correct_count,
+            "tp": tp, "fp": fp, "fn": fn, "tn": tn,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "results": results,
+            "deviations": [d.to_dict() for d in deviations],
+        },
+        cache_hit=False,
+    )
+
+
+def _result_from_dict(cached: dict, request: ScoreRequest) -> ScoreResult:
+    """Hydrate a ScoreResult from cached JSON for cache-hit paths."""
+    return ScoreResult(
+        target_name=cached.get("skill", request.target_name),
+        target_path=request.target_path,
+        target_kind="trigger",
+        composite=cached.get("accuracy", 0.0),
+        dimensions={},
+        metadata={k: v for k, v in cached.items() if k != "skill"},
+        cache_hit=True,
+    )
+
+
 def score_skill_triggers(
     skill_name: str,
     triggers: dict,
     all_descriptions: dict[str, str],
     use_cache: bool = False,
 ) -> dict:
-    """Score trigger accuracy for one skill. Returns precision/recall/accuracy."""
-    cache_path = os.path.join(RESULTS_DIR, f"{skill_name}.json")
+    """Backwards-compatible wrapper. Builds ScoreRequest, calls score_triggers,
+    returns the legacy dict shape. Writes cache file (legacy callers expect this)."""
+    request = ScoreRequest(
+        target_path="",
+        target_kind="trigger",
+        target_name=skill_name,
+        use_cache=use_cache,
+        cache_dir=RESULTS_DIR,
+        triggers=triggers,
+        all_descriptions=all_descriptions,
+    )
+    result = score_triggers(request)
+    score_data = result.to_dict()
 
-    if use_cache and os.path.isfile(cache_path):
-        with open(cache_path) as f:
-            return json.load(f)
-
-    should_trigger = triggers.get("should_trigger", [])
-    should_not = triggers.get("should_not_trigger", [])
-
-    results = []
-
-    # Test should-trigger prompts
-    for prompt in should_trigger:
-        chosen = ask_haiku(all_descriptions, prompt)
-        correct = skill_name in chosen
-        results.append({
-            "prompt": prompt,
-            "expected": True,
-            "chosen": chosen,
-            "correct": correct,
-        })
-
-    # Test should-not-trigger prompts
-    for prompt in should_not:
-        chosen = ask_haiku(all_descriptions, prompt)
-        correct = skill_name not in chosen
-        results.append({
-            "prompt": prompt,
-            "expected": False,
-            "chosen": chosen,
-            "correct": correct,
-        })
-
-    # Compute metrics
-    total = len(results)
-    correct_count = sum(1 for r in results if r["correct"])
-
-    tp = sum(1 for r in results if r["expected"] and r["correct"])  # should trigger, did trigger
-    fp = sum(1 for r in results if not r["expected"] and not r["correct"])  # shouldn't trigger, did
-    fn = sum(1 for r in results if r["expected"] and not r["correct"])  # should trigger, didn't
-    tn = sum(1 for r in results if not r["expected"] and r["correct"])  # shouldn't trigger, didn't
-
-    precision = tp / (tp + fp) if (tp + fp) > 0 else 1.0
-    recall = tp / (tp + fn) if (tp + fn) > 0 else 1.0
-    accuracy = correct_count / total if total > 0 else 0.0
-
-    score_data = {
-        "skill": skill_name,
-        "accuracy": round(accuracy, 4),
-        "precision": round(precision, 4),
-        "recall": round(recall, 4),
-        "total": total,
-        "correct": correct_count,
-        "tp": tp, "fp": fp, "fn": fn, "tn": tn,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "results": results,
-    }
-
-    # Cache results
-    os.makedirs(RESULTS_DIR, exist_ok=True)
-    with open(cache_path, "w") as f:
-        json.dump(score_data, f, indent=2)
-        f.write("\n")
+    if not result.cache_hit:
+        os.makedirs(RESULTS_DIR, exist_ok=True)
+        cache_path = os.path.join(RESULTS_DIR, f"{skill_name}.json")
+        with open(cache_path, "w") as f:
+            json.dump(score_data, f, indent=2)
+            f.write("\n")
 
     return score_data
 

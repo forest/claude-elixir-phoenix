@@ -12,7 +12,10 @@ import json
 import os
 import sys
 
-from lab.eval.schemas import EvalDefinition, EvalDimension, EvalCheck, SkillScore, DimensionResult
+from lab.eval.schemas import (
+    EvalDefinition, EvalDimension, EvalCheck, DimensionResult,
+    ScoreRequest, ScoreResult,
+)
 from lab.eval.dimensions import completeness, accuracy, conciseness, triggering, safety, clarity, specificity, behavioral
 
 DIMENSION_MODULES = {
@@ -74,23 +77,35 @@ def default_eval(skill_path: str) -> EvalDefinition:
     )
 
 
-def score_skill(skill_path: str, eval_def: EvalDefinition | None = None) -> SkillScore:
-    """Score a skill across all 5 dimensions. Returns SkillScore with composite 0.0-1.0."""
-    skill_path = os.path.abspath(skill_path)
+def score_skill(skill_path: str, eval_def: EvalDefinition | None = None) -> ScoreResult:
+    """Score a skill across all dimensions. Returns ScoreResult; composite 0.0-1.0.
+    Backwards-compat: ScoreResult.to_dict() emits the legacy SkillScore shape.
+    """
+    request = ScoreRequest(
+        target_path=os.path.abspath(skill_path),
+        target_kind="skill",
+        eval_def=eval_def,
+        plugin_root=os.path.abspath(PLUGIN_ROOT),
+    )
+    return score_skill_request(request)
 
+
+def score_skill_request(request: ScoreRequest) -> ScoreResult:
+    """Canonical entrypoint — accept ScoreRequest, return ScoreResult."""
+    import time
+    start = time.time()
+    skill_path = request.target_path
     if not os.path.isfile(skill_path):
         raise FileNotFoundError(f"Skill file not found: {skill_path}")
 
     with open(skill_path) as f:
         content = f.read()
 
-    if eval_def is None:
-        eval_def = default_eval(skill_path)
+    eval_def = request.eval_def or default_eval(skill_path)
+    plugin_root = request.plugin_root or os.path.abspath(PLUGIN_ROOT)
 
-    plugin_root = os.path.abspath(PLUGIN_ROOT)
     dimensions: dict[str, DimensionResult] = {}
     total_weight = 0.0
-
     for dim_name, dim_def in eval_def.dimensions.items():
         module = DIMENSION_MODULES.get(dim_name)
         if module is None:
@@ -99,7 +114,6 @@ def score_skill(skill_path: str, eval_def: EvalDefinition | None = None) -> Skil
         dimensions[dim_name] = result
         total_weight += dim_def.weight
 
-    # Compute weighted composite
     if total_weight == 0:
         composite = 0.0
     else:
@@ -109,13 +123,19 @@ def score_skill(skill_path: str, eval_def: EvalDefinition | None = None) -> Skil
             if name in eval_def.dimensions
         ) / total_weight
 
-    skill_name = eval_def.skill or os.path.basename(os.path.dirname(skill_path))
+    skill_name = (
+        request.target_name
+        or eval_def.skill
+        or os.path.basename(os.path.dirname(skill_path))
+    )
 
-    return SkillScore(
-        skill_name=skill_name,
-        skill_path=skill_path,
+    return ScoreResult(
+        target_name=skill_name,
+        target_path=skill_path,
+        target_kind="skill",
         composite=composite,
         dimensions=dimensions,
+        duration=time.time() - start,
     )
 
 
