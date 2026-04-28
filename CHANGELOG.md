@@ -5,6 +5,29 @@ All notable changes to the Elixir/Phoenix Claude Code plugin.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **`ash-framework` skill** — Iron Laws, generator workflow, and tiered research protocol
+  (Tidewave → `usage_rules` → WebFetch hexdocs.pm) for Ash Framework projects. Iron Laws:
+  domain code interfaces, actor-on-query placement, generators first, codegen after resource
+  changes, actions over functions, never edit resource snapshots, no direct `Repo.*`.
+- **`ash-resource-designer` agent** (sonnet) — designs Ash resources with actions, policies,
+  relationships, and domain code interfaces. Outputs a design doc with generator commands and
+  code interface stubs.
+- **`ash-policy-reviewer` agent** (sonnet) — audits Ash policy coverage, `authorize?: false`
+  bypass patterns, actor placement at call sites, and check module correctness.
+- **`ash-query-optimizer` agent** (sonnet) — detects N+1 load patterns, suggests aggregates
+  over load+Enum, and identifies calculation vs load tradeoffs in Ash queries.
+- **`priv/resource_snapshots/**`auto-load** — added to CLAUDE.md auto-load table; triggers`ash-framework`skill with Iron Law reminder that snapshots are owned by`mix ash.codegen`.
+
+### Fixed
+
+- **`security-reminder.sh`** — grep now runs against `$BASENAME` (filename only) rather than
+  the full `$FILE_PATH`, preventing false positives from directory names that contain security
+  keywords (e.g., files in `session-analysis/`).
+
 ## [2.8.6] - 2026-04-28
 
 ### Changed
@@ -183,11 +206,11 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   (`elixir-reviewer`, `testing-reviewer`, `iron-law-judge`, `security-analyzer`,
   `oban-specialist`, `deployment-validator`, `verification-runner`,
   `parallel-reviewer`) previously declared `disallowedTools: Write, Edit,
-  NotebookEdit` and could not write to disk. The skill told them to write
+NotebookEdit` and could not write to disk. The skill told them to write
   findings to `.claude/plans/{slug}/reviews/{agent}.md`; the main context fell
   back to extracting from each agent's return message, producing the visible
-  log line *"Agent didn't write the file. Let me read its output to extract
-  findings."* Fixed by allowing `Write` (keeping `Edit` and `NotebookEdit`
+  log line _"Agent didn't write the file. Let me read its output to extract
+  findings."_ Fixed by allowing `Write` (keeping `Edit` and `NotebookEdit`
   disallowed so source code stays protected), bumping `maxTurns` from 15 → 25
   for the six non-mechanical reviewers (burned on Read/Grep before writing on
   large diffs), and adding an explicit "write partial findings by turn ~12,
@@ -259,7 +282,7 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **`disableSkillShellExecution` resilience** — Converted executable bash fenced blocks
   to inline prose instructions across 18 skills (14 BROKEN, 4 DEGRADED). Skills now
   instruct Claude via prose ("Run `mix compile`", "Use Grep to search...") instead of
-  `` ```bash `` blocks that CC may block when `disableSkillShellExecution` is enabled
+  ` ```bash ` blocks that CC may block when `disableSkillShellExecution` is enabled
   (CC v2.1.91). Tool-replaceable commands (`grep`, `cat`, `find`, `ls`) converted to
   Claude tool references (Grep, Read, Glob). Documentation/example blocks unchanged.
 - **Removed `disableModelInvocation` from plan, review, investigate** — The flag
