@@ -37,10 +37,41 @@ sys.path.insert(0, PROJECT_ROOT)
 
 from lab.eval.scorer import score_skill, find_eval, find_all_skills, PLUGIN_ROOT
 from lab.eval.schemas import EvalDefinition
+from lab.eval.triggers.deviation_classifier import RESULTS_DIR as TRIGGER_RESULTS_DIR
+from lab.eval.triggers.deviation_types import DeviationType, FIX_HINTS, TriggerDeviation
 
 RESULTS_FILE = os.path.join(PROJECT_ROOT, "lab", "autoresearch", "results.jsonl")
 STATE_FILE = os.path.join(PROJECT_ROOT, "lab", "autoresearch", "autoresearch.md")
 CHECKS_SCRIPT = os.path.join(PROJECT_ROOT, "lab", "autoresearch", "scripts", "checks.sh")
+
+
+def load_deviations(skill_name: str) -> list[TriggerDeviation]:
+    """Read cached trigger deviations for one skill. Returns [] if no cache."""
+    path = os.path.join(TRIGGER_RESULTS_DIR, f"{skill_name}.json")
+    if not os.path.isfile(path):
+        return []
+    with open(path) as f:
+        data = json.load(f)
+    return [TriggerDeviation.from_dict(d) for d in data.get("deviations", [])]
+
+
+def pick_dominant_deviation(deviations: list[TriggerDeviation]) -> TriggerDeviation | None:
+    """Pick the deviation that should drive the next mutation.
+    Priority: high severity > medium > low, then most common type."""
+    if not deviations:
+        return None
+    severity_rank = {"high": 0, "medium": 1, "low": 2}
+    high = [d for d in deviations if d.severity.value == "high"]
+    pool = high or deviations
+    # Group by type, pick most common
+    from collections import Counter
+    type_counts = Counter(d.deviation_type for d in pool)
+    dominant_type, _ = type_counts.most_common(1)[0]
+    # Return first deviation of that type (preserves competing_skill / matched_keywords)
+    for d in pool:
+        if d.deviation_type == dominant_type:
+            return d
+    return pool[0]
 
 
 def score_one(skill_name: str) -> dict:
@@ -173,7 +204,7 @@ def find_weakest(strategy: str = "targeted") -> dict | None:
             weak = find_weak_skills(threshold=0.75)
             if weak:
                 skill_name, accuracy = weak[0]  # Worst first
-                return {
+                target = {
                     "skill": skill_name,
                     "dimension": "trigger_accuracy",
                     "dim_score": accuracy,
@@ -181,6 +212,18 @@ def find_weakest(strategy: str = "targeted") -> dict | None:
                     "mode": "tournament",
                     "failing_checks": [f"trigger accuracy {accuracy:.0%} < 75%"],
                 }
+                # Augment with deviation taxonomy — drives mutation strategy
+                deviations = load_deviations(skill_name)
+                dominant = pick_dominant_deviation(deviations)
+                if dominant:
+                    target["deviation_type"] = dominant.deviation_type.value
+                    target["severity"] = dominant.severity.value
+                    target["fix_hint"] = dominant.fix_hint
+                    target["competing_skill"] = dominant.competing_skill
+                    target["matched_keywords"] = list(dominant.matched_keywords)
+                    target["strategy"] = _strategy_for(dominant.deviation_type)
+                    target["deviation_count"] = len(deviations)
+                return target
         except ImportError:
             pass
 
@@ -314,6 +357,10 @@ def cmd_keep(args):
         "description": args.desc,
         "asi": asi,
     }
+    if args.deviation_type:
+        entry["deviation_type"] = args.deviation_type
+    if args.strategy_applied:
+        entry["strategy_applied"] = args.strategy_applied
     append_journal(entry)
     print(json.dumps({"status": "kept", "iteration": iteration, "commit_msg": msg}))
 
@@ -342,6 +389,10 @@ def cmd_revert(args):
         "description": args.desc,
         "asi": asi,
     }
+    if args.deviation_type:
+        entry["deviation_type"] = args.deviation_type
+    if args.strategy_applied:
+        entry["strategy_applied"] = args.strategy_applied
     append_journal(entry)
     print(json.dumps({"status": "reverted", "iteration": iteration}))
 
@@ -353,6 +404,85 @@ def cmd_target(args):
         print(json.dumps({"status": "all_perfect", "message": "AUTORESEARCH_COMPLETE"}))
     else:
         print(json.dumps(target))
+
+
+# Deviation-type → mutation strategy. Phase 4b dispatch table.
+_STRATEGIES: dict[DeviationType, str] = {
+    DeviationType.MISSING_KEYWORD: "inject_keywords",
+    DeviationType.SCOPE_TOO_NARROW: "synonym_expand",
+    DeviationType.DESCRIPTION_OVERLAP: "disambiguate",
+    DeviationType.USE_CASE_GAP: "add_use_when",
+    DeviationType.SCOPE_TOO_BROAD: "tighten_scope",
+    DeviationType.UNKNOWN: "random_rewrite",
+}
+
+
+def _strategy_for(deviation_type: DeviationType) -> str:
+    return _STRATEGIES.get(deviation_type, "random_rewrite")
+
+
+def cmd_deviations(args):
+    """Inspect classified trigger deviations across cached results."""
+    from collections import Counter
+
+    if args.skill:
+        devs = load_deviations(args.skill)
+        if not devs:
+            print(json.dumps({"skill": args.skill, "deviations": []}))
+            return
+        dominant = pick_dominant_deviation(devs)
+        out = {
+            "skill": args.skill,
+            "count": len(devs),
+            "by_type": dict(Counter(d.deviation_type.value for d in devs)),
+            "by_severity": dict(Counter(d.severity.value for d in devs)),
+            "deviations": [d.to_dict() for d in devs],
+            "dominant": dominant.to_dict() if dominant else None,
+            "strategy": _strategy_for(dominant.deviation_type) if dominant else None,
+        }
+        print(json.dumps(out, indent=2 if args.pretty else None))
+        return
+
+    # Aggregate across all skills
+    all_devs: dict[str, list[TriggerDeviation]] = {}
+    if not os.path.isdir(TRIGGER_RESULTS_DIR):
+        print(json.dumps({"error": "no_trigger_cache"}))
+        sys.exit(1)
+    for fname in sorted(os.listdir(TRIGGER_RESULTS_DIR)):
+        if not fname.endswith(".json") or fname.startswith("_"):
+            continue
+        skill = fname[:-5]
+        devs = load_deviations(skill)
+        if devs:
+            all_devs[skill] = devs
+
+    type_counter: Counter = Counter()
+    severity_counter: Counter = Counter()
+    strategy_counter: Counter = Counter()
+    for devs in all_devs.values():
+        for d in devs:
+            type_counter[d.deviation_type.value] += 1
+            severity_counter[d.severity.value] += 1
+            strategy_counter[_strategy_for(d.deviation_type)] += 1
+
+    output = {
+        "skills_with_deviations": len(all_devs),
+        "total_deviations": sum(len(d) for d in all_devs.values()),
+        "by_type": dict(type_counter),
+        "by_severity": dict(severity_counter),
+        "by_strategy": dict(strategy_counter),
+    }
+    if args.histogram:
+        total = output["total_deviations"]
+        print(f"Deviation distribution across {output['skills_with_deviations']} skills "
+              f"({total} total):")
+        for dtype in DeviationType:
+            n = type_counter.get(dtype.value, 0)
+            pct = (n / total * 100) if total else 0
+            strat = _STRATEGIES.get(dtype, "?")
+            print(f"  {dtype.value:22s} {n:4d}  ({pct:5.1f}%)  → {strat}")
+    else:
+        print(json.dumps(output, indent=2 if args.pretty else None))
 
 
 def cmd_tournament(args):
@@ -461,6 +591,10 @@ def main():
     p_keep.add_argument("new")
     p_keep.add_argument("--desc", required=True)
     p_keep.add_argument("--asi", default="{}")
+    p_keep.add_argument("--deviation-type", default="",
+                        help="Deviation type that drove this mutation (Phase 4b)")
+    p_keep.add_argument("--strategy-applied", default="",
+                        help="Mutation strategy applied (e.g., inject_keywords)")
     p_keep.set_defaults(func=cmd_keep)
 
     # revert
@@ -471,6 +605,10 @@ def main():
     p_revert.add_argument("new")
     p_revert.add_argument("--desc", required=True)
     p_revert.add_argument("--asi", default="{}")
+    p_revert.add_argument("--deviation-type", default="",
+                          help="Deviation type that drove this mutation (Phase 4b)")
+    p_revert.add_argument("--strategy-applied", default="",
+                          help="Mutation strategy applied (e.g., inject_keywords)")
     p_revert.set_defaults(func=cmd_revert)
 
     # tournament
@@ -482,6 +620,13 @@ def main():
     p_target = sub.add_parser("target", help="Find weakest skill+dimension")
     p_target.add_argument("--strategy", default="targeted", choices=["targeted", "sweep", "random"])
     p_target.set_defaults(func=cmd_target)
+
+    # deviations
+    p_dev = sub.add_parser("deviations", help="Inspect classified trigger deviations")
+    p_dev.add_argument("--skill", help="Show deviations for one skill")
+    p_dev.add_argument("--histogram", action="store_true", help="Print type histogram with strategies")
+    p_dev.add_argument("--pretty", action="store_true", help="Pretty-print JSON")
+    p_dev.set_defaults(func=cmd_deviations)
 
     # status
     p_status = sub.add_parser("status", help="Show current state")

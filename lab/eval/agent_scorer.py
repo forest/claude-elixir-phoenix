@@ -12,7 +12,7 @@ import json
 import os
 import sys
 
-from lab.eval.schemas import SkillScore, DimensionResult, AssertionResult
+from lab.eval.schemas import SkillScore, DimensionResult, AssertionResult, ScoreRequest, ScoreResult
 from lab.eval.matchers import (
     parse_frontmatter, frontmatter_field, description_length, line_count, max_section_lines,
     no_dangerous_patterns,
@@ -25,15 +25,27 @@ from lab.eval.agent_matchers import (
 PLUGIN_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "plugins", "elixir-phoenix")
 
 
-def score_agent(agent_path: str) -> SkillScore:
-    """Score an agent across 5 dimensions."""
-    agent_path = os.path.abspath(agent_path)
+def score_agent(agent_path: str) -> ScoreResult:
+    """Score an agent across 5 dimensions. Backwards-compat: to_dict() emits
+    the legacy SkillScore shape.
+    """
+    request = ScoreRequest(
+        target_path=os.path.abspath(agent_path),
+        target_kind="agent",
+        plugin_root=os.path.abspath(PLUGIN_ROOT),
+    )
+    return score_agent_request(request)
+
+
+def score_agent_request(request: ScoreRequest) -> ScoreResult:
+    """Canonical entrypoint — accept ScoreRequest, return ScoreResult."""
+    agent_path = request.target_path
     with open(agent_path) as f:
         content = f.read()
 
     fm = parse_frontmatter(content)
     agent_name = fm.get("name", os.path.basename(agent_path).replace(".md", ""))
-    plugin_root = os.path.abspath(PLUGIN_ROOT)
+    plugin_root = request.plugin_root or os.path.abspath(PLUGIN_ROOT)
 
     # Determine if orchestrator (higher line limits)
     is_orchestrator = agent_name in ORCHESTRATOR_NAMES
@@ -110,9 +122,10 @@ def score_agent(agent_path: str) -> SkillScore:
     total_weight = sum(weights.values())
     composite = sum(weights[d] * dim.score for d, dim in dimensions.items() if d in weights) / total_weight
 
-    return SkillScore(
-        skill_name=agent_name,
-        skill_path=agent_path,
+    return ScoreResult(
+        target_name=agent_name,
+        target_path=agent_path,
+        target_kind="agent",
         composite=composite,
         dimensions=dimensions,
     )
