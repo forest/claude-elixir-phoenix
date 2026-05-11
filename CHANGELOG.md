@@ -21,12 +21,18 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **`ash-query-optimizer` agent** (sonnet) — detects N+1 load patterns, suggests aggregates
   over load+Enum, and identifies calculation vs load tradeoffs in Ash queries.
 - **`priv/resource_snapshots/**`auto-load** — added to CLAUDE.md auto-load table; triggers`ash-framework`skill with Iron Law reminder that snapshots are owned by`mix ash.codegen`.
+- **`mix-compression` Ash filters** — added `[filters.mix-ash-codegen]` and
+  `[filters.mix-ash-migrate]` to `references/rtk-filters.toml`. Matches the same
+  compression model as `mix-ecto-migrate`: happy-path short-circuits to one-liner,
+  snapshot/migration file lists preserved verbatim, errors never stripped. Extends
+  the documented 5-15% per-session token reduction to Ash workflows.
 
 ### Fixed
 
 - **`security-reminder.sh`** — grep now runs against `$BASENAME` (filename only) rather than
   the full `$FILE_PATH`, preventing false positives from directory names that contain security
   keywords (e.g., files in `session-analysis/`).
+
 ## [2.8.8] - 2026-05-08
 
 ### Added
