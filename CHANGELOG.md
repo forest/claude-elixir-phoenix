@@ -18,8 +18,11 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   code interface stubs.
 - **`ash-policy-reviewer` agent** (sonnet) — audits Ash policy coverage, `authorize?: false`
   bypass patterns, actor placement at call sites, and check module correctness.
-- **`ash-query-optimizer` agent** (sonnet) — detects N+1 load patterns, suggests aggregates
-  over load+Enum, and identifies calculation vs load tradeoffs in Ash queries.
+- **`ash-query-optimizer` agent** (sonnet) — detects N+1 load patterns and surfaces the
+  "Ash way" across 8 Iron Laws and 9 anti-patterns: load+`length`/`count` → aggregates,
+  `count > 0` → `exists` aggregate, post-load `Enum.filter` → query-customized loads,
+  derived `Map.put` → calculations, multi-read + `Enum.uniq_by` → `Ash.Query.combination_of`,
+  direct `Repo.*` → Ash actions/aggregates, wide-resource reads → `Ash.Query.select`.
 - **`priv/resource_snapshots/**`auto-load** — added to CLAUDE.md auto-load table; triggers`ash-framework`skill with Iron Law reminder that snapshots are owned by`mix ash.codegen`.
 - **`mix-compression` Ash filters** — added `[filters.mix-ash-codegen]` and
   `[filters.mix-ash-migrate]` to `references/rtk-filters.toml`. Matches the same
