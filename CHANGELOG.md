@@ -444,8 +444,8 @@ none of the interim 2.10.0–2.12.0 bumps were ever tagged or shipped
 NotebookEdit` and could not write to disk. The skill told them to write
   findings to `.claude/plans/{slug}/reviews/{agent}.md`; the main context fell
   back to extracting from each agent's return message, producing the visible
-  log line _"Agent didn't write the file. Let me read its output to extract
-  findings."_ Fixed by allowing `Write` (keeping `Edit` and `NotebookEdit`
+  log line *"Agent didn't write the file. Let me read its output to extract
+  findings."* Fixed by allowing `Write` (keeping `Edit` and `NotebookEdit`
   disallowed so source code stays protected), bumping `maxTurns` from 15 → 25
   for the six non-mechanical reviewers (burned on Read/Grep before writing on
   large diffs), and adding an explicit "write partial findings by turn ~12,
