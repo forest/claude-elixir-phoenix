@@ -318,31 +318,6 @@ aggregates do
 end
 ```
 
-## Anti-Patterns to Replace During Design
-
-```elixir
-# BAD — custom change module that just sets an attribute
-change MyApp.Changes.StampPublishedAt
-# GOOD — built-in
-change set_attribute(:published_at, &DateTime.utc_now/0)
-
-# BAD — accept :* on update; intent is hidden
-update :update do accept :* end
-# GOOD — narrow named actions
-update :rename do accept [:name] end
-update :assign_owner do
-  argument :owner_id, :uuid, allow_nil?: false
-  change manage_relationship(:owner_id, :owner, type: :append_and_remove)
-end
-
-# BAD — unique check via custom validation
-validate MyApp.Validations.UniqueEmail
-# GOOD — identity (AshPostgres builds the unique index too)
-identities do
-  identity :unique_email, [:email], eager_check?: true
-end
-```
-
 ## Output Format
 
 Write design to the path given in the prompt (or default above):
