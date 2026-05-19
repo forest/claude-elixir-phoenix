@@ -7,8 +7,8 @@ if [ -f "mix.exs" ] && grep -q ':ash,' mix.exs 2>/dev/null || grep -rq 'use Ash\
   echo "  Migrations: mix ash.codegen <name> && mix ash.migrate  (NOT hand-edit; NOT mix ecto.migrate)"
 
   # Check if usage_rules is installed and configured for version-accurate Ash docs
-  HAS_DEP=$(grep -c ':usage_rules' mix.exs 2>/dev/null || echo 0)
-  HAS_CONFIG=$(grep -c 'usage_rules:' mix.exs 2>/dev/null || echo 0)
+  HAS_DEP=$(grep -c ':usage_rules' mix.exs 2>/dev/null); HAS_DEP=${HAS_DEP:-0}
+  HAS_CONFIG=$(grep -c 'usage_rules:' mix.exs 2>/dev/null); HAS_CONFIG=${HAS_CONFIG:-0}
 
   if [ "$HAS_DEP" -eq 0 ] || [ "$HAS_CONFIG" -eq 0 ]; then
     echo ""
