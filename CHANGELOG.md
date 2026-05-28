@@ -36,6 +36,183 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   the full `$FILE_PATH`, preventing false positives from directory names that contain security
   keywords (e.g., files in `session-analysis/`).
   
+- **Protected-section invariant** in the autoresearch loop (contributor
+  tooling, not distributed). The `## Iron Laws` section of every SKILL.md is
+  now **append-only slow state**: the loop may add a law but a delete/reword
+  forces REVERT. Enforced as a hard gate via `checks.sh` check #7 (backed by
+  `lab/autoresearch/scripts/protected_sections.py`, which diffs the working
+  tree against git HEAD, prefix-stripped so renumbering is allowed), plus a
+  "Protected Sections" declaration in `lab/autoresearch/program.md`. Borrowed
+  from SkillOpt (arXiv 2605.23904), which measured this fast/slow guarantee at
+  ~22 points on SpreadsheetBench. A live test confirmed the necessity: the
+  8-dimension scorer is *blind* to single-law deletion (composite and `safety`
+  both stay 1.0, because the scorer is stateless and the `safety` dimension
+  only checks section presence + min count) — so the old soft gate would have
+  silently accepted dropping a security Iron Law. New tests:
+  `lab/autoresearch/tests/test_protected_sections.py` (10 cases).
+
+## [2.10.5] - 2026-05-25
+
+Patch: route audit subagents to declared-model specialists instead of
+`general-purpose`, cutting Opus subagent volume per `/phx:audit` run.
+
+### Changed
+
+- `skills/audit/SKILL.md`: route 3 of 5 parallel audit subagents to
+  declared-model plugin specialists instead of `general-purpose` (which
+  inherits the parent session model, usually Opus). Architecture →
+  `phoenix-patterns-analyst` (sonnet), Security → `security-analyzer`
+  (opus), Test health → `testing-reviewer` (sonnet). Performance and
+  Dependency tracks kept on `general-purpose` with TODO notes — no plugin
+  specialist exists for project-wide perf or deps audit. Motivation: a
+  JSONL analysis of 4,561 local sessions found 61.6% of Task/Agent
+  invocations bypass the plugin via CC built-ins, materially explaining
+  why Sonnet+Haiku combined are only ~7% of total token spend despite 18
+  of 22 plugin agents declaring those models.
+
+## [2.10.4] - 2026-05-21
+
+Patch: fix force-push hook false-positive (issue #61) and the same
+scan-past-separator class in the two sibling rules.
+
+### Fixed
+
+- `block-dangerous-ops.sh` (PreToolUse) — the force-push regex
+  `git push.*(--force|-f)\b` matched `--force-with-lease` (in ERE,
+  `\b` is a word boundary and the hyphen after `--force` is non-word,
+  so the boundary triggered on the lease variant) AND scanned past
+  shell command separators, so an unrelated `&& gh ... --force-with-lease`
+  on the same line tripped the deny. The hook blocked the very command
+  its `permissionDecisionReason` recommended as the safer alternative.
+  Reported by @inou (issue #61) — hit on a Sprint 8 rebase cycle that
+  stranded three rebased branches. New ERE anchors on start-of-line or
+  shell separator (`;` `&` `|` `&&` `||`), keeps the scan inside the
+  current command (`[^;|&]*`), and requires the flag to end at a word
+  terminator (`([[:space:];&|]|$)`), so `--force-with-lease` is allowed
+  while real `--force`/`-f` are still blocked. The same anchor fix is
+  applied to the `mix ecto.(reset|drop)` and `MIX_ENV=prod mix` rules
+  in the same file, which had the identical scan-past-separator
+  failure mode (e.g. `echo "do not run mix ecto.reset" && mix test`
+  used to be denied).
+- New `plugins/elixir-phoenix/hooks/tests/block-dangerous-ops_test.sh`
+  regression harness — 41 cases covering real force-push, the lease
+  variant, scan-past-separator false positives, Elixir-only Ecto and
+  MIX_ENV rules, and the `mix.exs`-gated cross-project bleed (#55).
+  Run with `bash plugins/elixir-phoenix/hooks/tests/block-dangerous-ops_test.sh`.
+
+## [2.10.3] - 2026-05-20
+
+Patch release bundling two unreleased changes since v2.10.2: CC hook-API
+adoption from PR #56 and the eval-framework multi-model trigger scorer.
+
+### Added
+
+- `check-pending-plans.sh` (Stop hook) now surfaces `background_tasks[]`
+  and `session_crons[]` from hook input as terminal warnings — catches
+  forgotten `mix phx.server`, `iex -S mix`, `mix watch` processes and
+  pending `/schedule` jobs at session stop (CC 2.1.145+ field).
+- `block-dangerous-ops.sh` (PreToolUse) now emits structured JSON
+  output with `permissionDecision: "deny"`, a user-facing reason, and
+  `hookSpecificOutput.additionalContext` containing the safer
+  alternative. Thanks to the CC 2.1.110 fix that preserves
+  additionalContext on blocked tool calls, the safer alternative now
+  persists into Claude's next turn instead of being a one-shot stderr
+  message.
+- CLAUDE.md documents the new `type: "mcp_tool"` hook (CC 2.1.118+)
+  with its SessionStart caveat — MCP servers may not be connected at
+  SessionStart, so detection probes stay on direct HTTP / `curl`;
+  reserve `mcp_tool` for PreToolUse / PostToolUse / Stop where the
+  connection is live.
+- Release checklist documents that `claude plugin tag` (CC 2.1.118+) does
+  NOT work for this repo's marketplace layout (it expects
+  `.claude-plugin/plugin.json` at the repo root, but our plugin lives at
+  `plugins/elixir-phoenix/.claude-plugin/plugin.json`). Manual
+  `git tag vX.Y.Z` remains the canonical path.
+
+### Added (contributor)
+
+- Multi-model trigger eval — `lab/eval/trigger_scorer.py` gained a
+  `--model <alias_or_full_id>` flag (default `claude-haiku-4-5`,
+  preserves all existing behavior). Aliases (`haiku`/`sonnet`/`opus`)
+  canonicalize to full IDs so `--model haiku` and
+  `--model claude-haiku-4-5` share one cache. Non-default models land
+  in `lab/eval/triggers/results/by-model/{model}/`; per-result JSON
+  records the `model` field so caches are self-describing.
+- `lab/eval/compare_models.py` — N-way model comparator. Loads N
+  `_aggregate.json` files via `--models alias,alias,…` or
+  `--aggregates path…`, prints an ASCII table sorted by per-skill
+  spread with `↕`/`⚠` markers at 10%/20% disagreement, plus an
+  apples-to-apples intersection mean and pairwise delta when skill
+  sets differ. `--format json` for machine consumption.
+- `Makefile`: `MODEL=sonnet make eval-multimodel` (full per-model
+  sweep), `MODELS=haiku,sonnet make eval-compare-models` (cached
+  comparison). Foundation for verifying v3.0.0 multi-agent ports
+  (Codex/OpenCode/Pi) on non-Claude routing judges.
+  See issue #48, T1.3 Phase 1.
+
+### Changed
+
+- `block-dangerous-ops.sh` Elixir-specific branches (`mix ecto.reset`,
+  `mix ecto.drop`, `MIX_ENV=prod`) now self-gate on `mix.exs` presence,
+  matching the PR #55 cross-project-bleed pattern. The git force-push
+  branch remains intentionally global.
+- SessionStart welcome echo in `hooks.json` converted to `args: []`
+  exec form (CC 2.1.139+) to eliminate nested shell quoting.
+- `/phx:permissions` risk-classification flags that `Bash(find:*)`
+  allow rules no longer auto-approve `find -exec` / `find -delete`
+  (CC 2.1.113+ tightening).
+
+## [2.10.2] - 2026-05-20
+
+### Fixed
+
+- `/phx:research`, `/phx:brainstorm`, `/phx:perf`, `/phx:pr-review` failing
+  with "skill not listed" when invoked via slash command (issue #53,
+  reported by @bigardone). Root cause: `disable-model-invocation: true`
+  was still set on these four skills, triggering Claude Code bug
+  [#26251](https://github.com/anthropics/claude-code/issues/26251) where
+  the model refuses to invoke a skill via the Skill tool even when the
+  user typed the slash command. Removing the flag — matching the
+  precedent established in commit `f1fc494` (plan/review/investigate) —
+  restores reliable invocation across native CC and third-party CC
+  wrappers (Conductor, OpenCode, etc.), and lets the model see these
+  skills in its inventory so workflow chains
+  (`/phx:brainstorm → /phx:plan`, `intent-detection → /phx:research`)
+  resolve correctly.
+
+## [2.10.1] - 2026-05-20
+
+Patch release fixing cross-project bleed when the plugin is enabled globally
+(issue #55). All Elixir-specific hooks now self-gate on `mix.exs` presence —
+they no-op cleanly in non-Elixir repos instead of firing Phoenix Iron Laws on
+unrelated files. `security-reminder.sh` additionally tightens its filename
+match to eliminate false positives on parent directory names and non-source
+files.
+
+### Fixed
+
+- **Hooks now self-gate on `mix.exs` presence** — no Iron Laws, security
+  reminders, subagent context injection, `.claude/` directory creation, or
+  plan-STOP messages in non-Elixir projects when the plugin is enabled
+  globally. Affects: `security-reminder.sh`, `log-progress.sh`,
+  `inject-iron-laws.sh`, `precompact-rules.sh`, `setup-dirs.sh`,
+  `plan-stop-reminder.sh`, `format-elixir.sh`, `iron-law-verifier.sh`,
+  `debug-statement-warning.sh` (#55).
+- **`security-reminder.sh` filename matching tightened** — basename-only
+  match with word-boundary separators (`_.-`) and restricted to Elixir
+  source extensions (`.ex/.exs/.heex/.eex/.leex`). Eliminates false
+  positives like `tokenizer.cpp` (`token`), `/admin_panel/foo.ex` (parent
+  dir `admin`), `docs/session-notes.md` (wrong extension), and the
+  reporter's `session-state.md` case (#55).
+- **`hooks.json` Edit|Write block** — added `if:` extension filter for
+  `security-reminder.sh` as defense in depth alongside the script's
+  self-gating.
+
+### Changed
+
+- README install section: noted project-scope enable as a tidiness
+  preference for multi-stack developers (global enable is now safe).
+
 ## [2.10.0] - 2026-05-16
 
 Adds a second, **framework-agnostic companion plugin** to the
