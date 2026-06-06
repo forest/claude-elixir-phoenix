@@ -36,6 +36,37 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   the full `$FILE_PATH`, preventing false positives from directory names that contain security
   keywords (e.g., files in `session-analysis/`).
   
+### Changed
+
+### Fixed
+
+## [2.10.6] - 2026-06-04
+
+Patch: Elixir 1.20 type-system awareness across the verify/review path, plus
+contributor tooling — a `/release` skill and single-sourced markdownlint ignores.
+
+### Added
+
+- **Elixir 1.20 type-system awareness.** Elixir v1.20 (2026-06-03) completed
+  its first type-system milestone: the compiler now infers types and gradually
+  type-checks every program **without annotations**, reporting dead code and
+  *verified bugs* (guaranteed runtime failures) as `mix compile` warnings —
+  built-in, no Dialyzer/PLT. The practical impact for the plugin: on 1.20+
+  (OTP 27+), `mix compile --warnings-as-errors` — which `/phx:verify`,
+  `/phx:work` checkpoints, and the "fix CI" pattern run everywhere — now
+  **fails the build on type violations**. Changes:
+  - New reference `skills/elixir-idioms/references/elixir-120-type-system.md`:
+    the `dynamic()` mental model (refinable range, disjoint-only flagging),
+    guard/clause/map inference, how to read & fix a violation, and a
+    compiler-checker-vs-Dialyzer comparison table.
+  - `skills/elixir-idioms/SKILL.md`: reference pointer added.
+  - `skills/verify/SKILL.md` + `agents/verification-runner.md`: note that
+    `--warnings-as-errors` now surfaces type violations at the compile step,
+    and to suspect a newly-detected verified bug (not a regression) when a
+    previously-green build fails after a 1.20 bump.
+  - `agents/elixir-reviewer.md`: new "Type Checking (Compiler vs Dialyzer)"
+    note — the built-in checker is the first line of type safety,
+    complementary to (not redundant with) Dialyzer.
 - **Protected-section invariant** in the autoresearch loop (contributor
   tooling, not distributed). The `## Iron Laws` section of every SKILL.md is
   now **append-only slow state**: the loop may add a law but a delete/reword
@@ -50,6 +81,20 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   only checks section presence + min count) — so the old soft gate would have
   silently accepted dropping a security Iron Law. New tests:
   `lab/autoresearch/tests/test_protected_sections.py` (10 cases).
+- **`/release` contributor skill** for cutting plugin releases — bumps
+  `plugin.json`, finalizes the CHANGELOG, gates on `make ci`, tags `vX.Y.Z`,
+  and runs `gh release create`. Encodes the Release/Versioning checklist and
+  local gotchas as Iron Laws (`claude plugin tag` doesn't work for this
+  marketplace layout; `plugin.json` == CHANGELOG heading == tag; confirm before
+  the outward-facing publish; never force-push). `.claude/skills/release/` —
+  contributor tooling, not distributed.
+
+### Changed
+
+- **markdownlint ignores single-sourced** via `.markdownlintignore` (gitignore
+  syntax), de-duplicating the list across `package.json` and the Makefile and
+  excluding untracked non-source dirs (`social/`, `.rtk/`) so `make ci` stays
+  green on promo/cache content. Contributor tooling, not distributed.
 
 ## [2.10.5] - 2026-05-25
 
